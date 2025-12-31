@@ -26,13 +26,18 @@ export function useTelegramAuth(): UseTelegramAuthResult {
 
   useEffect(() => {
     const authenticate = async () => {
-      // 1. Проверяем наличие токена в URL (вход по ссылке из бота)
-      const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || window.location.search);
-      const loginToken = urlParams.get('token');
+      try {
+        // 1. Проверяем наличие токена в URL (вход по ссылке из бота)
+        // Поддерживаем как HashRouter (#/auth?token=...), так и обычные параметры
+        const hash = window.location.hash;
+        const search = window.location.search;
+        const urlParams = new URLSearchParams(
+          hash.includes('?') ? hash.split('?')[1] : search
+        );
+        const loginToken = urlParams.get('token');
 
-      if (loginToken) {
-        console.log('[useTelegramAuth] Token found in URL, authenticating...');
-        try {
+        if (loginToken) {
+          console.log('[useTelegramAuth] Token found in URL, authenticating...');
           const response = await fetch(`${API_BASE_URL}/v1/auth/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -49,24 +54,55 @@ export function useTelegramAuth(): UseTelegramAuthResult {
               firstName: data.user.firstName,
             });
             setState('authenticated');
-            // Очищаем токен из URL
-            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash.split('?')[0]);
+            // Очищаем токен из URL для красоты
+            const newHash = hash.split('?')[0];
+            window.history.replaceState({}, document.title, window.location.pathname + newHash);
             return;
+          } else {
+            console.warn('[useTelegramAuth] Token auth failed, status:', response.status);
           }
-        } catch (err) {
-          console.error('[useTelegramAuth] Token auth error:', err);
         }
-      }
 
-      // 2. Если мы внутри Telegram WebApp (Mini App)
-      if (typeof window !== 'undefined' && window.Telegram?.WebApp?.initData) {
-        const tg = window.Telegram.WebApp;
-        // ... (логика Mini App остается прежней)
-      }
+        // 2. Если мы внутри Telegram WebApp (Mini App)
+        // @ts-ignore
+        const tg = window.Telegram?.WebApp;
+        
+        if (tg && tg.initData) {
+          console.log('[useTelegramAuth] Running inside Telegram WebApp');
+          tg.ready();
+          
+          const response = await fetch(`${API_BASE_URL}/v1/auth/telegram`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ initData: tg.initData }),
+          });
 
-      // 3. Если ничего не помогло - значит мы просто в браузере
-      console.log('[useTelegramAuth] Not in Telegram and no token found');
-      setState('not_in_telegram');
+          if (response.ok) {
+            const data = await response.json();
+            console.log('[useTelegramAuth] Telegram auth success:', data);
+            setUser({
+              tgId: data.user.tgId,
+              username: data.user.username,
+              firstName: data.user.firstName,
+            });
+            setState('authenticated');
+            return;
+          } else {
+            const errData = await response.json().catch(() => ({}));
+            console.error('[useTelegramAuth] Telegram auth failed:', errData);
+            throw new Error(errData.message || 'Authentication failed');
+          }
+        }
+
+        // 3. Если ничего не помогло - значит мы просто в браузере и не авторизованы
+        console.log('[useTelegramAuth] Not in Telegram and no token found');
+        setState('not_in_telegram');
+      } catch (err) {
+        console.error('[useTelegramAuth] Error:', err);
+        setError(err instanceof Error ? err.message : 'Authentication failed');
+        setState('error');
+      }
     };
 
     authenticate();
@@ -74,4 +110,3 @@ export function useTelegramAuth(): UseTelegramAuthResult {
 
   return { state, user, error };
 }
-
