@@ -86,27 +86,35 @@ export function useTelegramAuth(): UseTelegramAuthResult {
         // @ts-ignore
         const tg = window.Telegram?.WebApp;
         
-        if (tg && tg.initData) {
+        if (tg && (tg.initData || tg.initDataUnsafe?.user)) {
           console.log('[useTelegramAuth] Running inside Telegram WebApp');
           tg.ready();
           
-          const response = await fetch(`${API_BASE_URL}/v1/auth/telegram`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ initData: tg.initData }),
-          });
+          // Даем Telegram SDK немного времени на полную инициализацию initData
+          if (!tg.initData && tg.initDataUnsafe?.user) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log('[useTelegramAuth] Telegram auth success:', data);
-            setUser({
-              tgId: data.user.tgId,
-              username: data.user.username,
-              firstName: data.user.firstName,
+          const currentInitData = tg.initData;
+          if (currentInitData) {
+            const response = await fetch(`${API_BASE_URL}/v1/auth/telegram`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ initData: currentInitData }),
             });
-            setState('authenticated');
-            return;
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log('[useTelegramAuth] Telegram auth success:', data);
+              setUser({
+                tgId: data.user.tgId,
+                username: data.user.username,
+                firstName: data.user.firstName,
+              });
+              setState('authenticated');
+              return;
+            }
           }
         }
 
