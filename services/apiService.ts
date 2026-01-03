@@ -40,6 +40,18 @@ export interface OrderDetails {
   key?: string;
 }
 
+export interface PaymentHistoryItem {
+  id: string;
+  orderId: string;
+  amount: number;
+  currency: 'RUB' | 'XTR';
+  date: number; // timestamp
+  status: 'success' | 'fail' | 'pending' | 'cancelled';
+  planName: string;
+  planId?: string;
+  invoiceLink?: string;
+}
+
 class ApiService {
   private async request<T>(
     endpoint: string,
@@ -92,6 +104,13 @@ class ApiService {
    */
   async getOrder(orderId: string): Promise<OrderDetails> {
     return this.request<OrderDetails>(`/v1/orders/${orderId}`);
+  }
+
+  /**
+   * Получить историю платежей
+   */
+  async getPaymentHistory(): Promise<PaymentHistoryItem[]> {
+    return this.request<PaymentHistoryItem[]>('/v1/orders/history');
   }
 
   /**
