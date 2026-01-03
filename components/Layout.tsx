@@ -49,8 +49,10 @@ export const Layout: React.FC = () => {
 
   const helpItems = NAV_ITEMS.filter(item => item.group === 'help');
   
-  // Определяем, показывать ли блоки биллинга (только на страницах аккаунта)
-  const showBillingBlocks = pathname === '/account' || pathname === '/account/billing';
+  // Определяем, какой контент показывать на главной странице аккаунта
+  const isAccountRoot = pathname === '/account' || pathname === '/';
+  // Определяем, показывать ли блоки биллинга (только на странице биллинга)
+  const isBillingPage = pathname === '/account/billing';
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
@@ -155,14 +157,12 @@ export const Layout: React.FC = () => {
         </aside>
 
         <main className="flex-1 w-full max-w-[768px] md:w-[496px]">
-          <VpnConnectionCard />
-          {showBillingBlocks && (
-            <>
-              <BillingPlanCard />
-              <UsageChartCard />
-              <PaymentHistoryCard />
-            </>
-          )}
+          {isAccountRoot && <VpnConnectionCard />}
+          {isAccountRoot && <BillingPlanCard />}
+          
+          {isBillingPage && <UsageChartCard />}
+          {isBillingPage && <PaymentHistoryCard />}
+          
           <AnimatedOutlet />
         </main>
       </div>

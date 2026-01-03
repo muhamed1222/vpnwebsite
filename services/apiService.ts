@@ -53,32 +53,76 @@ export interface PaymentHistoryItem {
 }
 
 class ApiService {
+  private statusCache: ApiUserStatus | null = null;
+  private statusPromise: Promise<ApiUserStatus> | null = null;
+  private onUnauthorized: (() => void) | null = null;
+
+  setUnauthorizedHandler(handler: () => void) {
+    this.onUnauthorized = handler;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      credentials: 'include', // withCredentials: true
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(error.error || error.message || `HTTP error! status: ${response.status}`);
+      if (response.status === 401) {
+        if (this.onUnauthorized) {
+          this.onUnauthorized();
+        }
+        throw new Error('Unauthorized');
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(error.error || error.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (err) {
+      if (err instanceof Error && err.message === 'Unauthorized') throw err;
+      throw err;
     }
-
-    return response.json();
   }
 
   /**
-   * Получить статус подписки пользователя
+   * Получить статус подписки пользователя (с кэшированием запроса)
    */
-  async getUserStatus(): Promise<ApiUserStatus> {
-    return this.request<ApiUserStatus>('/v1/user/status');
+  async getUserStatus(forceRefresh = false): Promise<ApiUserStatus> {
+    if (!forceRefresh && this.statusCache) {
+      return this.statusCache;
+    }
+
+    if (this.statusPromise && !forceRefresh) {
+      return this.statusPromise;
+    }
+
+    this.statusPromise = this.request<ApiUserStatus>('/v1/user/status').then(status => {
+      this.statusCache = status;
+      this.statusPromise = null;
+      return status;
+    }).catch(err => {
+      this.statusPromise = null;
+      throw err;
+    });
+
+    return this.statusPromise;
+  }
+
+  /**
+   * Сбросить кэш статуса
+   */
+  clearCache() {
+    this.statusCache = null;
   }
 
   /**

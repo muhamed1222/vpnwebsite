@@ -1,5 +1,6 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { User, Subscription } from '../types';
+import { apiService } from '../services/apiService';
 
 export interface AuthContextType {
   user: User | null;
@@ -7,7 +8,7 @@ export interface AuthContextType {
   loading: boolean;
   login: () => Promise<void>;
   logout: () => void;
-  refreshSubscription: () => Promise<void>;
+  refreshSubscription: (force?: boolean) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

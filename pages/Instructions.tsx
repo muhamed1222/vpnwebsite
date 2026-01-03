@@ -15,12 +15,12 @@ const PlatformIcon = ({ id, size = 20 }: { id: string, size?: number }) => {
   }
 };
 
-// Ссылки на скачивание приложений для разных платформ
+// Ссылки на скачивание приложений для разных платформ (синхронизировано с ботом)
 const DOWNLOAD_LINKS: Record<string, { url: string; name: string }> = {
-  ios: { url: 'https://apps.apple.com/app/v2rayng/id1538861777', name: 'App Store' },
-  android: { url: 'https://play.google.com/store/apps/details?id=com.v2ray.ang', name: 'Google Play' },
-  windows: { url: 'https://github.com/2dust/v2rayN/releases', name: 'GitHub Releases' },
-  macos: { url: 'https://github.com/yanue/V2rayU/releases', name: 'GitHub Releases' },
+  ios: { url: 'https://apps.apple.com/ru/app/v2raytun/id6476628951', name: 'v2RayTUN' },
+  android: { url: 'https://play.google.com/store/apps/details?id=com.happproxy', name: 'Happ' },
+  windows: { url: 'https://storage.v2raytun.com/v2RayTun_Setup.exe', name: 'v2RayTUN (Setup)' },
+  macos: { url: 'https://github.com/yanue/V2rayU/releases', name: 'v2rayU' },
 };
 
 export const Instructions: React.FC = () => {

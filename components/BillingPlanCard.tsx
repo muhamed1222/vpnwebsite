@@ -67,8 +67,8 @@ export const BillingPlanCard: React.FC = () => {
               {isUnlimited 
                 ? (
                   <>
-                    <span>Использовано: {formatGB(stats.usedTraffic)} /</span>
-                    <span className="text-[var(--primary)] font-bold text-base">∞</span>
+                    <span>Использовано: {formatGB(stats.usedTraffic)}</span>
+                    <span className="text-[var(--primary)] font-black text-xl" title="Безлимитно">∞</span>
                   </>
                 )
                 : `${formatGB(stats.usedTraffic)} / ${formatGB(stats.dataLimit)}`

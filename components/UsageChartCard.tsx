@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { RefreshCw, AlertCircle } from 'lucide-react';
 import { apiService, ApiUserStatus } from '../services/apiService';
+import { toast } from 'react-hot-toast';
 
 // Форматирование байтов
 const formatBytes = (bytes: number, decimals: number = 2): string => {
@@ -30,12 +31,22 @@ export const UsageChartCard: React.FC = () => {
       const data = await apiService.getUserStatus();
       if (data.ok) {
         setStats(data);
+        if (isRefresh) {
+          toast.success('Данные обновлены', {
+            style: {
+              background: 'var(--fg-4)',
+              color: 'var(--background)',
+              borderRadius: '12px',
+            }
+          });
+        }
       } else {
         setError('Не удалось загрузить данные.');
       }
     } catch (err) {
       console.error('Ошибка при загрузке данных биллинга:', err);
       setError('Не удалось загрузить данные.');
+      if (isRefresh) toast.error('Ошибка при обновлении');
     } finally {
       setLoading(false);
       setRefreshing(false);

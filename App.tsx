@@ -15,6 +15,7 @@ import { apiService } from './services/apiService';
 import { logger } from './utils/logger';
 import { useTelegramAuth } from './hooks/useTelegramAuth';
 import { TelegramRequired } from './components/TelegramRequired';
+import { Toaster } from 'react-hot-toast';
 
 const mapSubscription = (subscription: {
   isActive: boolean;
@@ -49,71 +50,6 @@ const App: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Загрузка данных пользователя после успешной авторизации
-  useEffect(() => {
-    // Если авторизация еще не завершена, не делаем ничего
-    if (authState === 'loading') {
-      return;
-    }
-
-    // Если не авторизован или ошибка, завершаем загрузку
-    if (authState !== 'authenticated' || !telegramUser) {
-      setLoading(false);
-      return;
-    }
-
-    // Авторизация прошла успешно, загружаем данные пользователя
-    const loadUserData = async () => {
-      try {
-        // Используем данные из telegramUser (получены при авторизации)
-        const userData: User = {
-          id: `usr_${telegramUser.tgId}`,
-          telegramId: telegramUser.tgId,
-          username: telegramUser.firstName || telegramUser.username || `User ${telegramUser.tgId}`,
-          avatar: undefined
-        };
-
-        setUser(userData);
-
-        // Загружаем статус подписки из нового API
-        try {
-          const status = await apiService.getUserStatus();
-          if (status.ok) {
-            const now = Math.floor(Date.now() / 1000);
-            let subStatus = SubscriptionStatus.NONE;
-            
-            if (status.status === 'active') {
-              if (status.expiresAt === 0 || (status.expiresAt && status.expiresAt > now)) {
-                subStatus = SubscriptionStatus.ACTIVE;
-              } else {
-                subStatus = SubscriptionStatus.EXPIRED;
-              }
-            } else if (status.status === 'disabled' || status.status === 'on_hold') {
-              subStatus = SubscriptionStatus.EXPIRED;
-            }
-
-            setSubscription({
-              status: subStatus,
-              activeUntil: status.expiresAt && status.expiresAt > 0 
-                ? new Date(status.expiresAt * 1000).toLocaleDateString('ru-RU')
-                : (status.expiresAt === 0 ? 'Безлимит' : undefined),
-              planId: undefined, // В новом API нет planId в статусе
-            });
-          }
-        } catch (err) {
-          console.error('Ошибка при загрузке статуса подписки:', err);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Ошибка при загрузке данных пользователя:', error);
-        setLoading(false);
-      }
-    };
-
-    loadUserData();
-  }, [authState, telegramUser]);
-
   // Используем useCallback для функций, чтобы они не менялись между рендерами
   const login = useCallback(async () => {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -123,6 +59,7 @@ const App: React.FC = () => {
         id: 'usr_1',
         telegramId: 12345678,
         username: 'Muhamed Chalemat',
+        avatar: 'https://i.pravatar.cc/150?img=68',
       };
       localStorage.setItem('user', JSON.stringify(mockUser));
       // Перезагружаем для подхвата пользователя
@@ -136,19 +73,27 @@ const App: React.FC = () => {
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('user');
+    apiService.clearCache();
     setSubscription({ status: SubscriptionStatus.NONE });
-    // TODO: Возможно, нужно будет вызвать API для выхода
-    // Пока просто перезагружаем страницу
+    // Перезагружаем для полной очистки состояния
     window.location.reload();
   }, []);
 
-  const refreshSubscription = useCallback(async () => {
+  // Настройка обработчика 401 ошибки
+  useEffect(() => {
+    apiService.setUnauthorizedHandler(() => {
+      console.warn('[App] Session expired, logging out...');
+      logout();
+    });
+  }, [logout]);
+
+  const refreshSubscription = useCallback(async (force = false) => {
     if (authState !== 'authenticated') {
       return;
     }
 
     try {
-      const status = await apiService.getUserStatus();
+      const status = await apiService.getUserStatus(force);
       if (status.ok) {
         const now = Math.floor(Date.now() / 1000);
         let subStatus = SubscriptionStatus.NONE;
@@ -159,6 +104,8 @@ const App: React.FC = () => {
           } else {
             subStatus = SubscriptionStatus.EXPIRED;
           }
+        } else if (status.status === 'disabled' || status.status === 'on_hold') {
+          subStatus = SubscriptionStatus.EXPIRED;
         }
 
         setSubscription({
@@ -170,9 +117,40 @@ const App: React.FC = () => {
         });
       }
     } catch (error) {
+      if (error instanceof Error && error.message === 'Unauthorized') return;
       console.error('Ошибка при обновлении подписки:', error);
     }
   }, [authState]);
+
+  // Загрузка данных пользователя после успешной авторизации
+  useEffect(() => {
+    if (authState === 'loading') return;
+
+    if (authState !== 'authenticated' || !telegramUser) {
+      setLoading(false);
+      return;
+    }
+
+    const loadUserData = async () => {
+      try {
+        const userData: User = {
+          id: `usr_${telegramUser.tgId}`,
+          telegramId: telegramUser.tgId,
+          username: telegramUser.firstName || telegramUser.username || `User ${telegramUser.tgId}`,
+          avatar: telegramUser.photoUrl
+        };
+
+        setUser(userData);
+        await refreshSubscription();
+        setLoading(false);
+      } catch (error) {
+        console.error('Ошибка при загрузке данных пользователя:', error);
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [authState, telegramUser, refreshSubscription]);
 
   // Мемоизируем значение контекста
   const authContextValue = useMemo(() => ({
@@ -245,6 +223,7 @@ const App: React.FC = () => {
     // Основной рендер приложения
     return (
       <AuthContext.Provider value={authContextValue}>
+        <Toaster position="top-center" reverseOrder={false} />
         <Router>
           <Routes>
             <Route path="/" element={user ? <Navigate to="/account" /> : <Home />} />

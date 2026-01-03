@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Key } from 'lucide-react';
+import { QrCode, Key, Globe } from 'lucide-react';
 import { useVpnKey } from '../hooks/useVpnKey';
-import * as QRCode from 'qrcode';
 import { VpnKeyCode } from './VpnKeyCode';
+import { SERVER_LOCATION } from '../constants';
 
 export const VpnConnectionCard: React.FC = () => {
   const [showQR, setShowQR] = useState(false);
@@ -21,6 +21,8 @@ export const VpnConnectionCard: React.FC = () => {
       }
 
       try {
+        // Динамический импорт qrcode для оптимизации размера бандла
+        const QRCode = await import('qrcode');
         const url = await QRCode.toDataURL(vpnKey, {
           width: 192,
           margin: 1,
@@ -56,10 +58,14 @@ export const VpnConnectionCard: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-fg-4">Ваше подключение</h3>
-                <p className="text-xs text-fg-2">VPN ключ для безопасного доступа</p>
+                <p className="text-xs text-fg-2">Единый ключ для всех стран доступа</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-2 border border-border" title="Ваш ключ работает во всех доступных странах">
+                <span className="text-[14px]">{SERVER_LOCATION.emoji}</span>
+                <span className="text-[11px] font-bold text-fg-3">Все локации</span>
+              </div>
               <div 
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--success-bg)]"
                 role="status"

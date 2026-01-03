@@ -7,21 +7,21 @@ export const PLANS: Plan[] = [
     name: '7 Дней (Тест)', 
     durationMonths: 0.23, // ~7 дней
     price: 10, 
-    description: 'Пробный период' 
+    description: 'Пробный период без ограничений' 
   },
   { 
     id: 'plan_30', 
     name: '1 Месяц', 
     durationMonths: 1, 
     price: 99, 
-    description: 'Базовая защита на месяц' 
+    description: 'Высокоскоростной доступ на месяц' 
   },
   { 
     id: 'plan_90', 
     name: '3 Месяца', 
     durationMonths: 3, 
     price: 260, 
-    description: 'Оптимально для старта', 
+    description: 'Оптимально для долгого доступа', 
     savings: '10%' 
   },
   { 
@@ -29,7 +29,7 @@ export const PLANS: Plan[] = [
     name: '6 Месяцев', 
     durationMonths: 6, 
     price: 499, 
-    description: 'Популярный выбор', 
+    description: 'Популярный выбор пользователей', 
     savings: '15%' 
   },
   { 
@@ -37,10 +37,25 @@ export const PLANS: Plan[] = [
     name: '12 Месяцев', 
     durationMonths: 12, 
     price: 899, 
-    description: 'Максимальная выгода', 
+    description: 'Максимальная выгода и комфорт', 
     savings: '25%' 
   },
 ];
+
+export const SERVER_LOCATION = {
+  country: 'Все локации',
+  city: 'Европа',
+  emoji: '🌍',
+  code: 'GLOBAL'
+};
+
+export const AVAILABLE_LOCATIONS = [
+  { name: 'Нидерланды', emoji: '🇳🇱', city: 'Амстердам' },
+  { name: 'Германия', emoji: '🇩🇪', city: 'Франкфурт', soon: true },
+  { name: 'Турция', emoji: '🇹🇷', city: 'Стамбул', soon: true },
+];
+
+export const SUPPORT_URL = "https://t.me/chalemat";
 
 export const PLATFORMS = [
   { id: 'ios', name: 'iOS' },

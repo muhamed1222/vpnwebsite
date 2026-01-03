@@ -55,7 +55,13 @@ export const PaymentHistoryCard: React.FC = () => {
         <div className="py-12 text-center">
           <Receipt size={48} className="mx-auto text-fg-1 mb-4" />
           <p className="text-sm text-fg-2 font-medium mb-1">История платежей пуста</p>
-          <p className="text-xs text-fg-1">Здесь будут отображаться все ваши транзакции</p>
+          <p className="text-xs text-fg-1 mb-6">Здесь будут отображаться все ваши транзакции</p>
+          <button
+            onClick={() => window.location.hash = '/pay'}
+            className="px-6 py-2.5 bg-[var(--primary)] text-white text-[13px] font-bold rounded-xl hover:bg-[var(--primary-hover)] transition-all"
+          >
+            Купить первый тариф
+          </button>
         </div>
       ) : (
         <div className="space-y-2">
