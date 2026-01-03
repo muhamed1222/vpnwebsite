@@ -14,11 +14,6 @@ export const PaymentHistoryCard: React.FC = () => {
       setHistoryLoading(true);
       setHistoryError(null);
       
-      if (!isTelegramWebApp()) {
-        setHistoryLoading(false);
-        return;
-      }
-
       try {
         const history = await apiService.getPaymentHistory();
         setPaymentHistory(history);
