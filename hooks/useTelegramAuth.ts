@@ -28,7 +28,6 @@ export function useTelegramAuth(): UseTelegramAuthResult {
     const authenticate = async () => {
       try {
         // 1. Проверяем наличие токена в URL (вход по ссылке из бота)
-        // Поддерживаем как HashRouter (#/auth?token=...), так и обычные параметры
         const hash = window.location.hash;
         const search = window.location.search;
         const urlParams = new URLSearchParams(
@@ -54,16 +53,36 @@ export function useTelegramAuth(): UseTelegramAuthResult {
               firstName: data.user.firstName,
             });
             setState('authenticated');
-            // Очищаем токен из URL для красоты
+            // Очищаем токен из URL
             const newHash = hash.split('?')[0];
             window.history.replaceState({}, document.title, window.location.pathname + newHash);
             return;
-          } else {
-            console.warn('[useTelegramAuth] Token auth failed, status:', response.status);
           }
         }
 
-        // 2. Если мы внутри Telegram WebApp (Mini App)
+        // 2. Проверяем существующую сессию (куки) - это исправит вылет при перезагрузке
+        console.log('[useTelegramAuth] Checking existing session...');
+        try {
+          const meResponse = await fetch(`${API_BASE_URL}/v1/auth/me`, {
+            credentials: 'include',
+          });
+
+          if (meResponse.ok) {
+            const meData = await meResponse.json();
+            console.log('[useTelegramAuth] Session found:', meData);
+            setUser({
+              tgId: meData.user.tgId,
+              username: meData.user.username,
+              firstName: meData.user.firstName,
+            });
+            setState('authenticated');
+            return;
+          }
+        } catch (meErr) {
+          console.log('[useTelegramAuth] No existing session');
+        }
+
+        // 3. Если мы внутри Telegram WebApp (Mini App)
         // @ts-ignore
         const tg = window.Telegram?.WebApp;
         
@@ -88,18 +107,14 @@ export function useTelegramAuth(): UseTelegramAuthResult {
             });
             setState('authenticated');
             return;
-          } else {
-            const errData = await response.json().catch(() => ({}));
-            console.error('[useTelegramAuth] Telegram auth failed:', errData);
-            throw new Error(errData.message || 'Authentication failed');
           }
         }
 
-        // 3. Если ничего не помогло - значит мы просто в браузере и не авторизованы
-        console.log('[useTelegramAuth] Not in Telegram and no token found');
+        // 4. Если ничего не помогло
+        console.log('[useTelegramAuth] Not authenticated');
         setState('not_in_telegram');
       } catch (err) {
-        console.error('[useTelegramAuth] Error:', err);
+        console.error('[useTelegramAuth] Auth error:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
         setState('error');
       }
