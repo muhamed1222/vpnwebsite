@@ -131,7 +131,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     // Если не в Telegram, показываем экран с требованием открыть через Telegram
     if (authState === 'not_in_telegram') {
-      const botUrl = 'https://t.me/outlivion_bot?start=login'; // Ссылка на вашего бота
+      const botUrl = 'https://t.me/outlivion_bot?start=login'; // Ссылка на вашего основного бота
       return <TelegramRequired botUrl={botUrl} />;
     }
 

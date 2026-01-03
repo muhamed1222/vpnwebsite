@@ -7,7 +7,7 @@ interface TelegramRequiredProps {
 /**
  * Компонент для отображения экрана "Откройте кабинет через Telegram"
  */
-export const TelegramRequired: React.FC<TelegramRequiredProps> = ({ botUrl }) => {
+export const TelegramRequired: React.FC<TelegramRequiredProps> = ({ botUrl = 'https://t.me/outlivion_bot?start=login' }) => {
   const handleOpen = () => {
     if (botUrl) {
       window.open(botUrl, '_blank');
