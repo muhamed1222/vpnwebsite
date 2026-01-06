@@ -10,7 +10,7 @@ interface BackgroundCirclesProps {
  */
 export const BackgroundCircles = memo<BackgroundCirclesProps>(({ children }) => {
   return (
-    <div className="absolute top-0 left-0 right-0 h-[360px] flex items-end justify-center opacity-100 pointer-events-none">
+    <div className="absolute top-0 left-0 right-0 h-[450px] flex items-end justify-center opacity-100 pointer-events-none">
       <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full flex flex-col items-center justify-center">
         <div className="relative w-32 h-32 flex items-center justify-center">
           {children}
