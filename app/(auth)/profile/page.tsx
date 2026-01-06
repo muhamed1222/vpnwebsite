@@ -76,7 +76,7 @@ export default function ProfilePage() {
   const isFullscreenSupported = !!tg?.requestFullscreen;
 
   return (
-    <main className="min-h-[var(--tg-viewport-height,100vh)] bg-black text-white p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none">
+    <main className="min-h-[var(--tg-viewport-height,100vh)] bg-black text-white p-4 pt-[calc(80px+env(safe-area-inset-top))] pb-[calc(40px+env(safe-area-inset-bottom))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between mb-8 pt-2">
         <Link href="/" className="p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform">
