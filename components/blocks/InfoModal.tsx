@@ -23,7 +23,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, onConfirm
           className="mb-8 text-white/80 text-lg leading-relaxed css-dialog_content-item"
           style={{ '--index': 1 } as React.CSSProperties}
         >
-          После установки приложения <span className="text-white font-medium">Hiddify</span>, обязательно вернитесь на этот экран и нажмите <span className="text-white font-medium">«Далее»</span>, чтобы добавить конфигурацию. 
+          После установки приложения <span className="text-white font-medium">v2RayTun</span>, обязательно вернитесь на этот экран и нажмите <span className="text-white font-medium">«Далее»</span>, чтобы добавить конфигурацию. 
           <br /><br />
           Без этого шага VPN работать не будет.
         </div>
@@ -35,7 +35,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, onConfirm
         >
           <button 
             onClick={onConfirm}
-            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 text-xl font-medium text-white shadow-lg shadow-[#F55128]/20"
+            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] text-base font-medium text-white shadow-lg shadow-[#F55128]/20"
           >
             Хорошо, к установке
           </button>

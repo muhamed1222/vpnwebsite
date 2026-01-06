@@ -61,6 +61,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Tariffs API error:', error);
+    
+    // Обработка сетевых ошибок
+    if (error instanceof Error) {
+      if (error.message.includes('fetch') || error.message.includes('network')) {
+        return NextResponse.json(
+          { error: 'Проблема с подключением к серверу. Проверьте интернет-соединение.' },
+          { status: 503 }
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: 'Внутренняя ошибка сервера. Попробуйте позже.' },
       { status: 500 }

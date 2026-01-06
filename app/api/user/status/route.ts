@@ -90,6 +90,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(statusData);
   } catch (error) {
     console.error('Status API error:', error);
+    
+    // Обработка сетевых ошибок
+    if (error instanceof Error) {
+      if (error.message.includes('fetch') || error.message.includes('network')) {
+        return NextResponse.json(
+          { error: 'Проблема с подключением к серверу. Проверьте интернет-соединение.' },
+          { status: 503 }
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }

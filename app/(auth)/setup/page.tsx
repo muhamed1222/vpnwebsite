@@ -181,32 +181,10 @@ export default function SetupPage() {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="flex-1 flex flex-col"
         >
-          {/* Фоновые круги с индикатором прогресса 33% */}
-          <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
-            <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
-            <div className="absolute w-[450px] h-[450px] border border-white/30 rounded-full" />
-            <div className="absolute w-[600px] h-[600px] border border-[#F55128]/40 rounded-full" />
-            <div className="absolute w-[750px] h-[750px] border border-white/10 rounded-full" />
-
-            <svg className="absolute w-[450px] h-[450px] -rotate-90">
-              <circle
-                cx="225"
-                cy="225"
-                r="224"
-                fill="none"
-                stroke="#F55128"
-                strokeWidth="2"
-                strokeDasharray="1408"
-                strokeDashoffset="1000"
-                className="opacity-60"
-              />
-            </svg>
-          </div>
-
-          <div className="relative z-10 p-4">
+          <div className="sticky top-0 z-50 flex items-center justify-between w-fit mb-4">
             <button
               onClick={() => goToStep(1)}
-              className="inline-flex p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform"
+              className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15"
             >
               <ChevronLeft size={24} className="text-white" />
             </button>
@@ -222,10 +200,10 @@ export default function SetupPage() {
               <h1 className="text-2xl font-medium text-white">Приложение</h1>
               <div className="space-y-2">
                 <p className="text-white/80 text-base leading-relaxed max-w-[300px] mx-auto">
-                  Установите приложение Hiddify
+                  Установите приложение v2RayTun
                 </p>
                 <p className="text-white/40 text-xs leading-relaxed max-w-[260px] mx-auto">
-                  Это наш официальный защищенный плеер для работы VPN-протоколов
+                  Это наш официальный защищенный клиент для работы VPN
                 </p>
               </div>
             </div>
@@ -237,7 +215,7 @@ export default function SetupPage() {
                 triggerHaptic('medium');
                 handleInstallClick();
               }}
-              className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20"
+              className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20"
             >
               <span className="text-lg font-medium">Установить</span>
               <CloudDownload size={24} />
@@ -245,7 +223,7 @@ export default function SetupPage() {
 
             <button
               onClick={() => goToStep(3)}
-              className="w-full bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-4 flex items-center justify-center gap-2 text-white/40"
+              className="w-full h-fit bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white/40"
             >
               <span className="text-base font-medium">Уже установлено</span>
               <ArrowRight size={20} />
@@ -268,29 +246,10 @@ export default function SetupPage() {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="flex-1 flex flex-col"
         >
-          <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
-            <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
-            <div className="absolute w-[450px] h-[450px] border border-[#F55128] rounded-full" />
-            <div className="absolute w-[600px] h-[600px] border border-[#F55128]/40 rounded-full" />
-            <div className="absolute w-[750px] h-[750px] border border-white/10 rounded-full" />
-
-            <svg className="absolute w-[450px] h-[450px] -rotate-90">
-              <circle
-                cx="225"
-                cy="225"
-                r="224"
-                fill="none"
-                stroke="#F55128"
-                strokeWidth="2"
-                className="opacity-100"
-              />
-            </svg>
-          </div>
-
-          <div className="relative z-10 p-4">
+          <div className="sticky top-0 z-50 flex items-center justify-between w-fit mb-4">
             <button
               onClick={() => goToStep(3)}
-              className="inline-flex p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform"
+              className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15"
             >
               <ChevronLeft size={24} className="text-white" />
             </button>
@@ -305,7 +264,7 @@ export default function SetupPage() {
             <div className="space-y-4">
               <h1 className="text-2xl font-medium text-white tracking-tight">Готово!</h1>
               <p className="text-white/60 text-base leading-relaxed max-w-[300px] mx-auto">
-                Нажмите на круглую кнопку включения VPN в приложении Hiddify
+                Нажмите на кнопку включения VPN в приложении v2RayTun
               </p>
             </div>
           </div>
@@ -314,7 +273,7 @@ export default function SetupPage() {
             <Link
               href="/"
               onClick={() => triggerHaptic('success')}
-              className="w-full bg-[#121212] hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10 rounded-[10px] py-5 flex items-center justify-center text-white"
+              className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center text-white shadow-lg shadow-[#F55128]/20"
             >
               <span className="text-base font-medium">Завершить настройку</span>
             </Link>
@@ -336,31 +295,11 @@ export default function SetupPage() {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="flex-1 flex flex-col"
         >
-          <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
-            <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
-            <div className="absolute w-[450px] h-[450px] border border-white/30 rounded-full" />
-            <div className="absolute w-[600px] h-[600px] border border-[#F55128]/40 rounded-full" />
-            <div className="absolute w-[750px] h-[750px] border border-white/10 rounded-full" />
-
-            <svg className="absolute w-[450px] h-[450px] -rotate-90">
-              <circle
-                cx="225"
-                cy="225"
-                r="224"
-                fill="none"
-                stroke="#F55128"
-                strokeWidth="2"
-                strokeDasharray="1408"
-                strokeDashoffset="470"
-                className="opacity-60 transition-all duration-500"
-              />
-            </svg>
-          </div>
-
-          <div className="relative z-10 p-4">
+          {/* Индикатор прогресса 66% */}
+          <div className="sticky top-0 z-50 flex items-center justify-between w-fit mb-4">
             <button
               onClick={() => goToStep(2)}
-              className="inline-flex p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform"
+              className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15"
             >
               <ChevronLeft size={24} className="text-white" />
             </button>
@@ -406,7 +345,7 @@ export default function SetupPage() {
                 triggerHaptic('medium');
                 handleAddSubscription();
               }}
-              className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20"
+              className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20"
             >
               <span className="text-lg font-medium">Добавить</span>
               <CirclePlus size={24} />
@@ -415,7 +354,7 @@ export default function SetupPage() {
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => goToStep(4)}
-                className="w-full bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-4 flex items-center justify-center gap-2 text-white/40"
+                className="w-full h-fit bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white/40"
               >
                 <span className="text-base font-medium">Далее</span>
                 <ArrowRight size={20} />
@@ -448,15 +387,8 @@ export default function SetupPage() {
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="flex-1 flex flex-col"
       >
-        <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
-          <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
-          <div className="absolute w-[450px] h-[450px] border border-white/30 rounded-full" />
-          <div className="absolute w-[600px] h-[600px] border border-white/20 rounded-full" />
-          <div className="absolute w-[750px] h-[750px] border border-white/10 rounded-full" />
-        </div>
-
-        <div className="relative z-10 p-4">
-          <Link href="/" onClick={() => triggerHaptic('light')} className="inline-flex p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform">
+        <div className="sticky top-0 z-50 flex items-center justify-between w-fit mb-4">
+          <Link href="/" onClick={() => triggerHaptic('light')} className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15">
             <ChevronLeft size={24} className="text-white" />
           </Link>
         </div>
@@ -482,7 +414,7 @@ export default function SetupPage() {
         <div className="relative z-10 p-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))]">
           <button
             onClick={() => goToStep(2)}
-            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 text-base font-medium text-white shadow-lg shadow-[#F55128]/10"
+            className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] text-base font-medium text-white shadow-lg shadow-[#F55128]/20"
           >
             Начать настройку на этом устройстве
           </button>
@@ -492,7 +424,7 @@ export default function SetupPage() {
               triggerHaptic('light');
               handleOtherDeviceClick();
             }}
-            className="w-full bg-[#121212] hover:bg-white/10 active:scale-[0.98] transition-all border border-white/5 rounded-[10px] py-5 text-base font-medium text-white"
+            className="w-full h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] text-base font-medium text-white"
           >
             Установить на другом устройстве
           </button>
@@ -502,7 +434,7 @@ export default function SetupPage() {
   };
 
   return (
-    <main className="relative min-h-[var(--tg-viewport-height,100vh)] bg-black overflow-hidden font-sans select-none flex flex-col safe-area-padding">
+    <main className="w-full bg-black text-white pt-[calc(100px+env(safe-area-inset-top))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none flex flex-col min-h-screen">
       <AnimatedBackground />
 
       <div className="relative flex-1 flex flex-col z-10 overflow-hidden">

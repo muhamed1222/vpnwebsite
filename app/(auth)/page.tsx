@@ -123,7 +123,7 @@ export default function Home() {
       <AnimatedBackground />
 
       {/* Logo Section */}
-      <div className="relative h-fit flex items-center justify-center z-10">
+      <div className="relative w-full h-fit flex items-center justify-center z-10">
         {/* Background Circles - оптимизированный компонент */}
         <BackgroundCircles>
           <div className="relative w-32 h-32 flex items-center justify-center">

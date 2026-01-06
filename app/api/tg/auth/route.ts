@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('fetch') || error.message.includes('network')) {
         return NextResponse.json(
           { error: 'Проблема с подключением к серверу. Проверьте интернет-соединение.' },
-          { status: 0 }
+          { status: 503 }
         );
       }
     }

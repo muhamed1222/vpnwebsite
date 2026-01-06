@@ -26,7 +26,7 @@ const FAQ_DATA: FAQItem[] = [
           вставьте ссылку на подписку из вашего профиля на другом устройстве. 
           Воспользуйтесь инструкцией, чтобы сделать это ⤵️
         </p>
-        <button className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-[10px] py-4 flex items-center justify-center gap-2 transition-colors">
+        <button className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-[10px] px-[14px] py-[14px] flex items-center justify-center gap-2 transition-colors">
           <span className="font-medium text-white/90">Подробная инструкция</span>
           <ExternalLink size={18} className="text-white/40" />
         </button>
@@ -70,12 +70,12 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
             return (
               <div 
                 key={index} 
-                className="bg-white/5 rounded-[16px] border border-white/5 overflow-hidden transition-all css-dialog_content-item"
+                className="bg-transparent rounded-[10px] border border-white/10 overflow-hidden transition-all css-dialog_content-item"
                 style={{ '--index': index + 1 } as React.CSSProperties}
               >
                 <button 
                   onClick={() => setOpenIndex(isItemOpen ? null : index)}
-                  className="w-full p-5 flex items-start justify-between text-left gap-4"
+                  className="w-full px-[14px] py-[14px] flex items-start justify-between text-left gap-4 hover:bg-white/5 transition-all"
                 >
                   <span className="text-base font-medium text-white/90 leading-snug">
                     {item.question}
@@ -88,7 +88,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
                 </button>
                 
                 {isItemOpen && (
-                  <div className="px-5 pb-5 animate-in slide-in-from-top-2 duration-200">
+                  <div className="px-[14px] pb-[14px] animate-in slide-in-from-top-2 duration-200">
                     {item.answer}
                   </div>
                 )}
@@ -104,7 +104,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
         >
           <button 
             onClick={handleSupportClick}
-            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 flex items-center justify-center gap-3 text-white shadow-lg shadow-[#F55128]/10"
+            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] px-[14px] py-[14px] flex items-center justify-center gap-3 text-white shadow-lg shadow-[#F55128]/10"
           >
             <MessageSquare size={24} />
             <span className="text-lg font-medium">Написать в поддержку</span>

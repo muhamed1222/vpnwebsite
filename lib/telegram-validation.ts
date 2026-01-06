@@ -49,6 +49,11 @@ export function validateTelegramInitData(
     return false;
   }
 
+  // РАЗРЕШАЕМ ЛОКАЛЬНУЮ РАЗРАБОТКУ
+  if (initData.includes('query_id=STUB') && process.env.NODE_ENV === 'development') {
+    return true;
+  }
+
   try {
     const parsed = parseInitData(initData);
     const { hash, ...dataWithoutHash } = parsed;

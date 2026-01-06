@@ -12,14 +12,14 @@ export const SUBSCRIPTION_CONFIG = {
 
 // App Store URLs
 export const APP_STORE_URLS = {
-  iOS: 'https://apps.apple.com/app/hiddify/id6473773752',
-  macOS: 'https://apps.apple.com/app/hiddify/id6473773752',
-  Android: 'https://play.google.com/store/apps/details?id=app.hiddify.com',
-  Desktop: 'https://github.com/hiddify/hiddify-next/releases',
+  iOS: 'https://apps.apple.com/ru/app/v2raytun/id6476628951',
+  macOS: 'https://apps.apple.com/ru/app/v2raytun/id6476628951',
+  Android: 'https://play.google.com/store/apps/details?id=com.v2raytun.android',
+  Desktop: 'https://storage.v2raytun.com/v2RayTun_Setup.exe',
 } as const;
 
 // Deep Link Protocol
-export const DEEP_LINK_PROTOCOL = 'happ://add' as const;
+export const DEEP_LINK_PROTOCOL = 'v2raytun://' as const;
 
 // Animation Durations (ms)
 export const ANIMATION_DURATIONS = {
