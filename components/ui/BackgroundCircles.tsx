@@ -16,9 +16,9 @@ export const BackgroundCircles = memo<BackgroundCirclesProps>(({ children }) => 
           {children}
         </div>
       </div>
-      <div className="absolute w-[560px] h-[560px] border border-white/30 rounded-full" />
-      <div className="absolute w-[600px] h-[600px] border border-white/20 rounded-full opacity-80" />
-      <div className="absolute w-[360px] h-[360px] border border-white/10 rounded-full flex flex-col items-center justify-center" />
+      <div className="absolute w-[360px] h-[360px] border border-white/30 rounded-full" />
+      <div className="absolute w-[460px] h-[460px] border border-white/20 rounded-full opacity-80" />
+      <div className="absolute w-[560px] h-[560px] border border-white/10 rounded-full flex flex-col items-center justify-center" />
     </div>
   );
 });
