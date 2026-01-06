@@ -18,7 +18,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
   const [open, setOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragY, setDragY] = useState(0);
-  
+
   const startY = useRef(0);
   const currentY = useRef(0);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
           });
         });
       }, 0);
-      
+
       return () => {
         clearTimeout(mountTimer);
       };
@@ -60,11 +60,11 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
       const closeTimer = setTimeout(() => {
         setOpen(false);
       }, 0);
-      
+
       const unmountTimer = setTimeout(() => {
         setMounted(false);
       }, 850); // Должно совпадать с --dialog-animation-speed в globals.css
-      
+
       return () => {
         clearTimeout(closeTimer);
         clearTimeout(unmountTimer);
@@ -107,8 +107,9 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
   // Обработчики жестов (Pointer Events для универсальности touch/mouse)
   const onPointerDown = (e: React.PointerEvent) => {
     // Начинаем перетаскивание только если нажали на шапку или handle
-    if (contentRef.current && (e.target as Node).contains(contentRef.current)) return;
-    
+    // Предотвращаем перетаскивание, если нажали на интерактивный элемент (кнопку закрытия)
+    if (closeButtonRef.current?.contains(e.target as Node)) return;
+
     startY.current = e.clientY;
     setIsDragging(true);
     const target = e.currentTarget as HTMLElement;
@@ -118,7 +119,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
   const onPointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const deltaY = e.clientY - startY.current;
-    
+
     // Эффект "резиновой ленты" при попытке тянуть вверх
     if (deltaY < 0) {
       currentY.current = deltaY * 0.2;
@@ -133,12 +134,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
     setIsDragging(false);
     const target = e.currentTarget as HTMLElement;
     target.releasePointerCapture(e.pointerId);
-    
+
     // Если потянули вниз более чем на пороговое значение — закрываем
     if (currentY.current > UI_CONSTANTS.DRAG_THRESHOLD) {
       onClose();
     }
-    
+
     // Сбрасываем смещение
     setDragY(0);
     currentY.current = 0;
@@ -147,10 +148,10 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
   if (!mounted) return null;
 
   return (
-    <div 
+    <div
       ref={dialogRef}
       className={`css-dialog ${open ? 'open' : ''}`}
-      style={{ 
+      style={{
         visibility: mounted ? 'visible' : 'hidden',
         pointerEvents: open ? 'auto' : 'none'
       } as React.CSSProperties}
@@ -160,28 +161,30 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
       aria-hidden={!open}
     >
       {/* Затемнение фона (Backdrop) */}
-      <div 
-        className="css-dialog_backdrop touch-none" 
-        onClick={onClose}
-        style={{ 
+      <div
+        className="css-dialog_backdrop touch-none"
+        onClick={() => {
+          onClose();
+        }}
+        style={{
           opacity: isDragging ? Math.max(0, 1 - dragY / 400) : undefined,
-          transition: isDragging ? 'none' : undefined 
+          transition: isDragging ? 'none' : undefined
         }}
       />
-      
+
       {/* Внутренний контейнер модалки */}
-      <div 
-        className={`css-dialog_inner shadow-2xl border-t border-x border-white/5 grid grid-rows-[auto,1fr] h-fit max-h-[85vh] font-sans ${isDragging ? 'no-transition' : ''}`}
-        style={{ 
-          transform: isDragging 
-            ? `translate3d(0, ${dragY}px, 0)` 
+      <div
+        className={`css-dialog_inner shadow-2xl border-t border-x border-white/5 flex flex-col h-fit max-h-[90vh] font-sans ${isDragging ? 'no-transition' : ''}`}
+        style={{
+          transform: isDragging
+            ? `translate3d(0, ${dragY}px, 0)`
             : `translate3d(0, ${open ? '0' : '100%'}, 0)`,
           willChange: 'transform'
         }}
       >
         {/* Область захвата (Handle + Title) */}
-        <div 
-          className="select-none touch-none border-b border-white/5 h-fit"
+        <div
+          className="select-none touch-none border-b border-white/5 shrink-0"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -194,15 +197,15 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
 
           {/* Заголовок и кнопка закрытия */}
           <div className="flex items-center justify-between px-6 pb-4">
-            <h2 
+            <h2
               id="bottom-sheet-title"
               className="text-lg font-medium text-white pointer-events-none"
             >
               {title}
             </h2>
-            <button 
+            <button
               ref={closeButtonRef}
-              onPointerDown={(e) => e.stopPropagation()} 
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
                 onClose();
@@ -217,8 +220,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
         </div>
 
         {/* Скроллируемая область контента */}
-        <div 
-          className="overflow-y-auto custom-scrollbar p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] touch-auto overscroll-contain" 
+        <div
+          className="overflow-y-auto custom-scrollbar p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] touch-auto overscroll-contain min-h-0 flex-1"
           style={{ WebkitOverflowScrolling: 'touch' }}
           ref={contentRef}
           role="document"
