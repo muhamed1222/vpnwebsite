@@ -257,7 +257,7 @@ export default function Home() {
             aria-label="Купить подписку VPN, начиная от 150 рублей"
           >
             <div className="flex items-center gap-[10px]">
-              <div className="bg-white/20 p-2.5 rounded-xl" aria-hidden="true">
+              <div className="p-0 rounded-xl" aria-hidden="true">
                 <Plug size={24} className="rotate-45" aria-hidden="true" />
               </div>
               <span className="text-base font-medium">Купить подписку</span>
@@ -280,7 +280,7 @@ export default function Home() {
             aria-label={`Установка и настройка VPN для ${platform}`}
           >
             <div className="flex items-center gap-[10px]">
-              <div className="bg-white/5 p-2.5 rounded-xl border border-white/5" aria-hidden="true">
+              <div className="p-0 rounded-xl" aria-hidden="true">
                 <Settings size={24} aria-hidden="true" />
               </div>
               <span className="text-base font-medium">Установка и настройка</span>
@@ -307,7 +307,7 @@ export default function Home() {
             className="h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] flex items-center px-[14px] py-[14px] gap-[10px] text-white"
             aria-label="Перейти в профиль пользователя"
           >
-            <div className="bg-white/5 p-2.5 rounded-xl border border-white/5" aria-hidden="true">
+            <div className="p-0 rounded-xl" aria-hidden="true">
               <User size={24} aria-hidden="true" />
             </div>
             <span className="text-base font-medium">Профиль</span>
@@ -325,7 +325,7 @@ export default function Home() {
               aria-label="Открыть окно поддержки"
               aria-haspopup="dialog"
             >
-              <div className="bg-white/5 p-2.5 rounded-xl border border-white/5" aria-hidden="true">
+              <div className="p-0 rounded-xl" aria-hidden="true">
                 <MessageSquare size={24} aria-hidden="true" />
               </div>
               <span className="text-base font-medium">Поддержка</span>
