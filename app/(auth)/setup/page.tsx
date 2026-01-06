@@ -77,13 +77,14 @@ export default function SetupPage() {
     Используется протокол happ://, который поддерживается приложением Hiddify
     для автоматического импорта конфигурации.
   */
-  const handleAddSubscription = () => {
+    const handleAddSubscription = () => {
     // Используем реальную ссылку на подписку пользователя
     const userSubscriptionUrl = subscriptionUrl || `${config.payment.subscriptionBaseUrl}/api/sub/${SUBSCRIPTION_CONFIG.DEFAULT_SUBSCRIPTION_ID}`;
 
-    // Формируем deep link для автоматического импорта в v2raytun
-    // Формат: v2raytun://import/https://...#Name
-    const subUrl = `${DEEP_LINK_PROTOCOL}import/${userSubscriptionUrl}#OutlivionVPN`;
+    // Формируем deep link согласно примеру: https://redirect.../?url=happ://add/https://...#Name
+    // Если redirectUrl не задан, используем https://redirect.outlivion.space как дефолт
+    const redirectBase = config.payment.redirectUrl || 'https://redirect.outlivion.space';
+    const subUrl = `${redirectBase}/?url=${DEEP_LINK_PROTOCOL}${userSubscriptionUrl}#OutlivionVPN`;
 
     const webApp = getTelegramWebApp();
     if (webApp) {

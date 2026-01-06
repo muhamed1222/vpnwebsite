@@ -44,7 +44,7 @@ describe('constants', () => {
 
   describe('DEEP_LINK_PROTOCOL', () => {
     it('should have correct protocol', () => {
-      expect(DEEP_LINK_PROTOCOL).toBe('v2raytun://');
+      expect(DEEP_LINK_PROTOCOL).toBe('happ://add/');
     });
   });
 

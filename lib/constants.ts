@@ -19,7 +19,7 @@ export const APP_STORE_URLS = {
 } as const;
 
 // Deep Link Protocol
-export const DEEP_LINK_PROTOCOL = 'v2raytun://' as const;
+export const DEEP_LINK_PROTOCOL = 'happ://add/' as const;
 
 // Animation Durations (ms)
 export const ANIMATION_DURATIONS = {
