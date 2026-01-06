@@ -148,7 +148,7 @@ export default function PurchasePage() {
       {/* Сетка тарифных планов */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <LoadingSpinner size="large" />
+          <LoadingSpinner size="lg" />
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 mb-6">
