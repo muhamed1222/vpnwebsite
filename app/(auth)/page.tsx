@@ -82,8 +82,8 @@ export default function Home() {
         const { api } = await import('@/lib/api');
         const tariffs = await api.getTariffs();
         if (tariffs.length > 0) {
-          // Находим минимальную цену среди всех тарифов
-          const min = Math.min(...tariffs.map(t => t.price_stars));
+          // Находим минимальную цену среди всех тарифов в рублях
+          const min = Math.min(...tariffs.map(t => t.price_rub || t.price_stars));
           setMinPrice(min);
         }
       } catch (error) {

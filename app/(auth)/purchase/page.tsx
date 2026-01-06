@@ -75,9 +75,8 @@ export default function PurchasePage() {
             else planId = tariff.id; // Используем оригинальный ID если не распознали
           }
           
-          // Конвертируем Stars в рубли (1 Star = 1 рубль, но может быть другой курс)
-          // Если на бэкенде цены уже в рублях, используем их напрямую
-          const totalPrice = tariff.price_stars;
+          // Используем цену в рублях с бэкенда
+          const totalPrice = tariff.price_rub || tariff.price_stars;
           const monthlyPrice = Math.round(totalPrice / (tariff.days / 30));
           
           return {
