@@ -38,29 +38,38 @@ export function useTelegramWebApp() {
     tg.ready();
 
     // 2. Разворачиваем шторку на максимум
-    tg.expand();
+    const expandApp = () => {
+      try {
+        tg.expand();
+      } catch (e) {
+        console.error('Telegram expand failed:', e);
+      }
+    };
+
+    // Вызываем сразу и через небольшую паузу для гарантии
+    expandApp();
+    const timer = setTimeout(expandApp, 150);
 
     // 3. Пытаемся включить полноэкранный режим, если поддерживается
-    // Примечание: в некоторых версиях может потребоваться жест пользователя
+    // ВНИМАНИЕ: Многие клиенты разрешают это только после клика пользователя
     if (tg.requestFullscreen) {
       try {
         tg.requestFullscreen();
       } catch (e) {
-        console.warn('Telegram WebApp requestFullscreen failed:', e);
+        // Это нормально, если заблокировано браузером до первого клика
       }
     }
 
     // 4. Устанавливаем начальные значения CSS переменных
     setViewportVars();
 
-    // 5. Подписываемся на события изменения viewport
+    // 5. Подписываемся на события
     tg.onEvent('viewportChanged', setViewportVars);
-    
-    // 6. Подписываемся на события полноэкранного режима
     tg.onEvent('fullscreenChanged', setViewportVars);
     tg.onEvent('fullscreenFailed', handleFullscreenError);
 
     return () => {
+      clearTimeout(timer);
       tg.offEvent('viewportChanged', setViewportVars);
       tg.offEvent('fullscreenChanged', setViewportVars);
       tg.offEvent('fullscreenFailed', handleFullscreenError);

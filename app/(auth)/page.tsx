@@ -98,14 +98,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Инициализируем Telegram WebApp с проверкой доступности
-    const { isAvailable } = checkTelegramWebApp();
-    if (isAvailable) {
-      initTelegramWebApp();
-    } else {
-      console.warn('Telegram WebApp not available, running in fallback mode');
-    }
-
     // Подписываемся на изменения онлайн статуса
     // Используем setTimeout для избежания синхронного setState
     setTimeout(() => {

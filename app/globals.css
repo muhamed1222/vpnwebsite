@@ -41,6 +41,8 @@ body {
   padding: 0;
   overflow: hidden;
   background: var(--background);
+  /* Отключаем стандартный pull-to-refresh, чтобы он не мешал Telegram */
+  overscroll-behavior-y: none;
 }
 
 body {
