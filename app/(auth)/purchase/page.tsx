@@ -123,15 +123,17 @@ export default function PurchasePage() {
   const selectedPlan = plans.find(p => p.id === selectedPlanId) || plans[0];
 
   return (
-    <main className="min-h-[var(--tg-viewport-height,100vh)] bg-black text-white p-4 pt-[calc(80px+env(safe-area-inset-top))] pb-[calc(40px+env(safe-area-inset-bottom))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none flex flex-col">
-      {/* Шапка с кнопкой назад */}
-      <div className="flex items-center mb-6">
-        <Link href="/" className="p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform">
+    <main className="w-full min-h-[var(--tg-viewport-height,100vh)] bg-black text-white pt-[calc(100px+env(safe-area-inset-top))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none flex flex-col">
+      {/* Header with Back Button */}
+      <div className="sticky top-[calc(100px+env(safe-area-inset-top))] z-50 flex items-center justify-between w-fit mb-4">
+        <Link href="/" className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15">
           <ChevronLeft size={24} />
         </Link>
       </div>
 
-      <h1 className="text-xl font-medium mb-6 px-2">Покупка подписки</h1>
+      <div className="flex flex-col mb-8">
+        <h1 className="text-2xl font-semibold px-1">Покупка подписки</h1>
+      </div>
 
       {error && (
         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-[10px] p-4 mb-4 text-yellow-500 text-sm">
@@ -143,13 +145,13 @@ export default function PurchasePage() {
         Инфо-блок об устройствах 
         На текущий момент количество устройств фиксировано (5 шт.)
       */}
-      <div className="bg-[#121212] rounded-[16px] p-6 border border-white/10 mb-4">
+      <div className="bg-[#121212] rounded-[24px] p-6 border border-white/5 mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center text-2xl font-bold text-[#F55128]">
+          <div className="w-14 h-14 bg-[#F55128]/10 rounded-2xl flex items-center justify-center text-2xl font-bold text-[#F55128] border border-[#F55128]/20">
             {SUBSCRIPTION_CONFIG.DEFAULT_DEVICES_COUNT}
           </div>
           <div>
-            <h2 className="text-lg font-bold">Устройств</h2>
+            <h2 className="text-lg font-bold text-white">Устройств</h2>
             <p className="text-white/40 text-xs font-medium">Доступно одновременно в подписке</p>
           </div>
         </div>
@@ -161,17 +163,17 @@ export default function PurchasePage() {
           <LoadingSpinner size="lg" />
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-8">
           {plans.map((plan) => {
           const isSelected = selectedPlanId === plan.id;
           return (
             <button
               key={plan.id}
               onClick={() => setSelectedPlanId(plan.id)}
-              className={`relative p-5 rounded-[16px] border transition-all active:scale-[0.98] flex flex-col items-center justify-center text-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 ${
+              className={`relative p-5 rounded-[24px] border transition-all active:scale-[0.98] flex flex-col items-center justify-center text-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 ${
                 isSelected 
                   ? 'bg-[#F55128]/15 border-[#F55128] shadow-[0_0_25px_rgba(245,81,40,0.15)]' 
-                  : 'bg-[#121212] border-white/10 hover:border-white/20'
+                  : 'bg-[#121212] border-white/5 hover:border-white/10'
               }`}
               aria-label={`Выбрать тариф ${plan.duration} за ${plan.totalPrice} рублей`}
               aria-pressed={isSelected}
@@ -209,19 +211,17 @@ export default function PurchasePage() {
         </div>
       )}
 
-      <div className="flex-1" />
-
       {/* Кнопка оплаты, вызывающая модальное окно подтверждения */}
       {selectedPlan && (
-        <>
+        <div className="mt-auto">
           <button 
             onClick={() => setIsConfirmOpen(true)}
             disabled={loading || !selectedPlan}
-            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] p-5 flex items-center justify-center gap-3 group shadow-lg shadow-[#F55128]/20 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-2xl py-5 flex items-center justify-center gap-3 group shadow-lg shadow-[#F55128]/20 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={`Продолжить оформление подписки за ${selectedPlan?.totalPrice || 0} рублей`}
             type="button"
           >
-            <span className="text-base font-bold text-white">
+            <span className="text-lg font-bold text-white">
               Продолжить за {selectedPlan?.totalPrice || 0} ₽
             </span>
             {selectedPlan?.oldPrice && (
@@ -230,9 +230,11 @@ export default function PurchasePage() {
               </span>
             )}
           </button>
-        </>
+        </div>
       )}
-      <div className="h-4" />
+
+      {/* Bottom Spacer - ensure space for Telegram UI or safe areas */}
+      <div className="min-h-[calc(40px+env(safe-area-inset-bottom))] w-full" aria-hidden="true" />
 
       {selectedPlan && (
         <PurchaseConfirmModal 

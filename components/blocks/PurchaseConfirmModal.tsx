@@ -71,7 +71,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
         <div className="flex flex-col">
           {/* Детали заказа */}
             <div 
-              className="bg-white/5 rounded-[16px] p-5 border border-white/5 mb-6 space-y-4 css-dialog_content-item"
+              className="bg-white/5 rounded-[24px] p-5 border border-white/5 mb-6 space-y-4 css-dialog_content-item"
               style={{ '--index': 1 } as React.CSSProperties}
             >
             <div className="space-y-1">
@@ -92,7 +92,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
           >
             <div 
               onClick={() => setIsMethodsOpen(true)}
-              className="bg-white/5 rounded-[16px] p-4 border border-white/5 mb-6 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors"
+              className="bg-white/5 rounded-[24px] p-4 border border-white/5 mb-6 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
@@ -106,7 +106,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
                 </div>
                 <span className="text-base font-medium text-white">{currentMethod}</span>
               </div>
-              <button className="bg-white/5 hover:bg-white/10 border border-white/5 rounded-[10px] px-4 py-2 flex items-center gap-1 transition-colors">
+              <button className="bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl px-4 py-2 flex items-center gap-1 transition-colors">
                 <span className="text-sm font-medium text-white/80">Изменить</span>
                 <ChevronRight size={16} className="text-white/40" />
               </button>
@@ -121,7 +121,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
             <button 
               onClick={handlePayClick}
               disabled={isProcessing}
-              className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 text-lg font-medium text-white shadow-lg shadow-[#F55128]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-2xl py-5 text-lg font-bold text-white shadow-lg shadow-[#F55128]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isProcessing ? (
                 <>
