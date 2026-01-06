@@ -57,7 +57,7 @@ const calculateUntilDate = (days: number, currentExpiresAt?: string): string => 
 
 export default function PurchasePage() {
   // Выбранный ID тарифного плана (по умолчанию 6 месяцев)
-  const [selectedPlanId, setSelectedPlanId] = useState('6m');
+  const [selectedPlanId, setSelectedPlanId] = useState('plan_180');
   // Состояние модального окна подтверждения
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   // Тарифы с бэкенда
@@ -87,16 +87,8 @@ export default function PurchasePage() {
         
         // Преобразуем тарифы с бэкенда в формат приложения
         const transformedPlans: Plan[] = tariffs.map((tariff) => {
-          // Используем ID с бэкенда напрямую, или определяем по количеству дней
-          let planId = tariff.id;
-          if (!planId || !['1m', '3m', '6m', '1y'].includes(planId)) {
-            // Определяем ID тарифа по количеству дней, если ID не подходит
-            if (tariff.days === 30 || tariff.days === 28 || tariff.days === 31) planId = '1m';
-            else if (tariff.days === 90 || tariff.days === 84 || tariff.days === 93) planId = '3m';
-            else if (tariff.days === 180 || tariff.days === 183) planId = '6m';
-            else if (tariff.days === 365 || tariff.days === 366) planId = '1y';
-            else planId = tariff.id; // Используем оригинальный ID если не распознали
-          }
+          // Используем ID с бэкенда напрямую
+          const planId = tariff.id;
           
           // Используем цену в рублях с бэкенда
           const totalPrice = tariff.price_rub || tariff.price_stars;
@@ -108,13 +100,13 @@ export default function PurchasePage() {
             totalPrice,
             monthlyPrice,
             days: tariff.days,
-            isPopular: planId === '6m' || tariff.days === 180, // 6 месяцев - популярный тариф
+            isPopular: planId === 'plan_180' || tariff.days === 180, // 6 месяцев - популярный тариф
           };
         });
 
         // Сортируем тарифы по продолжительности
         transformedPlans.sort((a, b) => {
-          const order = ['plan_7', '1m', '3m', '6m', '1y'];
+          const order = ['plan_7', 'plan_30', 'plan_90', 'plan_180', 'plan_365'];
           return order.indexOf(a.id) - order.indexOf(b.id);
         });
 
@@ -122,7 +114,7 @@ export default function PurchasePage() {
         
         // Устанавливаем выбранный тариф по умолчанию (6 месяцев)
         if (transformedPlans.length > 0) {
-          const defaultPlan = transformedPlans.find(p => p.id === '6m') || transformedPlans[0];
+          const defaultPlan = transformedPlans.find(p => p.id === 'plan_180') || transformedPlans[0];
           setSelectedPlanId(defaultPlan.id);
         }
       } catch (err) {
@@ -130,10 +122,10 @@ export default function PurchasePage() {
         setError('Не удалось загрузить тарифы. Пожалуйста, попробуйте позже.');
         // Fallback на дефолтные тарифы при ошибке
         setPlans([
-          { id: '1m', duration: '1 месяц', totalPrice: 150, monthlyPrice: 150, days: 30 },
-          { id: '3m', duration: '3 месяца', totalPrice: 390, monthlyPrice: 130, days: 90 },
-          { id: '6m', duration: '6 месяцев', totalPrice: 720, monthlyPrice: 120, days: 180, isPopular: true },
-          { id: '1y', duration: '1 год', totalPrice: 1320, monthlyPrice: 110, days: 365 },
+          { id: 'plan_30', duration: '1 месяц', totalPrice: 150, monthlyPrice: 150, days: 30 },
+          { id: 'plan_90', duration: '3 месяца', totalPrice: 390, monthlyPrice: 130, days: 90 },
+          { id: 'plan_180', duration: '6 месяцев', totalPrice: 720, monthlyPrice: 120, days: 180, isPopular: true },
+          { id: 'plan_365', duration: '1 год', totalPrice: 1320, monthlyPrice: 110, days: 365 },
         ]);
       } finally {
         setLoading(false);
@@ -263,6 +255,7 @@ export default function PurchasePage() {
         <PurchaseConfirmModal 
           isOpen={isConfirmOpen}
           onClose={() => setIsConfirmOpen(false)}
+          planId={selectedPlan.id}
           price={selectedPlan.totalPrice}
           duration={selectedPlan.duration}
           devices={SUBSCRIPTION_CONFIG.DEFAULT_DEVICES_COUNT}

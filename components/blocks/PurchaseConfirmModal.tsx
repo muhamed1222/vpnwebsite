@@ -6,10 +6,12 @@ import { PaymentMethodsModal } from './PaymentMethodsModal';
 import { WaitingPaymentModal } from './WaitingPaymentModal';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { BottomSheet } from '../ui/BottomSheet';
+import { api } from '@/lib/api';
 
 interface PurchaseConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
+  planId: string;
   price: number;
   duration: string;
   devices: number;
@@ -24,6 +26,7 @@ interface PurchaseConfirmModalProps {
 export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({ 
   isOpen, 
   onClose,
+  planId,
   price,
   duration,
   devices,
@@ -33,29 +36,49 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
   const [isWaitingOpen, setIsWaitingOpen] = useState(false);
   const [selectedMethodId, setSelectedMethodId] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
 
   const handlePayClick = async () => {
     setIsProcessing(true);
-    setIsWaitingOpen(true);
     
     try {
-      // Имитация задержки перед редиректом
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      handleRedirect();
-    } catch (error) {
+      // 1. Создаем реальный заказ через API
+      const response = await api.createOrder(planId);
+      
+      if (response && response.paymentUrl) {
+        setPaymentUrl(response.paymentUrl);
+        setIsWaitingOpen(true);
+        
+        // 2. Делаем небольшую задержку для плавности и редиректим
+        setTimeout(() => {
+          handleRedirect(response.paymentUrl);
+        }, 1000);
+      } else {
+        throw new Error('Не удалось получить ссылку на оплату');
+      }
+    } catch (error: any) {
       console.error('Payment processing error:', error);
+      const webApp = getTelegramWebApp();
+      const message = error.message || 'Произошла ошибка при создании платежа. Попробуйте позже.';
+      
+      if (webApp) {
+        webApp.showAlert(message);
+      } else {
+        alert(message);
+      }
       setIsProcessing(false);
-      setIsWaitingOpen(false);
     }
   };
 
-  const handleRedirect = () => {
-    const paymentUrl = 'https://yookassa.ru/checkout/...'; // Реальная ссылка будет тут
+  const handleRedirect = (url?: string) => {
+    const targetUrl = url || paymentUrl;
+    if (!targetUrl) return;
+
     const webApp = getTelegramWebApp();
     if (webApp) {
-      webApp.openLink(paymentUrl);
+      webApp.openLink(targetUrl);
     } else {
-      window.open(paymentUrl, '_blank');
+      window.open(targetUrl, '_blank');
     }
   };
 

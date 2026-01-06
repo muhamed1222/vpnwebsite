@@ -254,5 +254,15 @@ export const api = {
     premiumCount: number;
     referralCode: string;
   }>('user/referrals', { method: 'GET' }),
+
+  // Создание заказа
+  createOrder: (planId: string) => apiFetch<{
+    orderId: string;
+    status: 'pending';
+    paymentUrl: string;
+  }>('orders/create', { 
+    method: 'POST',
+    body: JSON.stringify({ planId })
+  }),
 };
 
