@@ -27,6 +27,8 @@ function getClientEnvVar(key: string, defaultValue: string): string {
 // Серверный конфиг (доступен только в API routes)
 export const serverConfig = {
   telegram: {
+    // Получаем токен из переменной окружения
+    // Если не указан, используем пустую строку (валидация будет на бэкенде)
     botToken: getServerEnvVar('TELEGRAM_BOT_TOKEN', ''),
   },
   env: {

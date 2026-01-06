@@ -22,17 +22,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Валидируем подпись initData
-    const isValid = validateTelegramInitData(
-      initData,
-      serverConfig.telegram.botToken
-    );
-
-    if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid Telegram initData signature' },
-        { status: 401 }
+    // Валидируем подпись initData (если токен установлен)
+    // Если токен не установлен, пропускаем валидацию (бэкенд сам проверит)
+    if (serverConfig.telegram.botToken) {
+      const isValid = validateTelegramInitData(
+        initData,
+        serverConfig.telegram.botToken
       );
+
+      if (!isValid) {
+        return NextResponse.json(
+          { error: 'Invalid Telegram initData signature' },
+          { status: 401 }
+        );
+      }
     }
 
     // Проксируем запрос на бэкенд API

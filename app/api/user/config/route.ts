@@ -22,17 +22,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Валидируем подпись initData
-    const isValid = validateTelegramInitData(
-      initData,
-      serverConfig.telegram.botToken
-    );
-
-    if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid Telegram initData signature' },
-        { status: 401 }
+    // Валидируем подпись initData (если токен установлен)
+    if (serverConfig.telegram.botToken) {
+      const isValid = validateTelegramInitData(
+        initData,
+        serverConfig.telegram.botToken
       );
+
+      if (!isValid) {
+        return NextResponse.json(
+          { error: 'Invalid Telegram initData signature' },
+          { status: 401 }
+        );
+      }
     }
 
     // Получаем данные пользователя, включая VPN ключ

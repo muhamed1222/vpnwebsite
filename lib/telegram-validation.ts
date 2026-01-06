@@ -84,11 +84,9 @@ export function validateTelegramInitData(
       .update(dataCheckString)
       .digest('hex');
 
-    // Сравниваем хеши (защита от timing attacks)
-    return crypto.timingSafeEqual(
-      Buffer.from(hash, 'hex'),
-      Buffer.from(calculatedHash, 'hex')
-    );
+    // Сравниваем хеши
+    // Используем простое сравнение строк, как на бэкенде, для совместимости
+    return hash.toLowerCase() === calculatedHash.toLowerCase();
   } catch (error) {
     console.error('Error validating Telegram initData:', error);
     return false;

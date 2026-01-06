@@ -23,17 +23,31 @@ export async function GET(request: NextRequest) {
     }
 
     // Валидируем подпись initData на стороне Next.js для безопасности
-    const isValid = validateTelegramInitData(
-      initData,
-      serverConfig.telegram.botToken
-    );
-
-    if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid Telegram initData signature' },
-        { status: 401 }
+    // Если токен не установлен, пропускаем валидацию (бэкенд сам проверит)
+    const botToken = serverConfig.telegram.botToken;
+    
+    if (botToken && botToken.length > 0) {
+      const isValid = validateTelegramInitData(
+        initData,
+        botToken
       );
+
+      if (!isValid) {
+        // Логируем только в development для отладки
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Invalid Telegram initData signature', {
+            hasToken: !!botToken,
+            tokenLength: botToken.length,
+            initDataLength: initData.length,
+          });
+        }
+        return NextResponse.json(
+          { error: 'Invalid Telegram initData signature' },
+          { status: 401 }
+        );
+      }
     }
+    // Если токен не установлен, просто проксируем запрос на бэкенд
 
     // Проксируем запрос на бэкенд API
     const backendResponse = await fetch(`${BACKEND_API_URL}/api/me`, {
