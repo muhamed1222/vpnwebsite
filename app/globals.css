@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'GT Walsheim Pro';
+  src: url('/fonts/GTWalsheimPro-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'GT Walsheim Pro', system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  
+  /* ПЕРЕМЕННЫЕ ИЗ ТВОИХ СПЕЦИФИКАЦИЙ (замедлил для более плавного эффекта) */
+  --dialog-animation-speed: .85s;
+  --backdrop-speed: .4s;
+  --backdrop-ease: cubic-bezier(.62, .08, 0, 1);
+  --modal-speed: .85s;
+  --modal-ease: cubic-bezier(.62, .08, 0, 1);
+  --close-button-speed: .5s;
+  --close-button-ease: cubic-bezier(.62, .08, 0, 1);
+  --content-speed: .6s;
+  --content-ease: cubic-bezier(.215, .61, .355, 1);
+  --content-stagger: .08s;
+}
+
+html,
+body {
+  font-family: 'GT Walsheim Pro', var(--font-gt-walsheim-pro, system-ui, sans-serif);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.bg-main-gradient {
+  background: radial-gradient(202.31% 106.32% at 50% 100%, #C23E1D 0%, #141414 100%) !important;
+}
+
+/* --- СТИЛИ ИЗ css-dialog-styles --- */
+.css-dialog {	
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.css-dialog:not(.open) {
+	pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear var(--dialog-animation-speed);
+}
+
+/* Backdrop */
+.css-dialog_backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity var(--backdrop-speed) var(--backdrop-ease);
+}
+.css-dialog.open .css-dialog_backdrop {
+  opacity: 1;
+}
+
+/* Inner Modal */
+.css-dialog_inner {
+  position: relative;
+  width: 100%;
+  max-width: 32rem; /* max-w-lg */
+  background-color: rgba(18, 18, 18, 1);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  contain: content;
+  transform: translate3d(0, 100%, 0);
+  transition: transform var(--modal-speed) var(--modal-ease);  
+  will-change: transform;
+  font-family: 'GT Walsheim Pro', var(--font-sans, system-ui, sans-serif);
+}
+
+.css-dialog.no-transition .css-dialog_inner {
+  transition: none !important;
+}
+
+.css-dialog.open .css-dialog_inner {
+  /* По умолчанию 0, но может перекрываться inline-стилем при свайпе */
+  transform: translate3d(0, var(--ty, 0), 0);
+}
+
+/* Content Items Stagger */
+.css-dialog_content-item {
+  opacity: 0;
+  transform: translate3d(0, 1.25rem, 0);
+  transition: transform var(--content-speed) var(--content-ease), opacity var(--content-speed) var(--content-ease);
+  content-visibility: auto;
+  contain: layout style paint;
+  backface-visibility: hidden;
+}
+
+.css-dialog.open .css-dialog_content-item {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: calc((var(--dialog-animation-speed) - .2s) + var(--content-stagger) * (var(--index) - 1));
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}

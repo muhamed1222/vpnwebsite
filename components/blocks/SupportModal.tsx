@@ -1,0 +1,123 @@
+'use client';
+
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp, ExternalLink, MessageSquare } from 'lucide-react';
+import { getTelegramWebApp } from '@/lib/telegram';
+import { config } from '@/lib/config';
+import { BottomSheet } from '../ui/BottomSheet';
+
+interface FAQItem {
+  question: string;
+  answer: React.ReactNode;
+}
+
+interface SupportModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const FAQ_DATA: FAQItem[] = [
+  {
+    question: 'Как подключить VPN на дополнительные устройства',
+    answer: (
+      <div className="space-y-4">
+        <p className="text-white/70 leading-relaxed">
+          Чтобы подключить дополнительное устройство или друга к своей подписке — 
+          вставьте ссылку на подписку из вашего профиля на другом устройстве. 
+          Воспользуйтесь инструкцией, чтобы сделать это ⤵️
+        </p>
+        <button className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-[10px] py-4 flex items-center justify-center gap-2 transition-colors">
+          <span className="font-medium text-white/90">Подробная инструкция</span>
+          <ExternalLink size={18} className="text-white/40" />
+        </button>
+      </div>
+    ),
+  },
+  {
+    question: 'Перестал подключаться VPN на iOS',
+    answer: (
+      <p className="text-white/70 leading-relaxed">
+        Такое случается очень редко, попробуйте перезагрузить телефон, если проблема не решилась — напишите в поддержку, мы обязательно поможем.
+      </p>
+    ),
+  },
+];
+
+/**
+ * Компонент SupportModal
+ * Использует BottomSheet для отображения FAQ и кнопки связи с поддержкой.
+ */
+export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) => {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const handleSupportClick = () => {
+    const webApp = getTelegramWebApp();
+    const supportUrl = config.support.telegramUrl;
+    if (webApp) {
+      webApp.openTelegramLink(supportUrl);
+    } else {
+      window.open(supportUrl, '_blank');
+    }
+  };
+
+  return (
+    <BottomSheet isOpen={isOpen} onClose={onClose} title="Поддержка">
+      <div className="flex flex-col space-y-4">
+        {/* FAQ Section */}
+        <div className="space-y-3">
+          {FAQ_DATA.map((item, index) => {
+            const isItemOpen = openIndex === index;
+            return (
+              <div 
+                key={index} 
+                className="bg-white/5 rounded-[16px] border border-white/5 overflow-hidden transition-all css-dialog_content-item"
+                style={{ '--index': index + 1 } as React.CSSProperties}
+              >
+                <button 
+                  onClick={() => setOpenIndex(isItemOpen ? null : index)}
+                  className="w-full p-5 flex items-start justify-between text-left gap-4"
+                >
+                  <span className="text-lg font-medium text-white/90 leading-snug">
+                    {item.question}
+                  </span>
+                  {isItemOpen ? (
+                    <ChevronUp size={24} className="text-white/20 flex-shrink-0 mt-1" />
+                  ) : (
+                    <ChevronDown size={24} className="text-white/20 flex-shrink-0 mt-1" />
+                  )}
+                </button>
+                
+                {isItemOpen && (
+                  <div className="px-5 pb-5 animate-in slide-in-from-top-2 duration-200">
+                    {item.answer}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bottom Support Button */}
+        <div 
+          className="pt-4 css-dialog_content-item"
+          style={{ '--index': FAQ_DATA.length + 1 } as React.CSSProperties}
+        >
+          <button 
+            onClick={handleSupportClick}
+            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 flex items-center justify-center gap-3 text-white shadow-lg shadow-[#F55128]/10"
+          >
+            <MessageSquare size={24} />
+            <span className="text-xl font-medium">Написать в поддержку</span>
+          </button>
+        </div>
+
+        <p 
+          className="text-white/30 text-center text-sm css-dialog_content-item"
+          style={{ '--index': FAQ_DATA.length + 2 } as React.CSSProperties}
+        >
+          Мы отвечаем в течение 15 минут
+        </p>
+      </div>
+    </BottomSheet>
+  );
+};
