@@ -47,6 +47,16 @@ export default function PurchasePage() {
   // Загружаем тарифы с бэкенда
   useEffect(() => {
     const loadTariffs = async () => {
+      // Проверяем доступность Telegram WebApp
+      const { checkTelegramWebApp } = await import('@/lib/telegram-fallback');
+      const { isAvailable } = checkTelegramWebApp();
+      
+      if (!isAvailable) {
+        setError('Telegram WebApp не доступен. Пожалуйста, откройте приложение через Telegram.');
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);

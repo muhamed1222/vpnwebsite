@@ -29,6 +29,8 @@ export const apiFetch = async <T = unknown>(
   const initData = getTelegramInitData();
 
   if (!initData) {
+    // Для некоторых эндпоинтов (например, тарифы) можно работать без авторизации
+    // Но для безопасности лучше требовать initData
     throw new ApiException(
       'Telegram WebApp not initialized',
       401

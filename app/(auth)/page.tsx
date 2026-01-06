@@ -69,6 +69,15 @@ export default function Home() {
   // Загружаем минимальную цену из тарифов
   useEffect(() => {
     const loadMinPrice = async () => {
+      // Ждем инициализации Telegram WebApp
+      const { checkTelegramWebApp } = await import('@/lib/telegram-fallback');
+      const { isAvailable } = checkTelegramWebApp();
+      
+      if (!isAvailable) {
+        // Если Telegram WebApp недоступен, не загружаем тарифы
+        return;
+      }
+
       try {
         const { api } = await import('@/lib/api');
         const tariffs = await api.getTariffs();
@@ -78,11 +87,14 @@ export default function Home() {
           setMinPrice(min);
         }
       } catch (error) {
-        console.error('Failed to load min price:', error);
-        // Оставляем дефолтное значение при ошибке
+        // Тихая ошибка - просто используем дефолтное значение
+        // Не логируем, чтобы не засорять консоль
       }
     };
-    loadMinPrice();
+    
+    // Задержка для инициализации Telegram WebApp
+    const timer = setTimeout(loadMinPrice, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {

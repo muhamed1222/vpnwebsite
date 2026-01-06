@@ -10,11 +10,29 @@ export const getTelegramWebApp = (): TelegramWebApp | null => {
 export const initTelegramWebApp = () => {
   const webApp = getTelegramWebApp();
   if (webApp) {
-    webApp.ready();
-    webApp.expand();
-    // Настройка темы
-    webApp.setHeaderColor('secondary_bg_color');
-    webApp.setBackgroundColor('bg_color');
+    try {
+      webApp.ready();
+      webApp.expand();
+    } catch (e) {
+      // Игнорируем ошибки инициализации
+    }
+    
+    // Настройка темы (может не поддерживаться в старых версиях)
+    try {
+      if (typeof webApp.setHeaderColor === 'function') {
+        webApp.setHeaderColor('secondary_bg_color');
+      }
+    } catch (e) {
+      // Метод не поддерживается
+    }
+    
+    try {
+      if (typeof webApp.setBackgroundColor === 'function') {
+        webApp.setBackgroundColor('bg_color');
+      }
+    } catch (e) {
+      // Метод не поддерживается
+    }
   }
 };
 
