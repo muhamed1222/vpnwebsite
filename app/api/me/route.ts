@@ -12,8 +12,8 @@ const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.out
 export async function GET(request: NextRequest) {
   try {
     // Получаем initData из заголовков
-    const initData = request.headers.get('X-Telegram-Init-Data') || 
-                     request.headers.get('Authorization');
+    const initData = request.headers.get('X-Telegram-Init-Data') ||
+      request.headers.get('Authorization');
 
     if (!initData) {
       return NextResponse.json(
@@ -23,29 +23,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Валидируем подпись initData на стороне Next.js для безопасности
-    // Если токен не установлен, пропускаем валидацию (бэкенд сам проверит)
     const botToken = serverConfig.telegram.botToken;
-    
-    if (botToken && botToken.length > 0) {
-      const isValid = validateTelegramInitData(
-        initData,
-        botToken
-      );
 
-      if (!isValid) {
-        // Логируем только в development для отладки
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Invalid Telegram initData signature', {
-            hasToken: !!botToken,
-            tokenLength: botToken.length,
-            initDataLength: initData.length,
-          });
-        }
-        return NextResponse.json(
-          { error: 'Invalid Telegram initData signature' },
-          { status: 401 }
-        );
-      }
+    if (!botToken) {
+      console.error('[API /me] CRITICAL ERROR: TELEGRAM_BOT_TOKEN is not set in environment variables');
+      return NextResponse.json(
+        { error: 'Внутренняя ошибка конфигурации сервера' },
+        { status: 500 }
+      );
+    }
+
+    const isValid = validateTelegramInitData(
+      initData,
+      botToken
+    );
+
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Невалидная подпись данных Telegram. Пожалуйста, перезапустите приложение.' },
+        { status: 401 }
+      );
     }
     // Если токен не установлен, просто проксируем запрос на бэкенд
 
@@ -70,10 +67,10 @@ export async function GET(request: NextRequest) {
 
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json().catch(() => ({}));
-      
+
       // Формируем понятное сообщение об ошибке
       let errorMessage = errorData.error || errorData.message;
-      
+
       if (!errorMessage) {
         switch (backendResponse.status) {
           case 401:
@@ -95,7 +92,7 @@ export async function GET(request: NextRequest) {
             errorMessage = `Ошибка сервера (${backendResponse.status}). Попробуйте позже.`;
         }
       }
-      
+
       return NextResponse.json(
         { error: errorMessage },
         { status: backendResponse.status }
@@ -109,7 +106,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(backendData);
   } catch (error) {
     console.error('Me API error:', error);
-    
+
     // Обработка сетевых ошибок
     if (error instanceof Error) {
       if (error.message.includes('fetch') || error.message.includes('network')) {
@@ -119,7 +116,7 @@ export async function GET(request: NextRequest) {
         );
       }
     }
-    
+
     return NextResponse.json(
       { error: 'Внутренняя ошибка сервера. Попробуйте позже.' },
       { status: 500 }

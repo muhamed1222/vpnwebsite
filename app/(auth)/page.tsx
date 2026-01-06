@@ -3,7 +3,7 @@
 import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
 import { Plug, Settings, User, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
-import { initTelegramWebApp, getTelegramPlatform } from '@/lib/telegram';
+import { initTelegramWebApp, getTelegramPlatform, triggerHaptic } from '@/lib/telegram';
 import { useSubscriptionStore } from '@/store/subscription.store';
 import { LogoIcon } from '@/components/ui/LogoIcon';
 import { BackgroundCircles } from '@/components/ui/BackgroundCircles';
@@ -13,9 +13,9 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { SubscriptionCardSkeleton } from '@/components/ui/SkeletonLoader';
 
 // Lazy loading для модалок - загружаются только когда нужны
-const SupportModal = lazy(() => 
-  import('@/components/blocks/SupportModal').then(module => ({ 
-    default: module.SupportModal 
+const SupportModal = lazy(() =>
+  import('@/components/blocks/SupportModal').then(module => ({
+    default: module.SupportModal
   }))
 );
 
@@ -28,17 +28,17 @@ const SupportModal = lazy(() =>
  */
 const formatExpirationDate = (dateString?: string): string => {
   if (!dateString) return '—';
-  
+
   const date = new Date(dateString);
   const months = [
     'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
     'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
   ];
-  
+
   const day = date.getDate();
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-  
+
   return `${day} ${month} ${year}`;
 };
 
@@ -46,7 +46,7 @@ export default function Home() {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isOnlineStatus, setIsOnlineStatus] = useState(true);
   const [minPrice, setMinPrice] = useState<number>(SUBSCRIPTION_CONFIG.MIN_PRICE);
-  
+
   // Инициализируем платформу с fallback
   const [platform] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -58,7 +58,7 @@ export default function Home() {
     }
     return '...';
   });
-  
+
   const { subscription, loading: subscriptionLoading } = useSubscriptionStore();
 
   // Мемоизируем форматированную дату для избежания пересчета
@@ -72,7 +72,7 @@ export default function Home() {
       // Ждем инициализации Telegram WebApp
       const { checkTelegramWebApp } = await import('@/lib/telegram-fallback');
       const { isAvailable } = checkTelegramWebApp();
-      
+
       if (!isAvailable) {
         // Если Telegram WebApp недоступен, не загружаем тарифы
         return;
@@ -91,7 +91,7 @@ export default function Home() {
         // Не логируем, чтобы не засорять консоль
       }
     };
-    
+
     // Задержка для инициализации Telegram WebApp
     const timer = setTimeout(loadMinPrice, 500);
     return () => clearTimeout(timer);
@@ -103,18 +103,18 @@ export default function Home() {
     setTimeout(() => {
       setIsOnlineStatus(isOnline());
     }, 0);
-    
+
     const unsubscribe = subscribeToOnlineStatus((status) => {
       setTimeout(() => {
         setIsOnlineStatus(status);
       }, 0);
     });
-    
+
     return unsubscribe;
   }, []);
 
   return (
-    <main 
+    <main
       className="relative min-h-[var(--tg-viewport-height,100vh)] overflow-hidden font-sans select-none flex flex-col bg-main-gradient safe-area-padding"
       role="main"
       aria-label="Главная страница Outlivion VPN"
@@ -142,7 +142,7 @@ export default function Home() {
         <div className="flex justify-between items-start mb-8 px-[10px] py-[6px]">
           <div>
             <h1 className="text-2xl font-medium text-white tracking-tight">Outlivion</h1>
-            
+
             {/* 
               Статус подключения VPN (offline/online)
               
@@ -168,7 +168,7 @@ export default function Home() {
               - Цвет текста: text-[#F55128]/60 (приглушенный оранжево-красный для offline)
               - Размер: text-base font-medium
             */}
-            <p 
+            <p
               className={`text-base font-medium ${!isOnlineStatus ? 'text-yellow-500' : subscription?.status === 'active' ? 'text-[#F55128]' : 'text-[#F55128]/60'}`}
               aria-live="polite"
               aria-label={`Статус VPN: ${!isOnlineStatus ? 'нет подключения к интернету' : subscription?.status === 'active' ? 'онлайн' : 'офлайн'}`}
@@ -176,7 +176,7 @@ export default function Home() {
               {!isOnlineStatus ? 'offline (нет сети)' : subscription?.status === 'active' ? 'online' : 'offline'}
             </p>
           </div>
-          
+
           <div className="text-right">
             {/* 
               Дата истечения подписки
@@ -212,7 +212,7 @@ export default function Home() {
                   <span className="text-white/40 text-xs align-middle mr-1">до</span>
                   {formattedExpirationDate}
                 </p>
-                
+
                 {/* 
                   Статус подписки (активна/истекла/нет подписки)
                   
@@ -244,22 +244,21 @@ export default function Home() {
                   - Размер: text-xs font-medium
                   - Позиция: под датой истечения, выравнивание по правому краю
                 */}
-                <p className={`text-xs font-medium ${
-                  subscription?.status === 'active' 
-                    ? 'text-[#F55128]' 
+                <p className={`text-xs font-medium ${subscription?.status === 'active'
+                    ? 'text-[#F55128]'
                     : subscription?.status === 'expired'
-                    ? 'text-[#D9A14E]'
-                    : subscription?.status === 'none'
-                    ? 'text-white/60'
-                    : 'text-white/40'
-                }`}>
-                  {subscription?.status === 'active' 
-                    ? 'активна' 
+                      ? 'text-[#D9A14E]'
+                      : subscription?.status === 'none'
+                        ? 'text-white/60'
+                        : 'text-white/40'
+                  }`}>
+                  {subscription?.status === 'active'
+                    ? 'активна'
                     : subscription?.status === 'expired'
-                    ? 'подписка истекла'
-                    : subscription?.status === 'none'
-                    ? 'нет подписки'
-                    : 'загрузка...'}
+                      ? 'подписка истекла'
+                      : subscription?.status === 'none'
+                        ? 'нет подписки'
+                        : 'загрузка...'}
                 </p>
               </>
             )}
@@ -275,8 +274,9 @@ export default function Home() {
             - Переход на страницу выбора планов (/purchase)
             - Отображение минимальной стоимости ("от 150 ₽")
           */}
-          <Link 
+          <Link
             href="/purchase"
+            onClick={() => triggerHaptic('light')}
             className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] flex items-center px-[14px] py-[14px] justify-between text-white group"
             aria-label="Купить подписку VPN, начиная от 150 рублей"
           >
@@ -298,8 +298,9 @@ export default function Home() {
             - Автоматическое определение платформы пользователя (iOS/Android/macOS)
             - Переход к инструкции по настройке (/setup)
           */}
-          <Link 
+          <Link
             href="/setup"
+            onClick={() => triggerHaptic('light')}
             className="w-full h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] flex items-center px-[14px] py-[14px] justify-between text-white group mb-[10px]"
             aria-label={`Установка и настройка VPN для ${platform}`}
           >
@@ -316,7 +317,7 @@ export default function Home() {
 
           {/* Grid Buttons */}
           <div className="grid grid-cols-2 gap-[10px]">
-          {/* 
+            {/* 
             Кнопка "Профиль" 
             Назначение: Переход в личный кабинет пользователя.
             Функционал: 
@@ -326,16 +327,16 @@ export default function Home() {
             - Реферальная программа
             - Копирование ID пользователя
           */}
-          <Link 
-            href="/profile"
-            className="h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] flex items-center px-[14px] py-[14px] gap-[10px] text-white"
-            aria-label="Перейти в профиль пользователя"
-          >
-            <div className="p-0 rounded-xl" aria-hidden="true">
-              <User size={24} aria-hidden="true" />
-            </div>
-            <span className="text-base font-medium">Профиль</span>
-          </Link>
+            <Link
+              href="/profile"
+              className="h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] flex items-center px-[14px] py-[14px] gap-[10px] text-white"
+              aria-label="Перейти в профиль пользователя"
+            >
+              <div className="p-0 rounded-xl" aria-hidden="true">
+                <User size={24} aria-hidden="true" />
+              </div>
+              <span className="text-base font-medium">Профиль</span>
+            </Link>
             {/* 
               Кнопка "Поддержка" 
               Назначение: Вызов FAQ и прямой связи с саппортом.
@@ -343,8 +344,11 @@ export default function Home() {
               - Открытие модального окна с ответами на частые вопросы
               - Кнопка быстрого перехода в Telegram-чат поддержки
             */}
-            <button 
-              onClick={() => setIsSupportOpen(true)}
+            <button
+              onClick={() => {
+                triggerHaptic('medium');
+                setIsSupportOpen(true);
+              }}
               className="h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] flex items-center px-[14px] py-[14px] gap-[10px] text-white"
               aria-label="Открыть окно поддержки"
               aria-haspopup="dialog"
@@ -360,9 +364,9 @@ export default function Home() {
 
       {/* Lazy loaded modal with Suspense */}
       <Suspense fallback={null}>
-        <SupportModal 
-          isOpen={isSupportOpen} 
-          onClose={() => setIsSupportOpen(false)} 
+        <SupportModal
+          isOpen={isSupportOpen}
+          onClose={() => setIsSupportOpen(false)}
         />
       </Suspense>
     </main>

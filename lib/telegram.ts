@@ -65,3 +65,22 @@ export const getTelegramPlatform = () => {
   return platformMap[platform.toLowerCase()] || 'Devices';
 };
 
+/**
+ * Вызывает тактильный отклик (Haptic Feedback)
+ * @param type - тип отклика ('light', 'medium', 'heavy', 'rigid', 'soft' или 'success', 'warning', 'error')
+ */
+export const triggerHaptic = (type: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft' | 'success' | 'warning' | 'error' = 'light') => {
+  const webApp = getTelegramWebApp();
+  if (!webApp?.HapticFeedback) return;
+
+  try {
+    if (['success', 'warning', 'error'].includes(type)) {
+      webApp.HapticFeedback.notificationOccurred(type as 'success' | 'warning' | 'error');
+    } else {
+      webApp.HapticFeedback.impactOccurred(type as 'light' | 'medium' | 'heavy' | 'rigid' | 'soft');
+    }
+  } catch (e) {
+    // Игнорируем ошибки тактильного отклика
+  }
+};
+

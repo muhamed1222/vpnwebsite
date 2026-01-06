@@ -51,10 +51,10 @@ export const apiFetch = async <T = unknown>(
     // Выполняем запрос с retry и timeout
     // Если baseUrl пустой (клиент), используем Next.js API роуты для проксирования
     // Если baseUrl указан (сервер), делаем запрос напрямую на бэкенд
-    const apiUrl = config.api.baseUrl 
+    const apiUrl = config.api.baseUrl
       ? `${config.api.baseUrl}/api/${endpoint}`
       : `/api/${endpoint}`;
-    
+
     const response = await withRetry(async () => {
       return await withTimeout(
         fetch(apiUrl, {
@@ -70,7 +70,7 @@ export const apiFetch = async <T = unknown>(
     if (!response.ok) {
       // Формируем понятное сообщение об ошибке
       let errorMessage = data.error || data.message;
-      
+
       if (!errorMessage) {
         // Если нет сообщения в ответе, формируем по статусу
         switch (response.status) {
@@ -93,7 +93,7 @@ export const apiFetch = async <T = unknown>(
             errorMessage = `Ошибка сервера (${response.status}). Попробуйте позже.`;
         }
       }
-      
+
       throw new ApiException(
         errorMessage,
         response.status
@@ -127,7 +127,7 @@ export const apiFetch = async <T = unknown>(
 
     // Неизвестная ошибка
     throw new ApiException(
-      'Произошла непредвиденная ошибка. Попробуйте перезагрузить приложение.',
+      'Что-то пошло не так. Попробуйте перезагрузить приложение.',
       500,
       error
     );
@@ -147,7 +147,7 @@ export const api = {
           vless_key?: string;
         };
       }>('me', { method: 'GET' });
-      
+
       // Преобразуем формат для совместимости с фронтендом
       return {
         user: {
@@ -159,8 +159,8 @@ export const api = {
           status: data.subscription.is_active && data.subscription.expires_at && data.subscription.expires_at > Date.now()
             ? 'active' as const
             : data.subscription.expires_at && data.subscription.expires_at <= Date.now()
-            ? 'expired' as const
-            : 'none' as const,
+              ? 'expired' as const
+              : 'none' as const,
           expiresAt: data.subscription.expires_at ? new Date(data.subscription.expires_at).toISOString().split('T')[0] : undefined,
         },
       };
@@ -170,7 +170,7 @@ export const api = {
       throw error;
     }
   },
-  
+
   // Получение VPN конфигурации
   getUserConfig: async () => {
     // Используем прямой роут /user/config вместо /me
@@ -178,13 +178,13 @@ export const api = {
       ok: boolean;
       config: string | null;
     }>('user/config', { method: 'GET' });
-    
+
     return {
       ok: configData.ok || false,
       config: configData.config || '',
     };
   },
-  
+
   // Получение статуса пользователя и статистики
   getUserStatus: async () => {
     // Параллельно получаем статус и billing
@@ -215,9 +215,9 @@ export const api = {
         period: { start: null, end: null },
       })),
     ]);
-    
+
     const isActive = statusData.status === 'active';
-    
+
     return {
       ok: isActive,
       status: isActive ? 'active' as const : 'disabled' as const,
@@ -226,7 +226,7 @@ export const api = {
       dataLimit: billing.limitBytes || statusData.dataLimit || 0,
     };
   },
-  
+
   // Получение истории платежей
   getPaymentsHistory: () => apiFetch<Array<{
     id: string;
@@ -238,7 +238,7 @@ export const api = {
     planId: string;
     planName: string;
   }>>('payments/history', { method: 'GET' }),
-  
+
   // Получение тарифов
   getTariffs: () => apiFetch<Array<{
     id: string;
@@ -260,7 +260,7 @@ export const api = {
     orderId: string;
     status: 'pending';
     paymentUrl: string;
-  }>('orders/create', { 
+  }>('orders/create', {
     method: 'POST',
     body: JSON.stringify({ planId })
   }),

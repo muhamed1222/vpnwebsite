@@ -14,20 +14,20 @@
 }
 
 :root {
-  --background: #000000;
+  --background: #080808;
   --foreground: #ffffff;
   
-  /* ПЕРЕМЕННЫЕ ИЗ ТВОИХ СПЕЦИФИКАЦИЙ (замедлил для более плавного эффекта) */
-  --dialog-animation-speed: .85s;
-  --backdrop-speed: .4s;
-  --backdrop-ease: cubic-bezier(.62, .08, 0, 1);
-  --modal-speed: .85s;
-  --modal-ease: cubic-bezier(.62, .08, 0, 1);
-  --close-button-speed: .5s;
-  --close-button-ease: cubic-bezier(.62, .08, 0, 1);
-  --content-speed: .6s;
-  --content-ease: cubic-bezier(.215, .61, .355, 1);
-  --content-stagger: .08s;
+  /* ПЕРЕМЕННЫЕ ИЗ ТВОИХ СПЕЦИФИКАЦИЙ (ускорил для нативности) */
+  --dialog-animation-speed: .35s;
+  --backdrop-speed: .3s;
+  --backdrop-ease: cubic-bezier(.4, 0, .2, 1);
+  --modal-speed: .35s;
+  --modal-ease: cubic-bezier(.34, 1.56, .64, 1); /* Добавил легкий bounce эффект */
+  --close-button-speed: .3s;
+  --close-button-ease: cubic-bezier(.4, 0, .2, 1);
+  --content-speed: .3s;
+  --content-ease: cubic-bezier(.4, 0, .2, 1);
+  --content-stagger: .05s;
   
   /* Telegram Viewport Variables */
   --tg-viewport-height: 100vh;
