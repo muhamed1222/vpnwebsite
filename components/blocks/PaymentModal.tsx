@@ -20,7 +20,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Оплата">
-      <div className="flex flex-col">
+      <div className="flex flex-col h-full">
         {/* 1. Карточка статуса подписки */}
         <div 
           className="bg-white/5 rounded-[16px] p-6 flex items-center gap-4 border border-white/5 mb-6 css-dialog_content-item"

@@ -210,7 +210,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
 
         {/* Скроллируемая область контента */}
         <div 
-          className="overflow-y-auto custom-scrollbar p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] touch-auto" 
+          className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] touch-auto" 
           ref={contentRef}
           role="document"
           aria-label={`Содержимое ${title}`}
