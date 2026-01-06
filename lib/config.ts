@@ -12,7 +12,7 @@ function getServerEnvVar(key: string, defaultValue?: string): string {
     return defaultValue || '';
   }
   const value = process.env[key];
-  if (!value && !defaultValue) {
+  if (!value && defaultValue === undefined) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
   return value || defaultValue || '';
