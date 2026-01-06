@@ -88,7 +88,7 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ isOpen, on
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Мои транзакции">
-      <div className="flex flex-col min-h-[300px]">
+      <div className="flex flex-col">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <LoadingSpinner size="lg" />
