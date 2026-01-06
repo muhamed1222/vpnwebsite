@@ -130,7 +130,7 @@ export default function Home() {
       </div>
 
       {/* Bottom Main Card */}
-      <div className="absolute bottom-4 left-4 right-4 bg-[#121212] rounded-[16px] px-[14px] py-[14px] shadow-2xl border border-white/5 backdrop-blur-[7px]">
+      <div className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 right-4 bg-[#121212] rounded-[16px] px-[14px] py-[14px] shadow-2xl border border-white/5 backdrop-blur-[7px]">
         {/* 
           Header Info - Информационный блок с основными статусами
           

@@ -203,7 +203,7 @@ export default function SetupPage() {
         </div>
 
         {/* Кнопки действий */}
-        <div className="relative z-10 p-6 flex flex-col gap-3 pb-12">
+        <div className="relative z-10 p-6 flex flex-col gap-3 pb-[calc(2rem+env(safe-area-inset-bottom))]">
           <button 
             onClick={handleInstallClick}
             className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50"
@@ -284,7 +284,7 @@ export default function SetupPage() {
           </div>
         </div>
 
-        <div className="relative z-10 p-6 pb-12">
+        <div className="relative z-10 p-6 pb-[calc(2rem+env(safe-area-inset-bottom))]">
           <Link 
             href="/"
             className="w-full bg-[#121212] hover:bg-[#121212]/80 active:scale-[0.98] transition-all border border-white/10 rounded-[10px] py-5 flex items-center justify-center text-white"
@@ -369,7 +369,7 @@ export default function SetupPage() {
         </div>
 
         {/* Кнопки действий */}
-        <div className="relative z-10 p-6 flex flex-col gap-3 pb-12">
+        <div className="relative z-10 p-6 flex flex-col gap-3 pb-[calc(2rem+env(safe-area-inset-bottom))]">
           <button 
             onClick={handleAddSubscription}
             className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20"
@@ -436,7 +436,7 @@ export default function SetupPage() {
         </div>
       </div>
 
-      <div className="relative z-10 p-6 space-y-3 pb-12">
+      <div className="relative z-10 p-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))]">
         <button 
           onClick={() => setStep(2)}
           className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 text-base font-medium text-white shadow-lg shadow-[#F55128]/10"
