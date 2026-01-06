@@ -59,20 +59,20 @@ export const login = async (): Promise<LoginResult> => {
     // Показываем уведомление пользователю через Telegram WebApp
     if (webApp) {
       try {
-        // Проверяем, поддерживается ли метод showAlert
-        if (typeof webApp.showAlert === 'function') {
+        // Проверяем, поддерживается ли метод showAlert (доступно с версии 6.2)
+        if (webApp.isVersionAtLeast('6.2') && typeof webApp.showAlert === 'function') {
           webApp.showAlert(errorMessage);
         } else {
-          // Fallback для старых версий Telegram WebApp
-          console.error('Auth failed:', error);
+          // Fallback для старых версий Telegram WebApp или браузера
+          alert(errorMessage);
         }
       } catch (e) {
-        // Если метод не поддерживается, просто логируем
-        console.error('Auth failed:', error);
+        // Если метод не поддерживается, используем стандартный alert
+        alert(errorMessage);
       }
     } else {
       // Fallback для браузера
-      console.error('Auth failed:', error);
+      alert(errorMessage);
     }
 
     // В случае ошибки выставляем статус "none"

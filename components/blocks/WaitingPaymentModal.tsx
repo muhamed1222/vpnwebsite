@@ -47,7 +47,7 @@ export const WaitingPaymentModal: React.FC<WaitingPaymentModalProps> = ({
         >
             <button 
               onClick={onRedirect}
-              className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-5 text-xl font-medium text-white shadow-lg shadow-[#F55128]/20"
+              className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] text-base font-bold text-white shadow-lg shadow-[#F55128]/20"
             >
             Перейти на форму оплаты
           </button>

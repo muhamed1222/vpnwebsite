@@ -26,11 +26,15 @@ export const apiFetch = async <T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
-  const initData = getTelegramInitData();
+  let initData = getTelegramInitData();
+
+  // В режиме разработки подставляем mock-данные, если приложение запущено не в Telegram
+  if (!initData && process.env.NODE_ENV === 'development') {
+    initData = 'query_id=STUB&user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Developer%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22dev%22%2C%22language_code%22%3A%22ru%22%7D&auth_date=1623822263&hash=7777777777777777777777777777777777777777777777777777777777777777';
+    console.warn('[API] Using MOCK Telegram initData for development');
+  }
 
   if (!initData) {
-    // Для некоторых эндпоинтов (например, тарифы) можно работать без авторизации
-    // Но для безопасности лучше требовать initData
     throw new ApiException(
       'Telegram WebApp не инициализирован. Пожалуйста, откройте приложение через Telegram.',
       401
@@ -39,7 +43,7 @@ export const apiFetch = async <T = unknown>(
 
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': initData, // Бэкенд ожидает initData в заголовке Authorization
+    'Authorization': initData, // Бэкенд всегда ожидает initData
     ...options.headers,
   };
 

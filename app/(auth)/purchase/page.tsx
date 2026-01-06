@@ -7,12 +7,14 @@ import { PurchaseConfirmModal } from '@/components/blocks/PurchaseConfirmModal';
 import { SUBSCRIPTION_CONFIG } from '@/lib/constants';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useSubscriptionStore } from '@/store/subscription.store';
 
 interface Plan {
   id: string;
   duration: string;
   totalPrice: number;
   monthlyPrice: number;
+  days: number;
   isPopular?: boolean;
   oldPrice?: number;
 }
@@ -35,6 +37,24 @@ const getDurationFromDays = (days: number): string => {
   return `${days} дней`;
 };
 
+// Расчет даты окончания подписки
+const calculateUntilDate = (days: number, currentExpiresAt?: string): string => {
+  const now = new Date();
+  const baseDate = currentExpiresAt ? new Date(currentExpiresAt) : now;
+  
+  // Если текущая подписка уже истекла или ее нет, считаем от сегодня
+  const startDate = baseDate > now ? baseDate : now;
+  
+  const finalDate = new Date(startDate);
+  finalDate.setDate(finalDate.getDate() + days);
+
+  return finalDate.toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
 export default function PurchasePage() {
   // Выбранный ID тарифного плана (по умолчанию 6 месяцев)
   const [selectedPlanId, setSelectedPlanId] = useState('6m');
@@ -44,6 +64,8 @@ export default function PurchasePage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const { subscription } = useSubscriptionStore();
 
   // Загружаем тарифы с бэкенда
   useEffect(() => {
@@ -85,6 +107,7 @@ export default function PurchasePage() {
             duration: getDurationFromDays(tariff.days),
             totalPrice,
             monthlyPrice,
+            days: tariff.days,
             isPopular: planId === '6m' || tariff.days === 180, // 6 месяцев - популярный тариф
           };
         });
@@ -107,10 +130,10 @@ export default function PurchasePage() {
         setError('Не удалось загрузить тарифы. Пожалуйста, попробуйте позже.');
         // Fallback на дефолтные тарифы при ошибке
         setPlans([
-          { id: '1m', duration: '1 месяц', totalPrice: 150, monthlyPrice: 150 },
-          { id: '3m', duration: '3 месяца', totalPrice: 390, monthlyPrice: 130 },
-          { id: '6m', duration: '6 месяцев', totalPrice: 720, monthlyPrice: 120, isPopular: true },
-          { id: '1y', duration: '1 год', totalPrice: 1320, monthlyPrice: 110 },
+          { id: '1m', duration: '1 месяц', totalPrice: 150, monthlyPrice: 150, days: 30 },
+          { id: '3m', duration: '3 месяца', totalPrice: 390, monthlyPrice: 130, days: 90 },
+          { id: '6m', duration: '6 месяцев', totalPrice: 720, monthlyPrice: 120, days: 180, isPopular: true },
+          { id: '1y', duration: '1 год', totalPrice: 1320, monthlyPrice: 110, days: 365 },
         ]);
       } finally {
         setLoading(false);
@@ -145,14 +168,14 @@ export default function PurchasePage() {
         Инфо-блок об устройствах 
         На текущий момент количество устройств фиксировано (5 шт.)
       */}
-      <div className="bg-[#121212] rounded-[24px] p-6 border border-white/5 mb-6">
+      <div className="bg-[#121212] rounded-[16px] px-[14px] py-[14px] border border-white/5 mb-4 backdrop-blur-[7px] shadow-2xl">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-[#F55128]/10 rounded-2xl flex items-center justify-center text-2xl font-bold text-[#F55128] border border-[#F55128]/20">
+          <div className="w-9 h-9 bg-[#F55128]/10 rounded-xl flex items-center justify-center text-lg font-bold text-[#F55128] border border-[#F55128]/20">
             {SUBSCRIPTION_CONFIG.DEFAULT_DEVICES_COUNT}
           </div>
           <div>
             <h2 className="text-lg font-bold text-white">Устройств</h2>
-            <p className="text-white/40 text-xs font-medium">Доступно одновременно в подписке</p>
+            <p className="text-white/40 text-[11px] font-medium uppercase tracking-wider">Доступно одновременно</p>
           </div>
         </div>
       </div>
@@ -163,17 +186,17 @@ export default function PurchasePage() {
           <LoadingSpinner size="lg" />
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {plans.map((plan) => {
           const isSelected = selectedPlanId === plan.id;
           return (
             <button
               key={plan.id}
               onClick={() => setSelectedPlanId(plan.id)}
-              className={`relative p-5 rounded-[24px] border transition-all active:scale-[0.98] flex flex-col items-center justify-center text-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 ${
+              className={`relative px-[14px] py-[14px] rounded-[10px] border transition-all active:scale-[0.98] flex flex-col items-center justify-center text-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 ${
                 isSelected 
                   ? 'bg-[#F55128]/15 border-[#F55128] shadow-[0_0_25px_rgba(245,81,40,0.15)]' 
-                  : 'bg-[#121212] border-white/5 hover:border-white/10'
+                  : 'bg-[#121212] border-white/10 hover:bg-white/5'
               }`}
               aria-label={`Выбрать тариф ${plan.duration} за ${plan.totalPrice} рублей`}
               aria-pressed={isSelected}
@@ -217,11 +240,11 @@ export default function PurchasePage() {
           <button 
             onClick={() => setIsConfirmOpen(true)}
             disabled={loading || !selectedPlan}
-            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-2xl py-5 flex items-center justify-center gap-3 group shadow-lg shadow-[#F55128]/20 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-3 group shadow-lg shadow-[#F55128]/20 focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={`Продолжить оформление подписки за ${selectedPlan?.totalPrice || 0} рублей`}
             type="button"
           >
-            <span className="text-lg font-bold text-white">
+            <span className="text-base font-bold text-white">
               Продолжить за {selectedPlan?.totalPrice || 0} ₽
             </span>
             {selectedPlan?.oldPrice && (
@@ -234,7 +257,7 @@ export default function PurchasePage() {
       )}
 
       {/* Bottom Spacer - ensure space for Telegram UI or safe areas */}
-      <div className="min-h-[calc(40px+env(safe-area-inset-bottom))] w-full" aria-hidden="true" />
+      <div className="min-h-[calc(1rem+env(safe-area-inset-bottom))] w-full" aria-hidden="true" />
 
       {selectedPlan && (
         <PurchaseConfirmModal 
@@ -243,7 +266,7 @@ export default function PurchasePage() {
           price={selectedPlan.totalPrice}
           duration={selectedPlan.duration}
           devices={SUBSCRIPTION_CONFIG.DEFAULT_DEVICES_COUNT}
-          untilDate="6 февраля 2026"
+          untilDate={calculateUntilDate(selectedPlan.days, subscription?.expiresAt)}
         />
       )}
     </main>

@@ -54,9 +54,9 @@ export function useTelegramWebApp() {
     expandApp();
     const timer = setTimeout(expandApp, 150);
 
-    // 3. Пытаемся включить полноэкранный режим, если поддерживается
+    // 3. Пытаемся включить полноэкранный режим, если поддерживается (начиная с версии 8.0)
     // ВНИМАНИЕ: Многие клиенты разрешают это только после клика пользователя
-    if (tg.requestFullscreen) {
+    if (tg.isVersionAtLeast('8.0') && tg.requestFullscreen) {
       try {
         tg.requestFullscreen();
       } catch (e) {
@@ -85,7 +85,7 @@ export function useTelegramWebApp() {
    */
   const requestFullscreen = useCallback(() => {
     const tg = getTelegramWebApp();
-    if (tg && tg.requestFullscreen) {
+    if (tg && tg.isVersionAtLeast('8.0') && tg.requestFullscreen) {
       tg.requestFullscreen();
     }
   }, []);
