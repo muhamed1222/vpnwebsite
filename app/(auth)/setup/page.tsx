@@ -119,23 +119,6 @@ export default function SetupPage() {
     setIsInfoModalOpen(false);
   };
 
-  const handleCopyLinkFallback = () => {
-    // Используем реальную ссылку на подписку пользователя
-    const subUrl = subscriptionUrl || `${config.payment.subscriptionBaseUrl}/api/sub/${SUBSCRIPTION_CONFIG.DEFAULT_SUBSCRIPTION_ID}`;
-    navigator.clipboard.writeText(subUrl);
-
-    const webApp = getTelegramWebApp();
-    if (webApp) {
-      try {
-        if (typeof webApp.showAlert === 'function') {
-          webApp.showAlert('Ссылка скопирована для ручного ввода!');
-        }
-      } catch (e) {
-        // Игнорируем ошибки
-      }
-    }
-  };
-
   const stepVariants = {
     initial: (direction: number) => ({
       x: direction > 0 ? 50 : -50,
@@ -350,16 +333,6 @@ export default function SetupPage() {
               >
                 <span className="text-base font-medium">Далее</span>
                 <ArrowRight size={20} />
-              </button>
-
-              <button
-                onClick={() => {
-                  triggerHaptic('light');
-                  handleCopyLinkFallback();
-                }}
-                className="text-white/20 text-sm underline underline-offset-4 hover:text-white/40 transition-colors"
-              >
-                Не работает кнопка? Скопировать ссылку вручную
               </button>
             </div>
           </div>
