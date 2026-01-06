@@ -19,17 +19,21 @@ export interface ParsedInitData {
 
 /**
  * Парсит строку initData в объект
+ * ВАЖНО: Сохраняем оригинальные URL-encoded значения для правильной валидации
  */
 export function parseInitData(initData: string): ParsedInitData {
-  const params = new URLSearchParams(initData);
+  // Парсим вручную, чтобы сохранить оригинальные значения
   const data: ParsedInitData = {
     auth_date: '',
     hash: '',
   };
 
-  params.forEach((value, key) => {
+  const pairs = initData.split('&');
+  for (const pair of pairs) {
+    const [key, value = ''] = pair.split('=');
+    // Сохраняем оригинальное значение (URL-encoded)
     data[key] = value;
-  });
+  }
 
   return data;
 }
