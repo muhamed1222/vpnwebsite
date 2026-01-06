@@ -86,7 +86,7 @@ export default function SetupPage() {
     const userSubscriptionUrl = subscriptionUrl || `${config.payment.subscriptionBaseUrl}/api/sub/${SUBSCRIPTION_CONFIG.DEFAULT_SUBSCRIPTION_ID}`;
 
     // Платформо-зависимый протокол и имя (для iOS используем v2raytun)
-    let protocol = DEEP_LINK_PROTOCOL;
+    let protocol: string = DEEP_LINK_PROTOCOL;
     let vpnName = 'OutlivionVPN';
 
     if (platform === 'iOS') {
