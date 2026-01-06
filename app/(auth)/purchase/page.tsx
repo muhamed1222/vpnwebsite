@@ -27,6 +27,7 @@ const PLAN_DURATION_MAP: Record<string, string> = {
 
 // Конвертация дней в локализованное название
 const getDurationFromDays = (days: number): string => {
+  if (days === 7) return '7 дней (Тест)';
   if (days === 30) return '1 месяц';
   if (days === 90) return '3 месяца';
   if (days === 180) return '6 месяцев';
@@ -90,7 +91,7 @@ export default function PurchasePage() {
 
         // Сортируем тарифы по продолжительности
         transformedPlans.sort((a, b) => {
-          const order = ['1m', '3m', '6m', '1y'];
+          const order = ['plan_7', '1m', '3m', '6m', '1y'];
           return order.indexOf(a.id) - order.indexOf(b.id);
         });
 
@@ -194,7 +195,7 @@ export default function PurchasePage() {
                 <span className="text-xl font-bold text-white">
                   {plan.totalPrice} ₽
                 </span>
-                {plan.id !== '1m' && (
+                {plan.id !== '1m' && plan.id !== 'plan_7' && (
                   <div className={`text-[10px] font-medium mt-1.5 px-2 py-0.5 rounded-lg transition-colors ${
                     isSelected ? 'bg-[#F55128]/20 text-[#F55128]' : 'bg-white/5 text-white/40'
                   }`}>
