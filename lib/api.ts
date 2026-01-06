@@ -243,5 +243,12 @@ export const api = {
     price_stars: number;
     price_rub?: number;
   }>>('tariffs', { method: 'GET' }),
+
+  getReferralStats: () => apiFetch<{
+    totalCount: number;
+    trialCount: number;
+    premiumCount: number;
+    referralCode: string;
+  }>('user/referrals', { method: 'GET' }),
 };
 

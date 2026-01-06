@@ -1,23 +1,52 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Copy, FolderOpen, Check } from 'lucide-react';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useUserStore } from '@/store/user.store';
+import { api } from '@/lib/api';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 interface ReferralModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface ReferralStats {
+  totalCount: number;
+  trialCount: number;
+  premiumCount: number;
+  referralCode: string;
+}
+
 export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose }) => {
   const [isCopied, setIsCopied] = useState(false);
+  const [stats, setStats] = useState<ReferralStats | null>(null);
+  const [loading, setLoading] = useState(false);
   const { user } = useUserStore();
 
+  useEffect(() => {
+    if (isOpen) {
+      const fetchStats = async () => {
+        try {
+          setLoading(true);
+          const data = await api.getReferralStats();
+          setStats(data);
+        } catch (error) {
+          console.error('Failed to fetch referral stats:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchStats();
+    }
+  }, [isOpen]);
+
   // Формируем реальную реферальную ссылку
-  const botUsername = 'outlivion_bot'; // Юзернейм нашего бота
-  const referralLink = `https://t.me/${botUsername}/app?startapp=ref_${user?.id || ''}`;
+  const botUsername = 'outlivion_bot';
+  const referralCode = stats?.referralCode || (user?.id ? `REF${user.id}` : '');
+  const referralLink = `https://t.me/${botUsername}?start=${referralCode}`;
 
   /* 
     Обработчик копирования реферальной ссылки.
@@ -54,13 +83,31 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
             За каждого приглашенного друга вы получите <span className="text-[#F55128] font-medium">15% бонусных дней</span> от всех его пополнений.
           </p>
           <p className="text-white/60 text-sm leading-relaxed mb-6">
-            Например, если ваш друг продлит подписку на 1 месяц, вы получите бонусные дни к своей подписке.
+            Например, если ваш друг продлит подписку на 1 год, вы получите 55 дней.
           </p>
+          
           <div className="h-px bg-white/5 mb-4" />
-          <div className="flex justify-between items-center text-lg font-medium">
-            <span className="text-white/60">Друзей приглашено:</span>
-            <span className="text-white bg-[#F55128]/20 px-3 py-1 rounded-xl text-[#F55128]">0</span>
-          </div>
+          
+          {loading ? (
+            <div className="flex justify-center py-2">
+              <LoadingSpinner size="sm" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-base font-medium">
+                <span className="text-white/60">Друзей приглашено:</span>
+                <span className="text-white bg-[#F55128]/20 px-3 py-1 rounded-xl text-[#F55128]">{stats?.totalCount || 0}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-white/40">├ С пробной подпиской:</span>
+                <span className="text-white/60">{stats?.trialCount || 0} чел.</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-white/40">└ С премиум подпиской:</span>
+                <span className="text-white/60">{stats?.premiumCount || 0} чел.</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 2. Секция реферальной ссылки */}
