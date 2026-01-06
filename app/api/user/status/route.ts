@@ -55,9 +55,15 @@ export async function GET(request: NextRequest) {
       }).catch(() => null), // Если роут не существует, игнорируем
     ]);
 
-    let statusData = {
+    let statusData: {
+      ok: boolean;
+      status: 'active' | 'disabled' | 'not_found';
+      expiresAt: number | null;
+      usedTraffic: number;
+      dataLimit: number;
+    } = {
       ok: false,
-      status: 'not_found' as const,
+      status: 'not_found',
       expiresAt: null,
       usedTraffic: 0,
       dataLimit: 0,
@@ -67,7 +73,7 @@ export async function GET(request: NextRequest) {
       const data = await statusResponse.json();
       statusData = {
         ok: data.ok || false,
-        status: data.status === 'active' ? 'active' as const : 'disabled' as const,
+        status: data.status === 'active' ? 'active' : 'disabled',
         expiresAt: data.expiresAt ? (typeof data.expiresAt === 'number' ? data.expiresAt : new Date(data.expiresAt).getTime()) : null,
         usedTraffic: data.usedTraffic || 0,
         dataLimit: data.dataLimit || 0,
