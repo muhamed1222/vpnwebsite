@@ -21,9 +21,12 @@ import { PaymentModal } from '@/components/blocks/PaymentModal';
 import { VpnConnectionCard } from '@/components/blocks/VpnConnectionCard';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { config } from '@/lib/config';
+import { Maximize } from 'lucide-react';
+import { useTelegramWebApp } from '@/hooks/useTelegramWebApp';
 
 export default function ProfilePage() {
   const { user } = useUserStore();
+  const { requestFullscreen } = useTelegramWebApp();
   const [isTransactionsOpen, setIsTransactionsOpen] = React.useState(false);
   const [isReferralOpen, setIsReferralOpen] = React.useState(false);
   const [isTermsOpen, setIsTermsOpen] = React.useState(false);
@@ -66,10 +69,14 @@ export default function ProfilePage() {
     bg: string;
     onClick?: () => void;
     href?: string;
+    show?: boolean;
   }
 
+  const tg = getTelegramWebApp();
+  const isFullscreenSupported = !!tg?.requestFullscreen;
+
   return (
-    <main className="min-h-screen bg-black text-white p-4 font-sans select-none">
+    <main className="min-h-[var(--tg-viewport-height,100vh)] bg-black text-white p-4 font-sans select-none safe-area-padding">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between mb-8 pt-2">
         <Link href="/" className="p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform">
@@ -160,8 +167,19 @@ export default function ProfilePage() {
               bg: 'bg-[#F472B6]/10',
               onClick: () => setIsTermsOpen(true)
             },
+            {
+              /* 
+                Пункт "На весь экран" 
+                Назначение: Переход в полноэкранный режим (для поддерживаемых клиентов).
+              */
+              icon: <Maximize className="text-[#10B981]" size={20} />, 
+              label: 'На весь экран', 
+              bg: 'bg-[#10B981]/10',
+              onClick: requestFullscreen,
+              show: isFullscreenSupported
+            },
           ] as MenuItem[]
-        ).map((item, index) => {
+        ).filter(item => item.show !== false).map((item, index) => {
           const content = (
             <>
               <div className={`${item.bg} p-2 rounded-lg`}>

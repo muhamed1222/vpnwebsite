@@ -123,7 +123,7 @@ export default function PurchasePage() {
   const selectedPlan = plans.find(p => p.id === selectedPlanId) || plans[0];
 
   return (
-    <main className="min-h-screen bg-black text-white p-4 font-sans select-none flex flex-col">
+    <main className="min-h-[var(--tg-viewport-height,100vh)] bg-black text-white p-4 font-sans select-none flex flex-col safe-area-padding">
       {/* Шапка с кнопкой назад */}
       <div className="flex items-center mb-6 pt-2">
         <Link href="/" className="p-2 bg-white/5 rounded-xl border border-white/5 active:scale-90 transition-transform">

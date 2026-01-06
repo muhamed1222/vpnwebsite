@@ -123,7 +123,7 @@ export default function Home() {
 
   return (
     <main 
-      className="relative min-h-screen overflow-hidden font-sans select-none flex flex-col bg-main-gradient"
+      className="relative min-h-[var(--tg-viewport-height,100vh)] overflow-hidden font-sans select-none flex flex-col bg-main-gradient safe-area-padding"
       role="main"
       aria-label="Главная страница Outlivion VPN"
     >

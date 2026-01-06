@@ -58,7 +58,9 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <AuthProvider>
-            {children}
+            <div className="app-viewport">
+              {children}
+            </div>
           </AuthProvider>
         </ErrorBoundary>
       </body>

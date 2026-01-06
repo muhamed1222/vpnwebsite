@@ -28,17 +28,44 @@
   --content-speed: .6s;
   --content-ease: cubic-bezier(.215, .61, .355, 1);
   --content-stagger: .08s;
+  
+  /* Telegram Viewport Variables */
+  --tg-viewport-height: 100vh;
+  --tg-viewport-stable-height: 100vh;
 }
 
 html,
 body {
-  font-family: 'GT Walsheim Pro', var(--font-gt-walsheim-pro, system-ui, sans-serif);
-  font-size: 15px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--background);
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
+  min-height: var(--tg-viewport-height, 100vh);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Контейнер приложения для корректного скролла */
+.app-viewport {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Класс для учета безопасных зон, который можно добавить к любому контейнеру с фоном */
+.safe-area-padding {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .bg-main-gradient {

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { login } from '@/lib/auth';
 import { useSubscriptionStore } from '@/store/subscription.store';
+import { useTelegramWebApp } from '@/hooks/useTelegramWebApp';
 
 /**
  * Компонент для инициализации авторизации при загрузке приложения
@@ -10,6 +11,9 @@ import { useSubscriptionStore } from '@/store/subscription.store';
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { loading } = useSubscriptionStore();
+  
+  // Инициализация Telegram WebApp (развертывание, viewport, и т.д.)
+  useTelegramWebApp();
 
   useEffect(() => {
     // Автоматическая авторизация при загрузке приложения

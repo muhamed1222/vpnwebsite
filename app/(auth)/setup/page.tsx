@@ -148,7 +148,7 @@ export default function SetupPage() {
   */
   if (step === 2) {
     return (
-      <main className="relative min-h-screen bg-black overflow-hidden font-sans select-none flex flex-col">
+      <main className="relative min-h-[var(--tg-viewport-height,100vh)] bg-black overflow-hidden font-sans select-none flex flex-col safe-area-padding">
         {/* Фоновые круги с индикатором прогресса 33% */}
         <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
           <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
@@ -240,7 +240,7 @@ export default function SetupPage() {
   */
   if (step === 4) {
     return (
-      <main className="relative min-h-screen bg-black overflow-hidden font-sans select-none flex flex-col">
+      <main className="relative min-h-[var(--tg-viewport-height,100vh)] bg-black overflow-hidden font-sans select-none flex flex-col safe-area-padding">
         {/* Фоновые круги с индикатором прогресса 100% */}
         <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
           <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
@@ -302,7 +302,7 @@ export default function SetupPage() {
   */
   if (step === 3) {
     return (
-      <main className="relative min-h-screen bg-black overflow-hidden font-sans select-none flex flex-col">
+      <main className="relative min-h-[var(--tg-viewport-height,100vh)] bg-black overflow-hidden font-sans select-none flex flex-col safe-area-padding">
         {/* Фоновые круги с индикатором прогресса 66% */}
         <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
           <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
@@ -404,7 +404,7 @@ export default function SetupPage() {
     Начальный экран онбординга.
   */
   return (
-    <main className="relative min-h-screen bg-black overflow-hidden font-sans select-none flex flex-col">
+    <main className="relative min-h-[var(--tg-viewport-height,100vh)] bg-black overflow-hidden font-sans select-none flex flex-col safe-area-padding">
       <div className="absolute top-0 left-0 right-0 h-[60%] flex items-center justify-center opacity-20 pointer-events-none">
         <div className="absolute w-[300px] h-[300px] border border-white/40 rounded-full" />
         <div className="absolute w-[450px] h-[450px] border border-white/30 rounded-full" />

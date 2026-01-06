@@ -22,6 +22,7 @@ export interface TelegramWebApp {
   colorScheme: 'light' | 'dark';
   themeParams: ThemeParams;
   isExpanded: boolean;
+  isFullscreen?: boolean;
   viewportHeight: number;
   viewportStableHeight: number;
   headerColor: string;
@@ -34,6 +35,8 @@ export interface TelegramWebApp {
   BiometricManager: BiometricManager;
   ready(): void;
   expand(): void;
+  requestFullscreen?(): void;
+  exitFullscreen?(): void;
   close(): void;
   sendData(data: string): void;
   openLink(url: string, options?: { try_instant_view?: boolean }): void;
