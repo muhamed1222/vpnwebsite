@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, lazy, Suspense, useMemo, startTransition } from 'react';
-import { Plug, Settings, User, MessageSquare } from 'lucide-react';
+import { Plug, Settings, User, MessageSquare, Gift } from 'lucide-react';
 import Link from 'next/link';
 import { initTelegramWebApp, getTelegramPlatform, triggerHaptic } from '@/lib/telegram';
 import { useSubscriptionStore } from '@/store/subscription.store';
@@ -179,6 +179,33 @@ export default function Home() {
             <LogoIcon className="w-full h-full" />
           </div>
         </BackgroundCircles>
+      </div>
+
+      {/* Розыгрыш Баннер */}
+      <div className="relative mx-4 mb-4 z-10 mt-4">
+        <div className="bg-gradient-to-r from-[#F55128] to-[#FF6B3D] rounded-[16px] px-4 py-4 shadow-lg border border-white/10 backdrop-blur-[12px]">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="p-2 bg-white/20 rounded-xl">
+                <Gift size={24} className="text-white" aria-hidden="true" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-white mb-0.5">Розыгрыш</h2>
+                <p className="text-white/90 text-sm">Участвуй и выигрывай призы!</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                triggerHaptic('light');
+                // TODO: Добавить обработчик для перехода к деталям розыгрыша
+              }}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 active:scale-95 transition-all rounded-[10px] text-white text-sm font-medium border border-white/30"
+              aria-label="Подробнее о розыгрыше"
+            >
+              Подробнее
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Main Card */}
