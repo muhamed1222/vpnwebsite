@@ -200,7 +200,7 @@ export function useSubscriptionSetup(): UseSubscriptionSetupReturn {
     setSubscriptionCheckFailed(false);
     analytics.event('setup_check_subscription', { step: 3 });
     
-    const checkWithRetry = async (attempts = 0, maxAttempts = MAX_RETRY_ATTEMPTS): Promise<boolean> => {
+    const checkWithRetry = async (attempts = 0, maxAttempts = SETUP_CONSTANTS.MAX_RETRY_ATTEMPTS): Promise<boolean> => {
       try {
         const configData = await api.getUserConfig();
         
