@@ -75,7 +75,7 @@ export default function PurchasePage() {
       // Проверяем историю платежей
       const payments = await api.getPaymentsHistory();
       console.log('[PurchasePage] Payments history:', payments);
-      const hasPaidPayments = payments.some(p => p.status === 'success' || p.status === 'paid');
+      const hasPaidPayments = payments.some(p => p.status === 'success');
       console.log('[PurchasePage] hasPaidPayments:', hasPaidPayments);
       
       // Также проверяем статус подписки
