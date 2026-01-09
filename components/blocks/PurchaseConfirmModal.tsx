@@ -9,6 +9,7 @@ import { BottomSheet } from '../ui/BottomSheet';
 import { api } from '@/lib/api';
 import { login } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { logError } from '@/lib/utils/logging';
 
 interface PurchaseConfirmModalProps {
   isOpen: boolean;
@@ -89,7 +90,12 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
           }
         }
       } catch (e) {
-        console.error('Polling error:', e);
+        logError('Polling error', e, {
+          page: 'purchase',
+          action: 'pollPaymentStatus',
+          planId,
+          pollAttempt: pollAttemptsRef.current
+        });
       }
 
       if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
@@ -102,8 +108,8 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
     setIsProcessing(true);
     
     try {
-      // 1. Создаем реальный заказ через API
-      const response = await api.createOrder(planId);
+      // 1. Создаем реальный заказ через API с выбранным способом оплаты
+      const response = await api.createOrder(planId, selectedMethodId);
       
       if (response && response.paymentUrl) {
         setPaymentUrl(response.paymentUrl);
@@ -120,7 +126,12 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
         throw new Error('Не удалось получить ссылку на оплату');
       }
     } catch (error: any) {
-      console.error('Payment processing error:', error);
+      logError('Payment processing error', error, {
+        page: 'purchase',
+        action: 'createOrder',
+        planId,
+        price
+      });
       const webApp = getTelegramWebApp();
       const message = error.message || 'Произошла ошибка при создании платежа. Попробуйте позже.';
       
@@ -188,10 +199,28 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
             </div>
           </div>
 
+          {/* Кнопка выбора способа оплаты */}
+          <div 
+            className="css-dialog_content-item mb-3"
+            style={{ '--index': 2 } as React.CSSProperties}
+          >
+            <button 
+              onClick={() => setIsMethodsOpen(true)}
+              disabled={isProcessing}
+              className="w-full bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10 rounded-[10px] py-[14px] px-[14px] flex items-center justify-between text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex items-center gap-3">
+                {methodInfo.icon}
+                <span className="text-base font-medium">{methodInfo.name}</span>
+              </div>
+              <ChevronRight size={20} className="text-white/40" />
+            </button>
+          </div>
+
           {/* Кнопка оплаты */}
           <div 
             className="css-dialog_content-item"
-            style={{ '--index': 2 } as React.CSSProperties}
+            style={{ '--index': 3 } as React.CSSProperties}
           >
             <button 
               onClick={handlePayClick}

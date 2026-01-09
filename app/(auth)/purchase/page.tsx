@@ -8,6 +8,8 @@ import { SUBSCRIPTION_CONFIG } from '@/lib/constants';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useSubscriptionStore } from '@/store/subscription.store';
+import { logError } from '@/lib/utils/logging';
+import { getCache, setCache } from '@/lib/utils/cache';
 
 interface Plan {
   id: string;
@@ -67,9 +69,22 @@ export default function PurchasePage() {
   
   const { subscription } = useSubscriptionStore();
 
-  // Загружаем тарифы с бэкенда
+  // Загружаем тарифы с бэкенда с кэшированием
   useEffect(() => {
     const loadTariffs = async () => {
+      // Проверяем кэш (TTL: 5 минут)
+      const CACHE_KEY = 'tariffs';
+      const CACHE_TTL = 5 * 60 * 1000; // 5 минут
+      
+      const cachedTariffs = getCache<Plan[]>(CACHE_KEY);
+      if (cachedTariffs !== null && cachedTariffs.length > 0) {
+        setPlans(cachedTariffs);
+        const defaultPlan = cachedTariffs.find(p => p.id === 'plan_180') || cachedTariffs[0];
+        setSelectedPlanId(defaultPlan.id);
+        setLoading(false);
+        return;
+      }
+
       // Проверяем доступность Telegram WebApp
       const { checkTelegramWebApp } = await import('@/lib/telegram-fallback');
       const { isAvailable } = checkTelegramWebApp();
@@ -85,32 +100,60 @@ export default function PurchasePage() {
         setError(null);
         const tariffs = await api.getTariffs();
         
-        // Преобразуем тарифы с бэкенда в формат приложения
-        const transformedPlans: Plan[] = tariffs.map((tariff) => {
-          // Используем ID с бэкенда напрямую
-          const planId = tariff.id;
-          
-          // Используем цену в рублях с бэкенда
-          const totalPrice = tariff.price_rub || tariff.price_stars;
-          const monthlyPrice = Math.round(totalPrice / (tariff.days / 30));
-          
-          return {
-            id: planId,
-            duration: getDurationFromDays(tariff.days),
-            totalPrice,
-            monthlyPrice,
-            days: tariff.days,
-            isPopular: planId === 'plan_180' || tariff.days === 180, // 6 месяцев - популярный тариф
-          };
-        });
+        // Валидация данных тарифов
+        if (!Array.isArray(tariffs) || tariffs.length === 0) {
+          throw new Error('Тарифы не найдены');
+        }
+        
+        // Преобразуем тарифы с бэкенда в формат приложения с валидацией
+        const transformedPlans: Plan[] = tariffs
+          .filter((tariff) => {
+            // Валидация: проверяем наличие обязательных полей
+            return tariff && 
+                   tariff.id && 
+                   typeof tariff.days === 'number' && 
+                   tariff.days > 0 &&
+                   (tariff.price_rub || tariff.price_stars);
+          })
+          .map((tariff) => {
+            // Используем ID с бэкенда напрямую
+            const planId = tariff.id;
+            
+            // Используем цену в рублях с бэкенда
+            const totalPrice = tariff.price_rub || tariff.price_stars || 0;
+            const monthlyPrice = Math.round(totalPrice / (tariff.days / 30));
+            
+            return {
+              id: planId,
+              duration: getDurationFromDays(tariff.days),
+              totalPrice,
+              monthlyPrice,
+              days: tariff.days,
+              isPopular: planId === 'plan_180' || tariff.days === 180, // 6 месяцев - популярный тариф
+            };
+          });
+
+        // Проверяем, что после валидации остались тарифы
+        if (transformedPlans.length === 0) {
+          throw new Error('Нет валидных тарифов');
+        }
 
         // Сортируем тарифы по продолжительности
         transformedPlans.sort((a, b) => {
           const order = ['plan_7', 'plan_30', 'plan_90', 'plan_180', 'plan_365'];
-          return order.indexOf(a.id) - order.indexOf(b.id);
+          const aIndex = order.indexOf(a.id);
+          const bIndex = order.indexOf(b.id);
+          // Если ID не в списке, ставим в конец
+          if (aIndex === -1 && bIndex === -1) return a.days - b.days;
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
         });
 
         setPlans(transformedPlans);
+        
+        // Сохраняем в кэш
+        setCache(CACHE_KEY, transformedPlans, CACHE_TTL);
         
         // Устанавливаем выбранный тариф по умолчанию (6 месяцев)
         if (transformedPlans.length > 0) {
@@ -118,7 +161,10 @@ export default function PurchasePage() {
           setSelectedPlanId(defaultPlan.id);
         }
       } catch (err) {
-        console.error('Failed to load tariffs:', err);
+        logError('Failed to load tariffs', err, {
+          page: 'purchase',
+          action: 'loadTariffs'
+        });
         setError('Не удалось загрузить тарифы. Пожалуйста, попробуйте позже.');
         // Fallback на дефолтные тарифы при ошибке
         setPlans([

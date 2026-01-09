@@ -6,6 +6,7 @@ import { VpnKeyCode } from '@/components/ui/VpnKeyCode';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { getTelegramWebApp } from '@/lib/telegram';
+import { logError } from '@/lib/utils/logging';
 
 /**
  * Компонент для отображения VPN ключа и QR кода
@@ -34,7 +35,10 @@ export const VpnConnectionCard: React.FC = () => {
         setError('VPN ключ недоступен');
       }
     } catch (err) {
-      console.error('Error loading VPN key:', err);
+      logError('Error loading VPN key', err, {
+        page: 'profile',
+        action: 'loadVpnKey'
+      });
       setVpnKey(null);
       setError('Не удалось загрузить VPN ключ. Попробуйте обновить страницу.');
     } finally {
@@ -74,7 +78,10 @@ export const VpnConnectionCard: React.FC = () => {
           setQrError(null);
         }
       } catch (error) {
-        console.error('Ошибка при генерации QR:', error);
+        logError('Ошибка при генерации QR', error, {
+          page: 'profile',
+          action: 'generateQRCode'
+        });
         if (active) {
           setQrError('Не удалось сгенерировать QR код');
         }

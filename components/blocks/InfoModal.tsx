@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { BottomSheet } from '../ui/BottomSheet';
+import { VPN_APP_NAME } from '@/lib/constants';
 
 interface InfoModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, onConfirm
           className="mb-8 text-white/80 text-lg leading-relaxed css-dialog_content-item"
           style={{ '--index': 1 } as React.CSSProperties}
         >
-          После установки приложения <span className="text-white font-medium">v2RayTun</span>, обязательно вернитесь на этот экран и нажмите <span className="text-white font-medium">«Далее»</span>, чтобы добавить конфигурацию. 
+          После установки приложения <span className="text-white font-medium">{VPN_APP_NAME}</span>, обязательно вернитесь на этот экран и нажмите <span className="text-white font-medium">«Далее»</span>, чтобы добавить конфигурацию. 
           <br /><br />
           Без этого шага VPN работать не будет.
         </div>

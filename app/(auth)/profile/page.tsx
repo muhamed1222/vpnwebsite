@@ -22,6 +22,7 @@ import { VpnConnectionCard } from '@/components/blocks/VpnConnectionCard';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { config } from '@/lib/config';
 import { useTelegramWebApp } from '@/hooks/useTelegramWebApp';
+import { logError } from '@/lib/utils/logging';
 
 export default function ProfilePage() {
   const { user } = useUserStore();
@@ -42,18 +43,55 @@ export default function ProfilePage() {
     }
   }, []);
 
-  const handleCopyId = React.useCallback(() => {
+  const handleCopyId = React.useCallback(async () => {
     const idToCopy = user?.id?.toString() || '12345678';
-    navigator.clipboard.writeText(idToCopy);
     
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(idToCopy);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
 
-    const webApp = getTelegramWebApp();
-    if (webApp) {
-      webApp.showAlert(`ID ${idToCopy} скопирован в буфер обмена`);
+      const webApp = getTelegramWebApp();
+      if (webApp) {
+        webApp.showAlert(`ID ${idToCopy} скопирован в буфер обмена`);
+      }
+    } catch (error) {
+      logError('Failed to copy ID to clipboard', error, {
+        page: 'profile',
+        action: 'copyId',
+        userId: user?.id
+      });
+      
+      // Fallback: показываем сообщение об ошибке
+      const webApp = getTelegramWebApp();
+      if (webApp) {
+        webApp.showAlert('Не удалось скопировать ID. Попробуйте еще раз.');
+      } else {
+        alert('Не удалось скопировать ID. Попробуйте еще раз.');
+      }
     }
   }, [user?.id]);
+
+  const handleInstructionClick = React.useCallback(() => {
+    const webApp = getTelegramWebApp();
+    const instructionUrl = config.support.helpBaseUrl;
+    
+    try {
+      if (webApp) {
+        webApp.openLink(instructionUrl);
+      } else {
+        window.open(instructionUrl, '_blank');
+      }
+    } catch (error) {
+      logError('Failed to open instruction link', error, {
+        page: 'profile',
+        action: 'openInstruction',
+        url: instructionUrl
+      });
+      // Fallback: попытка открыть через window.open
+      window.open(instructionUrl, '_blank');
+    }
+  }, []);
 
   interface MenuItem {
     icon: React.ReactNode;
@@ -136,6 +174,7 @@ export default function ProfilePage() {
       {/* Action Buttons */}
       <div className="grid grid-cols-1 gap-4 mb-8">
         <button 
+          onClick={handleInstructionClick}
           className="w-full bg-[#121212] hover:bg-[#1a1a1a] active:scale-[0.98] transition-all border border-white/5 rounded-2xl p-5 flex items-center justify-center gap-3 focus:outline-none focus:ring-2 focus:ring-white/10"
           aria-label="Открыть инструкцию по настройке VPN для всех платформ"
           type="button"

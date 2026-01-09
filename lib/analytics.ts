@@ -5,7 +5,7 @@
 
 export type AnalyticsEvent =
   | { type: 'page_view'; page: string }
-  | { type: 'button_click'; button: string; page?: string }
+  | { type: 'button_click'; button: string; page?: string; [key: string]: unknown }
   | { type: 'modal_open'; modal: string }
   | { type: 'modal_close'; modal: string }
   | { type: 'purchase_start'; plan: string; price: number }
@@ -13,7 +13,8 @@ export type AnalyticsEvent =
   | { type: 'subscription_status_change'; status: string }
   | { type: 'error'; error: string; context?: string }
   | { type: 'api_call'; endpoint: string; success: boolean }
-  | { type: 'link_click'; url: string; linkType: 'external' | 'internal' };
+  | { type: 'link_click'; url: string; linkType: 'external' | 'internal' }
+  | { type: string; [key: string]: unknown }; // Для произвольных событий
 
 /**
  * Отправляет событие аналитики
@@ -67,5 +68,8 @@ export const analytics = {
   
   linkClick: (url: string, linkType: 'external' | 'internal' = 'external') => 
     trackEvent({ type: 'link_click', url, linkType }),
+  
+  event: (eventName: string, data?: Record<string, unknown>) => 
+    trackEvent({ type: eventName, ...data } as AnalyticsEvent),
 };
 

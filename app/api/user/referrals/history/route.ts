@@ -6,9 +6,9 @@ import { logError } from '@/lib/utils/logging';
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
 /**
- * API Route для получения статистики рефералов
+ * API Route для получения истории начислений рефералов
  * 
- * Проксирует GET запрос на бэкенд API /v1/user/referrals
+ * Проксирует GET запрос на бэкенд API /v1/user/referrals/history
  */
 export async function GET(request: NextRequest) {
   try {
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Проксируем запрос на бэкенд API с initData в Authorization header
-    const backendResponse = await fetch(`${BACKEND_API_URL}/v1/user/referrals`, {
+    const backendResponse = await fetch(`${BACKEND_API_URL}/v1/user/referrals/history`, {
       method: 'GET',
       headers: {
         'Authorization': initData, // initData в Authorization header
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json().catch(() => ({}));
       return NextResponse.json(
-        { error: errorData.error || 'Ошибка загрузки реферальной статистики' },
+        { error: errorData.error || 'Ошибка загрузки истории начислений' },
         { status: backendResponse.status }
       );
     }
@@ -58,10 +58,10 @@ export async function GET(request: NextRequest) {
     const data = await backendResponse.json();
     return NextResponse.json(data);
   } catch (error) {
-    logError('Referrals API error', error, {
+    logError('Referrals history API error', error, {
       page: 'api',
-      action: 'getReferralStats',
-      endpoint: '/api/user/referrals'
+      action: 'getReferralHistory',
+      endpoint: '/api/user/referrals/history'
     });
     return NextResponse.json(
       { error: 'Внутренняя ошибка сервера. Попробуйте позже.' },
@@ -69,4 +69,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

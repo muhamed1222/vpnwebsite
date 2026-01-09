@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateTelegramInitData } from '@/lib/telegram-validation';
 import { serverConfig } from '@/lib/config';
+import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
@@ -59,7 +60,11 @@ export async function GET(request: NextRequest) {
       config: configData.config || null,
     });
   } catch (error) {
-    console.error('Config API error:', error);
+    logError('Config API error', error, {
+      page: 'api',
+      action: 'getUserConfig',
+      endpoint: '/api/user/config'
+    });
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }

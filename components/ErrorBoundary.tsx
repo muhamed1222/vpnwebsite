@@ -2,6 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
+import { logError } from '@/lib/utils/logging';
 
 interface Props {
   children: ReactNode;
@@ -35,7 +36,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Логируем ошибку для отладки
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    logError('ErrorBoundary caught an error', error, {
+      action: 'componentDidCatch',
+      componentStack: errorInfo.componentStack
+    });
     
     // Здесь можно отправить ошибку в систему мониторинга
     // например, Sentry, LogRocket и т.д.

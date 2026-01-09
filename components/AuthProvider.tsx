@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { login } from '@/lib/auth';
 import { useSubscriptionStore } from '@/store/subscription.store';
 import { useTelegramWebApp } from '@/hooks/useTelegramWebApp';
+import { logError } from '@/lib/utils/logging';
 
 /**
  * Компонент для инициализации авторизации при загрузке приложения
@@ -21,7 +22,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         await login();
       } catch (error) {
-        console.error('Auth initialization failed:', error);
+        logError('Auth initialization failed', error, {
+          page: 'app',
+          action: 'initAuth'
+        });
       }
     };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, lazy, Suspense, useMemo } from 'react';
+import React, { useEffect, useState, lazy, Suspense, useMemo, startTransition } from 'react';
 import { Plug, Settings, User, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { initTelegramWebApp, getTelegramPlatform, triggerHaptic } from '@/lib/telegram';
@@ -10,8 +10,10 @@ import { BackgroundCircles } from '@/components/ui/BackgroundCircles';
 import { SUBSCRIPTION_CONFIG } from '@/lib/constants';
 import { checkTelegramWebApp, getPlatformSafe, isOnline, subscribeToOnlineStatus } from '@/lib/telegram-fallback';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { SubscriptionCardSkeleton } from '@/components/ui/SkeletonLoader';
+import { SubscriptionCardSkeleton, SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
+import { logError } from '@/lib/utils/logging';
+import { getCache, setCache } from '@/lib/utils/cache';
 
 // Lazy loading для модалок - загружаются только когда нужны
 const SupportModal = lazy(() =>
@@ -47,6 +49,7 @@ export default function Home() {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isOnlineStatus, setIsOnlineStatus] = useState(true);
   const [minPrice, setMinPrice] = useState<number>(SUBSCRIPTION_CONFIG.MIN_PRICE);
+  const [isPriceLoading, setIsPriceLoading] = useState(true);
 
   // Инициализируем платформу с fallback
   const [platform] = useState(() => {
@@ -67,9 +70,20 @@ export default function Home() {
     return formatExpirationDate(subscription?.expiresAt);
   }, [subscription?.expiresAt]);
 
-  // Загружаем минимальную цену из тарифов
+  // Загружаем минимальную цену из тарифов с кэшированием
   useEffect(() => {
     const loadMinPrice = async () => {
+      // Проверяем кэш (TTL: 5 минут)
+      const CACHE_KEY = 'min_price';
+      const CACHE_TTL = 5 * 60 * 1000; // 5 минут
+      
+      const cachedPrice = getCache<number>(CACHE_KEY);
+      if (cachedPrice !== null) {
+        setMinPrice(cachedPrice);
+        setIsPriceLoading(false);
+        return;
+      }
+
       // Ждем инициализации Telegram WebApp
       const { checkTelegramWebApp } = await import('@/lib/telegram-fallback');
       const { isAvailable } = checkTelegramWebApp();
@@ -86,10 +100,19 @@ export default function Home() {
           // Находим минимальную цену среди всех тарифов в рублях
           const min = Math.min(...tariffs.map(t => t.price_rub || t.price_stars));
           setMinPrice(min);
+          // Сохраняем в кэш
+          setCache(CACHE_KEY, min, CACHE_TTL);
         }
       } catch (error) {
-        // Тихая ошибка - просто используем дефолтное значение
-        // Не логируем, чтобы не засорять консоль
+        // Логируем ошибку для мониторинга
+        logError('Failed to load tariffs for min price', error, {
+          page: 'home',
+          action: 'loadMinPrice'
+        });
+        // Используем дефолтное значение - пользователь не увидит ошибку,
+        // но цена будет отображаться корректно
+      } finally {
+        setIsPriceLoading(false);
       }
     };
 
@@ -100,15 +123,15 @@ export default function Home() {
 
   useEffect(() => {
     // Подписываемся на изменения онлайн статуса
-    // Используем setTimeout для избежания синхронного setState
-    setTimeout(() => {
+    // Используем startTransition для оптимизации обновлений состояния
+    startTransition(() => {
       setIsOnlineStatus(isOnline());
-    }, 0);
+    });
 
     const unsubscribe = subscribeToOnlineStatus((status) => {
-      setTimeout(() => {
+      startTransition(() => {
         setIsOnlineStatus(status);
-      }, 0);
+      });
     });
 
     return unsubscribe;
@@ -289,9 +312,13 @@ export default function Home() {
               </div>
               <span className="text-base font-medium">Купить подписку</span>
             </div>
-            <span className="text-base font-medium opacity-80 group-hover:opacity-100 transition-opacity" aria-label={`Цена от ${minPrice} рублей`}>
-              от {minPrice} ₽
-            </span>
+            {isPriceLoading ? (
+              <SkeletonLoader variant="text" width="80px" height="1.25rem" className="inline-block" />
+            ) : (
+              <span className="text-base font-medium opacity-80 group-hover:opacity-100 transition-opacity" aria-label={`Цена от ${minPrice} рублей`}>
+                от {minPrice} ₽
+              </span>
+            )}
           </Link>
 
           {/* 

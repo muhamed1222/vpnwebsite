@@ -4,21 +4,17 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CloudDownload, ChevronLeft, ArrowRight } from 'lucide-react';
 import { triggerHaptic } from '@/lib/telegram';
-
-interface Step2InstallProps {
-    direction: number;
-    variants: any;
-    onBack: () => void;
-    onNext: () => void;
-    onInstall: () => void;
-}
+import { VPN_APP_NAME } from '@/lib/constants';
+import type { Step2InstallProps } from '@/types/setup';
 
 export const Step2Install: React.FC<Step2InstallProps> = ({
     direction,
     variants,
     onBack,
     onNext,
-    onInstall
+    onInstall,
+    onCheckInstalled,
+    isChecking = false
 }) => {
     return (
         <motion.div
@@ -50,7 +46,7 @@ export const Step2Install: React.FC<Step2InstallProps> = ({
                     <h1 className="text-2xl font-medium text-white">Приложение</h1>
                     <div className="space-y-2">
                         <p className="text-white/80 text-base leading-relaxed max-w-[300px] mx-auto">
-                            Установите приложение v2RayTun
+                            Установите приложение {VPN_APP_NAME}
                         </p>
                         <p className="text-white/40 text-xs leading-relaxed max-w-[260px] mx-auto">
                             Это наш официальный защищенный клиент для работы VPN

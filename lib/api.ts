@@ -1,6 +1,7 @@
 import { getTelegramInitData } from './telegram';
 import { config } from './config';
 import { withRetry, withTimeout } from './api-retry';
+import { logWarn, logError } from './utils/logging';
 
 export interface ApiError {
   error: string;
@@ -31,7 +32,10 @@ export const apiFetch = async <T = unknown>(
   // В режиме разработки подставляем mock-данные, если приложение запущено не в Telegram
   if (!initData && process.env.NODE_ENV === 'development') {
     initData = 'query_id=STUB&user=%7B%22id%22%3A12345678%2C%22first_name%22%3A%22Developer%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22dev%22%2C%22language_code%22%3A%22ru%22%7D&auth_date=1623822263&hash=7777777777777777777777777777777777777777777777777777777777777777';
-    console.warn('[API] Using MOCK Telegram initData for development');
+    logWarn('[API] Using MOCK Telegram initData for development', {
+      action: 'apiFetch',
+      environment: 'development'
+    });
   }
 
   if (!initData) {
@@ -166,7 +170,10 @@ export const api = {
       };
     } catch (error) {
       // Логируем ошибку для отладки
-      console.error('[API auth] Error:', error);
+      logError('[API auth] Error', error, {
+        action: 'auth',
+        endpoint: '/api/me'
+      });
       throw error;
     }
   },
@@ -256,13 +263,35 @@ export const api = {
   }>('user/referrals', { method: 'GET' }),
 
   // Создание заказа
-  createOrder: (planId: string) => apiFetch<{
+  createOrder: (planId: string, paymentMethod?: string) => apiFetch<{
     orderId: string;
     status: 'pending';
     paymentUrl: string;
   }>('orders/create', {
     method: 'POST',
-    body: JSON.stringify({ planId })
+    body: JSON.stringify({ planId, paymentMethod })
   }),
+
+  // Автопродление
+  getAutorenewal: () => apiFetch<{
+    enabled: boolean;
+  }>('user/autorenewal', { method: 'GET' }),
+
+  updateAutorenewal: (enabled: boolean) => apiFetch<{
+    enabled: boolean;
+  }>('user/autorenewal', {
+    method: 'POST',
+    body: JSON.stringify({ enabled })
+  }),
+
+  // История начислений рефералов
+  getReferralHistory: () => apiFetch<Array<{
+    id: string;
+    amount: number;
+    currency: string;
+    date: number;
+    referralId: string;
+    status: 'pending' | 'completed' | 'cancelled';
+  }>>('user/referrals/history', { method: 'GET' }),
 };
 

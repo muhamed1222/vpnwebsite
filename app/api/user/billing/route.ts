@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateTelegramInitData } from '@/lib/telegram-validation';
 import { serverConfig } from '@/lib/config';
+import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
@@ -57,7 +58,11 @@ export async function GET(request: NextRequest) {
     const data = await backendResponse.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Billing API error:', error);
+    logError('Billing API error', error, {
+      page: 'api',
+      action: 'getBilling',
+      endpoint: '/api/user/billing'
+    });
     return NextResponse.json(
       { error: 'Внутренняя ошибка сервера. Попробуйте позже.' },
       { status: 500 }

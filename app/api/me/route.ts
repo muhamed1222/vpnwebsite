@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateTelegramInitData } from '@/lib/telegram-validation';
 import { serverConfig } from '@/lib/config';
+import { logError, logWarn } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
@@ -26,7 +27,11 @@ export async function GET(request: NextRequest) {
     const botToken = serverConfig.telegram.botToken;
 
     if (!botToken) {
-      console.error('[API /me] CRITICAL ERROR: TELEGRAM_BOT_TOKEN is not set in environment variables');
+      logError('[API /me] CRITICAL ERROR: TELEGRAM_BOT_TOKEN is not set in environment variables', undefined, {
+        page: 'api',
+        action: 'validateConfig',
+        endpoint: '/api/me'
+      });
       return NextResponse.json(
         { error: 'Внутренняя ошибка конфигурации сервера' },
         { status: 500 }
@@ -58,10 +63,15 @@ export async function GET(request: NextRequest) {
 
     // Логируем для отладки (только в development)
     if (process.env.NODE_ENV === 'development') {
-      console.log('[API /me] Backend response status:', backendResponse.status);
+      // В development режиме логируем для отладки
       if (!backendResponse.ok) {
         const errorText = await backendResponse.clone().text().catch(() => '');
-        console.error('[API /me] Backend error:', errorText);
+        logError('[API /me] Backend error', new Error(errorText), {
+          page: 'api',
+          action: 'backendRequest',
+          endpoint: '/api/me',
+          status: backendResponse.status
+        });
       }
     }
 
@@ -105,7 +115,11 @@ export async function GET(request: NextRequest) {
     // Преобразование будет сделано в клиентском коде
     return NextResponse.json(backendData);
   } catch (error) {
-    console.error('Me API error:', error);
+    logError('Me API error', error, {
+      page: 'api',
+      action: 'getUserData',
+      endpoint: '/api/me'
+    });
 
     // Обработка сетевых ошибок
     if (error instanceof Error) {

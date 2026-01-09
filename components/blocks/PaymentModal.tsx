@@ -1,9 +1,12 @@
 'use client';
 
-import React from 'react';
-import { CreditCard, ShieldCheck, ShieldAlert } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CreditCard, ShieldCheck, ShieldAlert, Loader2 } from 'lucide-react';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useSubscriptionStore } from '@/store/subscription.store';
+import { api } from '@/lib/api';
+import { getTelegramWebApp } from '@/lib/telegram';
+import { logError } from '@/lib/utils/logging';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -17,6 +20,64 @@ interface PaymentModalProps {
 export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
   const { subscription } = useSubscriptionStore();
   const isActive = subscription?.status === 'active';
+  const [autorenewalEnabled, setAutorenewalEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Загружаем статус автопродления при открытии модалки
+  useEffect(() => {
+    if (isOpen) {
+      loadAutorenewalStatus();
+    }
+  }, [isOpen]);
+
+  const loadAutorenewalStatus = async () => {
+    try {
+      setIsLoading(true);
+      const data = await api.getAutorenewal();
+      setAutorenewalEnabled(data.enabled);
+    } catch (error) {
+      logError('Failed to load autorenewal status', error, {
+        page: 'profile',
+        action: 'loadAutorenewalStatus'
+      });
+      // При ошибке оставляем текущее значение
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleAutorenewal = async () => {
+    const newValue = !autorenewalEnabled;
+    setIsUpdating(true);
+
+    try {
+      await api.updateAutorenewal(newValue);
+      setAutorenewalEnabled(newValue);
+      
+      const webApp = getTelegramWebApp();
+      if (webApp) {
+        webApp.showAlert(
+          newValue 
+            ? 'Автопродление включено' 
+            : 'Автопродление отключено'
+        );
+      }
+    } catch (error) {
+      logError('Failed to update autorenewal', error, {
+        page: 'profile',
+        action: 'updateAutorenewal',
+        enabled: newValue
+      });
+      
+      const webApp = getTelegramWebApp();
+      if (webApp) {
+        webApp.showAlert('Не удалось обновить настройки автопродления. Попробуйте позже.');
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Оплата">
@@ -56,20 +117,48 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
           </p>
         </div>
 
-        {/* 3. Кнопка управления автопродлением */}
-        <button 
-          className="w-full bg-[#F55128]/10 hover:bg-[#F55128]/20 active:scale-[0.98] transition-all border border-[#F55128]/20 rounded-[10px] p-5 flex items-center justify-center mb-4 css-dialog_content-item"
+        {/* 3. Переключатель автопродления */}
+        <div 
+          className="bg-white/5 rounded-[16px] p-5 border border-white/5 mb-4 css-dialog_content-item"
           style={{ '--index': 3 } as React.CSSProperties}
-          onClick={() => {
-            // В будущем здесь будет вызов API для включения автопродления
-            const webApp = (window as any).Telegram?.WebApp;
-            if (webApp) {
-              webApp.showAlert('Управление автопродлением будет доступно в ближайшем обновлении');
-            }
-          }}
         >
-          <span className="text-lg font-medium text-[#F55128]">Включить автопродление</span>
-        </button>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h3 className="text-white font-medium text-base mb-1">
+                Автопродление подписки
+              </h3>
+              <p className="text-white/60 text-sm">
+                {autorenewalEnabled 
+                  ? 'Подписка будет продлеваться автоматически' 
+                  : 'Подписка не будет продлеваться автоматически'}
+              </p>
+            </div>
+            {isLoading ? (
+              <Loader2 size={24} className="animate-spin text-white/40" />
+            ) : (
+              <button
+                onClick={handleToggleAutorenewal}
+                disabled={isUpdating}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#F55128]/50 focus:ring-offset-2 focus:ring-offset-[#121212] disabled:opacity-50 disabled:cursor-not-allowed ${
+                  autorenewalEnabled ? 'bg-[#F55128]' : 'bg-white/20'
+                }`}
+                aria-label={autorenewalEnabled ? 'Отключить автопродление' : 'Включить автопродление'}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                    autorenewalEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            )}
+          </div>
+          {isUpdating && (
+            <div className="mt-3 flex items-center gap-2 text-white/60 text-sm">
+              <Loader2 size={16} className="animate-spin" />
+              <span>Обновление...</span>
+            </div>
+          )}
+        </div>
 
         <p 
           className="text-white/40 text-sm text-center px-4 css-dialog_content-item"

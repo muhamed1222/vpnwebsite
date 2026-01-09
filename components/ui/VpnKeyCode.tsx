@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { getTelegramWebApp } from '@/lib/telegram';
+import { logError } from '@/lib/utils/logging';
 
 interface VpnKeyCodeProps {
   value: string;
@@ -55,7 +56,10 @@ export const VpnKeyCode: React.FC<VpnKeyCodeProps> = ({
         setShowTooltip(false);
       }, 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+      logError('Failed to copy', error, {
+        action: 'copyToClipboard',
+        component: 'VpnKeyCode'
+      });
       const webApp = getTelegramWebApp();
       if (webApp) {
         webApp.showAlert('Не удалось скопировать');

@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { getTelegramWebApp } from '@/lib/telegram';
+import { logError } from '@/lib/utils/logging';
 
 /**
  * Хук для инициализации и управления Telegram WebApp
@@ -46,7 +47,9 @@ export function useTelegramWebApp() {
           tg.disableVerticalSwipes();
         }
       } catch (e) {
-        console.error('Telegram expand/disableSwipes failed:', e);
+        logError('Telegram expand/disableSwipes failed', e, {
+          action: 'expandTelegramWebApp'
+        });
       }
     };
 

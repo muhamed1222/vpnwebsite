@@ -1,13 +1,23 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Copy, FolderOpen, Check } from 'lucide-react';
+import { Copy, FolderOpen, Check, Calendar, Coins } from 'lucide-react';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useUserStore } from '@/store/user.store';
 import { api } from '@/lib/api';
 import { config } from '@/lib/config';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { logError } from '@/lib/utils/logging';
+
+interface ReferralHistoryItem {
+  id: string;
+  amount: number;
+  currency: string;
+  date: number;
+  referralId: string;
+  status: 'pending' | 'completed' | 'cancelled';
+}
 
 interface ReferralModalProps {
   isOpen: boolean;
@@ -24,7 +34,9 @@ interface ReferralStats {
 export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose }) => {
   const [isCopied, setIsCopied] = useState(false);
   const [stats, setStats] = useState<ReferralStats | null>(null);
+  const [history, setHistory] = useState<ReferralHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const { user } = useUserStore();
 
   useEffect(() => {
@@ -35,14 +47,37 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
           const data = await api.getReferralStats();
           setStats(data);
         } catch (error) {
-          console.error('Failed to fetch referral stats:', error);
+          logError('Failed to fetch referral stats', error, {
+            page: 'profile',
+            action: 'fetchReferralStats',
+            userId: user?.id
+          });
         } finally {
           setLoading(false);
         }
       };
+
+      const fetchHistory = async () => {
+        try {
+          setHistoryLoading(true);
+          const data = await api.getReferralHistory();
+          setHistory(data || []);
+        } catch (error) {
+          logError('Failed to fetch referral history', error, {
+            page: 'profile',
+            action: 'fetchReferralHistory',
+            userId: user?.id
+          });
+          setHistory([]);
+        } finally {
+          setHistoryLoading(false);
+        }
+      };
+
       fetchStats();
+      fetchHistory();
     }
-  }, [isOpen]);
+  }, [isOpen, user?.id]);
 
   // Формируем реальную реферальную ссылку
   const referralCode = stats?.referralCode || (user?.id ? `REF${user.id}` : '');
@@ -66,7 +101,11 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
           webApp.showAlert('Реферальная ссылка скопирована!');
         }
       } catch (e) {
-        console.error('Failed to show alert:', e);
+        logError('Failed to show alert', e, {
+          page: 'profile',
+          action: 'showAlert',
+          userId: user?.id
+        });
       }
     }
   };
@@ -135,14 +174,70 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
           style={{ '--index': 3 } as React.CSSProperties}
         >
           <h3 className="text-lg font-medium mb-6 text-white/90">История начислений:</h3>
-          <div className="flex flex-col items-center justify-center py-12 text-center bg-white/5 rounded-[16px] border border-dashed border-white/10">
-            <div className="bg-white/5 p-4 rounded-xl mb-4 border border-white/5">
-              <FolderOpen size={32} className="text-white/20" />
+          {historyLoading ? (
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="sm" />
             </div>
-            <p className="text-white/40 text-base font-medium">
-              Еще нет записей
-            </p>
-          </div>
+          ) : history.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center bg-white/5 rounded-[16px] border border-dashed border-white/10">
+              <div className="bg-white/5 p-4 rounded-xl mb-4 border border-white/5">
+                <FolderOpen size={32} className="text-white/20" />
+              </div>
+              <p className="text-white/40 text-sm max-w-[240px]">
+                История начислений появится здесь после того, как ваши друзья начнут пополнять подписку
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto">
+              {history.map((item) => {
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleDateString('ru-RU', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                });
+                
+                const statusColors = {
+                  completed: 'text-green-500',
+                  pending: 'text-yellow-500',
+                  cancelled: 'text-white/40'
+                };
+
+                const statusLabels = {
+                  completed: 'Завершено',
+                  pending: 'Ожидание',
+                  cancelled: 'Отменено'
+                };
+
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-white/5 rounded-[10px] p-4 border border-white/5 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="bg-[#F55128]/10 p-2 rounded-lg border border-[#F55128]/20 flex-shrink-0">
+                        <Coins size={18} className="text-[#F55128]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-white font-medium">
+                            +{item.amount} {item.currency === 'RUB' ? '₽' : item.currency}
+                          </span>
+                          <span className={`text-xs ${statusColors[item.status]}`}>
+                            {statusLabels[item.status]}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/60 text-xs">
+                          <Calendar size={12} />
+                          <span>{formattedDate}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </BottomSheet>

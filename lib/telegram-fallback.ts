@@ -11,7 +11,9 @@ export function checkTelegramWebApp(): {
   const isAvailable = !!webApp;
 
   if (!isAvailable && typeof window !== 'undefined') {
-    console.warn('Telegram WebApp not available. Running in fallback mode.');
+    logWarn('Telegram WebApp not available. Running in fallback mode.', {
+      action: 'checkTelegramWebApp'
+    });
   }
 
   return {

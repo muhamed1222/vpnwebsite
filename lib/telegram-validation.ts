@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { logError } from './utils/logging';
 
 /**
  * Валидация Telegram WebApp initData
@@ -93,7 +94,9 @@ export function validateTelegramInitData(
     // Используем простое сравнение строк, как на бэкенде, для совместимости
     return hash.toLowerCase() === calculatedHash.toLowerCase();
   } catch (error) {
-    console.error('Error validating Telegram initData:', error);
+    logError('Error validating Telegram initData', error, {
+      action: 'validateTelegramInitData'
+    });
     return false;
   }
 }
@@ -109,7 +112,9 @@ export function extractUserFromInitData(initData: string) {
     }
     return null;
   } catch (error) {
-    console.error('Error extracting user from initData:', error);
+    logError('Error extracting user from initData', error, {
+      action: 'extractUserFromInitData'
+    });
     return null;
   }
 }

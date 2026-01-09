@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, ExternalLink, MessageSquare } from 'lucide-reac
 import { getTelegramWebApp } from '@/lib/telegram';
 import { config } from '@/lib/config';
 import { BottomSheet } from '../ui/BottomSheet';
+import { logError } from '@/lib/utils/logging';
 
 interface FAQItem {
   question: string;
@@ -26,7 +27,10 @@ const FAQ_DATA: FAQItem[] = [
           вставьте ссылку на подписку из вашего профиля на другом устройстве. 
           Воспользуйтесь инструкцией, чтобы сделать это ⤵️
         </p>
-        <button className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-[10px] px-[14px] py-[14px] flex items-center justify-center gap-2 transition-colors">
+        <button 
+          onClick={handleInstructionClick}
+          className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-[10px] px-[14px] py-[14px] flex items-center justify-center gap-2 transition-colors"
+        >
           <span className="font-medium text-white/90">Подробная инструкция</span>
           <ExternalLink size={18} className="text-white/40" />
         </button>
@@ -57,6 +61,27 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
       webApp.openTelegramLink(supportUrl);
     } else {
       window.open(supportUrl, '_blank');
+    }
+  };
+
+  const handleInstructionClick = () => {
+    const webApp = getTelegramWebApp();
+    const instructionUrl = config.support.helpBaseUrl;
+    
+    try {
+      if (webApp) {
+        webApp.openLink(instructionUrl);
+      } else {
+        window.open(instructionUrl, '_blank');
+      }
+    } catch (error) {
+      logError('Failed to open instruction link', error, {
+        page: 'support',
+        action: 'openInstruction',
+        url: instructionUrl
+      });
+      // Fallback: попытка открыть через window.open
+      window.open(instructionUrl, '_blank');
     }
   };
 

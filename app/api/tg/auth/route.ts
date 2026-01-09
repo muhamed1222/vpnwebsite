@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateTelegramInitData } from '@/lib/telegram-validation';
 import { serverConfig } from '@/lib/config';
+import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
@@ -31,7 +32,11 @@ export async function POST(request: NextRequest) {
       );
 
       if (!isValid) {
-        console.error('Invalid Telegram initData signature in auth route');
+        logError('Invalid Telegram initData signature in auth route', undefined, {
+          page: 'api',
+          action: 'validateInitData',
+          endpoint: '/api/tg/auth'
+        });
         return NextResponse.json(
           { error: 'Invalid Telegram initData signature' },
           { status: 401 }
@@ -106,7 +111,11 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Auth API error:', error);
+    logError('Auth API error', error, {
+      page: 'api',
+      action: 'auth',
+      endpoint: '/api/tg/auth'
+    });
     
     // Обработка сетевых ошибок
     if (error instanceof Error) {

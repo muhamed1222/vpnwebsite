@@ -3,6 +3,9 @@
  * Все магические числа и строки должны быть вынесены сюда
  */
 
+// VPN Application Name
+export const VPN_APP_NAME = 'v2RayTun' as const;
+
 // Subscription Configuration
 export const SUBSCRIPTION_CONFIG = {
   DEFAULT_SUBSCRIPTION_ID: 'EyR56URS1GQXgcLS',

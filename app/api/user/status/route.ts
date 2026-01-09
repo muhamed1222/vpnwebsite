@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateTelegramInitData } from '@/lib/telegram-validation';
 import { serverConfig } from '@/lib/config';
+import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
@@ -89,7 +90,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(statusData);
   } catch (error) {
-    console.error('Status API error:', error);
+    logError('Status API error', error, {
+      page: 'api',
+      action: 'getUserStatus',
+      endpoint: '/api/user/status'
+    });
     
     // Обработка сетевых ошибок
     if (error instanceof Error) {

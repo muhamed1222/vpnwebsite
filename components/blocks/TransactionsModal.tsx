@@ -5,6 +5,7 @@ import { FolderOpen, Calendar, CreditCard, CheckCircle2, XCircle, Clock } from '
 import { BottomSheet } from '../ui/BottomSheet';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { logError } from '@/lib/utils/logging';
 
 interface Transaction {
   id: string;
@@ -75,7 +76,10 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ isOpen, on
           const data = await api.getPaymentsHistory();
           setTransactions(data as Transaction[]);
         } catch (err) {
-          console.error('Failed to load transactions:', err);
+          logError('Failed to load transactions', err, {
+            page: 'profile',
+            action: 'loadTransactions'
+          });
           setError('Не удалось загрузить историю транзакций');
         } finally {
           setLoading(false);
