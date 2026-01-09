@@ -12,7 +12,7 @@ const gtWalsheimPro = localFont({
   weight: "400",
   fallback: ['system-ui', 'sans-serif'],
   preload: true, // Предзагрузка шрифта
-  adjustFontFallback: true, // Оптимизация fallback
+  adjustFontFallback: 'Arial', // Оптимизация fallback - в Next.js 16 должно быть строкой или false
 });
 
 // Using the same font for mono (no separate mono font available)

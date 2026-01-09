@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
   // Оптимизация производительности
-  swcMinify: true,
+  // swcMinify удален - это опция по умолчанию в Next.js 16+
   poweredByHeader: false,
   compress: true,
   async headers() {
