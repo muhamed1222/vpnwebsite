@@ -10,7 +10,7 @@ const gtWalsheimPro = localFont({
   variable: "--font-gt-walsheim-pro",
   display: "swap",
   weight: "400",
-  fallback: ['system-ui', 'sans-serif'],
+  fallback: ['system-ui', '-apple-system', 'sans-serif'],
   preload: true, // Предзагрузка шрифта
   adjustFontFallback: 'Arial', // Оптимизация fallback - в Next.js 16 должно быть строкой или false
 });

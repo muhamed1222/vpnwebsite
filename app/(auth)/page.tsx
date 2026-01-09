@@ -182,7 +182,7 @@ export default function Home() {
       </div>
 
       {/* Розыгрыш Баннер */}
-      <div className="relative mx-auto mb-4 z-10 mt-4 max-w-[450px] w-full -ml-[43px] -mr-[43px]">
+      <div className="relative mx-auto mb-4 z-10 mt-[100px] max-w-[450px] w-full">
         <div className="bg-gradient-to-r from-[#F55128] to-[#FF6B3D] rounded-[16px] px-1.5 py-1.5 shadow-lg border border-white/10 backdrop-blur-[12px]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center flex-1" style={{ gap: '5px' }}>
