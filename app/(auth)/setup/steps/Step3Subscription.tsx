@@ -25,7 +25,7 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = ({
     const progress = (step / 4) * 100;
 
     const handleCopyLink = async () => {
-        analytics.buttonClick('setup_copy_subscription_link', { step: 3 });
+        analytics.event('setup_copy_subscription_link', { step: 3 });
         
         if (!subscriptionUrl) {
             logError('No subscription URL available for copying', undefined, {

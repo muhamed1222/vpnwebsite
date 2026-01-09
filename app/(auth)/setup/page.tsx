@@ -12,6 +12,7 @@ import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { logError } from '@/lib/utils/logging';
 import { analytics } from '@/lib/analytics';
 import { handleExternalLink, validateSubscriptionUrl, handleDeepLinkError, checkAppInstalled } from '@/lib/utils/setupHelpers';
+import type { StepDirection } from '@/types/setup';
 
 // Dynamic imports for code splitting - only load steps when needed
 const Step1Welcome = dynamic(() => import('./steps/Step1Welcome').then(m => ({ default: m.Step1Welcome })), { ssr: false });
@@ -35,6 +36,8 @@ export default function SetupPage() {
   const [isLoadingSubscriptionUrl, setIsLoadingSubscriptionUrl] = useState(true);
   const [isAddingSubscription, setIsAddingSubscription] = useState(false);
   const [isCheckingApp, setIsCheckingApp] = useState(false);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
+  const [isCheckingVpn, setIsCheckingVpn] = useState(false);
 
   // Detect platform after mount to avoid hydration mismatch
   // Note: This setState in useEffect is intentional to avoid SSR/CSR mismatch
@@ -87,7 +90,7 @@ export default function SetupPage() {
     Открывает внешнюю ссылку с базой знаний.
   */
   const handleOtherDeviceClick = () => {
-    analytics.buttonClick('setup_other_device', { step: 1 });
+    analytics.event('setup_other_device', { step: 1 });
     handleExternalLink(config.support.helpBaseUrl);
   };
 
@@ -95,7 +98,7 @@ export default function SetupPage() {
     Шаг 2: Открытие информационного модального окна перед установкой приложения.
   */
   const handleInstallClick = () => {
-    analytics.buttonClick('setup_install', { step: 2 });
+    analytics.event('setup_install', { step: 2 });
     
     try {
       setIsInfoModalOpen(true);
@@ -117,7 +120,7 @@ export default function SetupPage() {
   */
   const handleCheckAppInstalled = async () => {
     setIsCheckingApp(true);
-    analytics.buttonClick('setup_check_app_installed', { step: 2 });
+    analytics.event('setup_check_app_installed', { step: 2 });
     
     try {
       // Формируем test deep link для проверки
@@ -160,7 +163,7 @@ export default function SetupPage() {
     Для iOS используется протокол v2raytun://import/.
   */
   const handleAddSubscription = async () => {
-    analytics.buttonClick('setup_add_subscription', { step: 3 });
+    analytics.event('setup_add_subscription', { step: 3 });
     
     if (isAddingSubscription) return; // Предотвращаем множественные клики
     
@@ -187,27 +190,35 @@ export default function SetupPage() {
         if (webApp && webApp.showAlert) {
           webApp.showAlert('Ошибка: неверный формат ссылки на подписку. Попробуйте обновить страницу.');
         }
+        setIsAddingSubscription(false);
         return;
       }
 
-    // Платформо-зависимый протокол (для iOS используем v2raytun)
-    const protocol = platform === 'iOS' ? config.deepLink.iosProtocol : config.deepLink.defaultProtocol;
-    const vpnName = config.deepLink.vpnName;
+      // Платформо-зависимый протокол (для iOS используем v2raytun)
+      const protocol = platform === 'iOS' ? config.deepLink.iosProtocol : config.deepLink.defaultProtocol;
+      const vpnName = config.deepLink.vpnName;
 
-    // Формируем прямую ссылку (deep link) без редиректа
-    const subUrl = `${protocol}${userSubscriptionUrl}#${vpnName}`;
+      // Формируем прямую ссылку (deep link) без редиректа
+      const subUrl = `${protocol}${userSubscriptionUrl}#${vpnName}`;
 
-    try {
-      handleExternalLink(subUrl);
-      analytics.event('setup_subscription_added', { step: 3, platform });
-      
-      // Запускаем проверку успешности добавления подписки через 2 секунды
-      setTimeout(() => {
-        handleCheckSubscriptionAdded();
-      }, 2000);
+      try {
+        handleExternalLink(subUrl);
+        analytics.event('setup_subscription_added', { step: 3, platform });
+        
+        // Запускаем проверку успешности добавления подписки через 2 секунды
+        setTimeout(() => {
+          handleCheckSubscriptionAdded();
+        }, 2000);
+      } catch (error) {
+        await handleDeepLinkError(subUrl, error, 'handleAddSubscription');
+      } finally {
+        setIsAddingSubscription(false);
+      }
     } catch (error) {
-      await handleDeepLinkError(subUrl, error, 'handleAddSubscription');
-    } finally {
+      logError('Failed to add subscription', error, {
+        page: 'setup',
+        action: 'handleAddSubscription'
+      });
       setIsAddingSubscription(false);
     }
   };
@@ -258,6 +269,42 @@ export default function SetupPage() {
   };
 
   /* 
+    Проверка статуса VPN подключения
+  */
+  const handleCheckVpnStatus = async () => {
+    setIsCheckingVpn(true);
+    analytics.event('setup_check_vpn', { step: 4 });
+    
+    try {
+      const statusData = await api.getUserStatus();
+      
+      if (statusData.ok && statusData.status === 'active') {
+        const webApp = getTelegramWebApp();
+        if (webApp && webApp.showAlert) {
+          webApp.showAlert('VPN подключение активно!');
+        }
+        analytics.event('setup_vpn_confirmed', { step: 4 });
+      } else {
+        const webApp = getTelegramWebApp();
+        if (webApp && webApp.showAlert) {
+          webApp.showAlert('VPN подключение не активно. Проверьте настройки приложения.');
+        }
+      }
+    } catch (error) {
+      logError('Failed to check VPN status', error, {
+        page: 'setup',
+        action: 'handleCheckVpnStatus'
+      });
+      const webApp = getTelegramWebApp();
+      if (webApp && webApp.showAlert) {
+        webApp.showAlert('Не удалось проверить статус VPN. Попробуйте позже.');
+      }
+    } finally {
+      setIsCheckingVpn(false);
+    }
+  };
+
+  /* 
     Подтверждение установки в InfoModal.
     Динамически выбирает ссылку на магазин в зависимости от платформы.
   */
@@ -298,7 +345,7 @@ export default function SetupPage() {
     })
   };
 
-  const [direction, setDirection] = useState(0);
+  const [direction, setDirection] = useState<StepDirection>(1);
 
   const goToStep = (newStep: number) => {
     if (newStep < 1 || newStep > 4) return;
@@ -347,7 +394,7 @@ export default function SetupPage() {
             direction={direction}
             variants={stepVariants}
             step={3}
-            subscriptionUrl={subscriptionUrl}
+            subscriptionUrl={subscriptionUrl || undefined}
             isAdding={isAddingSubscription}
             isChecking={isCheckingSubscription}
             onBack={() => goToStep(2)}

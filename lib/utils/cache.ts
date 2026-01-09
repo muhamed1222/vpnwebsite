@@ -50,13 +50,13 @@ export function getCache<T>(key: string): T | null {
 export function setCache<T>(key: string, data: T, ttl?: number): void {
   if (typeof window === 'undefined') return;
 
-  try {
-    const entry: CacheEntry<T> = {
-      data,
-      timestamp: Date.now(),
-      ttl,
-    };
+  const entry: CacheEntry<T> = {
+    data,
+    timestamp: Date.now(),
+    ttl,
+  };
 
+  try {
     localStorage.setItem(key, JSON.stringify(entry));
   } catch (error) {
     // Если localStorage переполнен, пытаемся очистить старые записи

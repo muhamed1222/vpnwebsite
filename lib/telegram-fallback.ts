@@ -1,4 +1,5 @@
 import { getTelegramWebApp } from './telegram';
+import { logWarn } from './utils/logging';
 
 /**
  * Проверяет доступность Telegram WebApp и предоставляет fallback

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Plug, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { triggerHaptic } from '@/lib/telegram';
+import { analytics } from '@/lib/analytics';
 import type { Step1WelcomeProps } from '@/types/setup';
 
 export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
@@ -52,7 +53,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
             <div className="relative z-10 p-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))]">
                 <button
                     onClick={() => {
-                        analytics.buttonClick('setup_start_current_device', { step: 1 });
+                        analytics.event('setup_start_current_device', { step: 1 });
                         onNext();
                     }}
                     className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] text-base font-medium text-white shadow-lg shadow-[#F55128]/20"
@@ -64,7 +65,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({
                 <button
                     onClick={() => {
                         triggerHaptic('light');
-                        analytics.buttonClick('setup_other_device', { step: 1 });
+                        analytics.event('setup_other_device', { step: 1 });
                         onOtherDevice();
                     }}
                     className="w-full h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] text-base font-medium text-white"

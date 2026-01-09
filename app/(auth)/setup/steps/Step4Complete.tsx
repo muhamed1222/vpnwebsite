@@ -99,7 +99,7 @@ export const Step4Complete: React.FC<Step4CompleteProps> = ({
                     <button
                         onClick={() => {
                             triggerHaptic('light');
-                            analytics.buttonClick('setup_restart', { step: 4 });
+                            analytics.event('setup_restart', { step: 4 });
                             onRestart();
                         }}
                         className="w-full h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center text-white/60"

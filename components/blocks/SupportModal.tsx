@@ -17,7 +17,7 @@ interface SupportModalProps {
   onClose: () => void;
 }
 
-const FAQ_DATA: FAQItem[] = [
+const getFAQData = (handleInstructionClick: () => void): FAQItem[] => [
   {
     question: 'Как подключить VPN на дополнительные устройства',
     answer: (
@@ -90,7 +90,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
       <div className="flex flex-col space-y-4">
         {/* FAQ Section */}
         <div className="space-y-3">
-          {FAQ_DATA.map((item, index) => {
+          {getFAQData(handleInstructionClick).map((item, index) => {
             const isItemOpen = openIndex === index;
             return (
               <div 
@@ -125,7 +125,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
         {/* Bottom Support Button */}
         <div 
           className="pt-4 css-dialog_content-item"
-          style={{ '--index': FAQ_DATA.length + 1 } as React.CSSProperties}
+          style={{ '--index': getFAQData(handleInstructionClick).length + 1 } as React.CSSProperties}
         >
           <button 
             onClick={handleSupportClick}
@@ -138,7 +138,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
 
         <p 
           className="text-white/30 text-center text-xs css-dialog_content-item"
-          style={{ '--index': FAQ_DATA.length + 2 } as React.CSSProperties}
+          style={{ '--index': getFAQData(handleInstructionClick).length + 2 } as React.CSSProperties}
         >
           Мы отвечаем в течение 15 минут
         </p>
