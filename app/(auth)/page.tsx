@@ -48,7 +48,7 @@ const formatExpirationDate = (dateString?: string): string => {
 export default function Home() {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isOnlineStatus, setIsOnlineStatus] = useState(true);
-  const [minPrice, setMinPrice] = useState<number>(SUBSCRIPTION_CONFIG.MIN_PRICE);
+  const [minPrice, setMinPrice] = useState<number>(99);
   const [isPriceLoading, setIsPriceLoading] = useState(true);
 
   // Инициализируем платформу с fallback
