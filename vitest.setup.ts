@@ -2,7 +2,28 @@ import '@testing-library/jest-dom';
 
 // Mock window.Telegram для тестов
 global.window = global.window || {};
-(global.window as any).Telegram = {
+
+interface TelegramWebApp {
+  initData: string;
+  initDataUnsafe: {
+    user: {
+      id: number;
+      first_name: string;
+      username: string;
+    };
+  };
+  ready: () => void;
+  expand: () => void;
+  close: () => void;
+  showAlert: () => void;
+  openLink: () => void;
+}
+
+interface TelegramMock {
+  WebApp: TelegramWebApp;
+}
+
+(global.window as Window & { Telegram?: TelegramMock }).Telegram = {
   WebApp: {
     initData: 'test_init_data',
     initDataUnsafe: {

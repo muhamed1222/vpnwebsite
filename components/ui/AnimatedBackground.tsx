@@ -29,9 +29,14 @@ export const AnimatedBackground: React.FC = memo(() => {
             navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4 ||
             nav.deviceMemory && nav.deviceMemory < 4;
         
-        if (prefersReducedMotion || isLowEndDevice) {
-            setShouldAnimate(false);
-        }
+        // Используем setTimeout для предотвращения синхронного setState
+        const timer = setTimeout(() => {
+            if (prefersReducedMotion || isLowEndDevice) {
+                setShouldAnimate(false);
+            }
+        }, 0);
+        
+        return () => clearTimeout(timer);
     }, []);
 
     return (

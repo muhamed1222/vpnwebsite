@@ -16,11 +16,16 @@ export function usePlatform(): string {
     if (typeof window !== 'undefined') {
       const { isAvailable } = checkTelegramWebApp();
       
-      if (isAvailable) {
-        setPlatform(getTelegramPlatform());
-      } else {
-        setPlatform(getPlatformSafe());
-      }
+      // Используем setTimeout для предотвращения синхронного setState
+      const timer = setTimeout(() => {
+        if (isAvailable) {
+          setPlatform(getTelegramPlatform());
+        } else {
+          setPlatform(getPlatformSafe());
+        }
+      }, 0);
+      
+      return () => clearTimeout(timer);
     }
   }, []);
 
