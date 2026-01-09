@@ -58,15 +58,12 @@ export interface Step2InstallProps extends BaseStepProps {
  */
 export interface Step3SubscriptionProps extends BaseStepProps {
   step?: number;
-  subscriptionUrl?: string;
   isAdding?: boolean;
   isChecking?: boolean;
-  isDefaultUrl?: boolean;
   checkFailed?: boolean;
   onBack: () => void;
   onNext: () => void;
   onAdd: () => void;
-  onCheckAgain?: () => void;
 }
 
 /**

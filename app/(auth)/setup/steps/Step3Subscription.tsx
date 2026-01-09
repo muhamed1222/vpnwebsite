@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useState, memo } from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, ChevronLeft, CirclePlus, ArrowRight, Copy, Check, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Plus, ChevronLeft, CirclePlus, ArrowRight } from 'lucide-react';
 import { triggerHaptic } from '@/lib/telegram';
-import { logError } from '@/lib/utils/logging';
-import { analytics } from '@/lib/analytics';
 import type { Step3SubscriptionProps } from '@/types/setup';
 
 export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
@@ -15,54 +13,12 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
     onNext,
     onAdd,
     step = 3,
-    subscriptionUrl,
     isAdding = false,
     isChecking = false,
-    isDefaultUrl = false,
-    checkFailed = false,
-    onCheckAgain
+    checkFailed = false
 }) => {
-    const [copied, setCopied] = useState(false);
-    const [showManualInstructions, setShowManualInstructions] = useState(false);
-    
     // Вычисляем прогресс динамически (step / 4 * 100)
     const progress = (step / 4) * 100;
-
-    const handleCopyLink = async () => {
-        analytics.event('setup_copy_subscription_link', { step: 3 });
-        
-        if (!subscriptionUrl) {
-            logError('No subscription URL available for copying', undefined, {
-                page: 'setup',
-                action: 'handleCopyLink'
-            });
-            analytics.event('setup_error', {
-                step: 3,
-                action: 'handleCopyLink',
-                error: 'No subscription URL available'
-            });
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(subscriptionUrl);
-            setCopied(true);
-            triggerHaptic('light');
-            analytics.event('setup_subscription_link_copied', { step: 3 });
-            setTimeout(() => setCopied(false), 2000);
-        } catch (error) {
-            logError('Failed to copy subscription URL', error, {
-                page: 'setup',
-                action: 'handleCopyLink',
-                url: subscriptionUrl
-            });
-            analytics.event('setup_error', {
-                step: 3,
-                action: 'handleCopyLink',
-                error: error instanceof Error ? error.message : String(error)
-            });
-        }
-    };
     return (
         <motion.div
             key="step3"
@@ -127,28 +83,10 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
                             <p className="text-white/60 text-base leading-relaxed max-w-[300px] mx-auto">
                                 Нажмите «Добавить», чтобы настройки применились автоматически
                             </p>
-                            {isDefaultUrl && (
-                                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg max-w-[300px] mx-auto">
-                                    <div className="flex items-start gap-2">
-                                        <AlertTriangle size={18} className="text-yellow-500 mt-0.5 flex-shrink-0" />
-                                        <p className="text-yellow-500/90 text-xs leading-relaxed text-left">
-                                            Используется стандартная ссылка. Если у вас есть персональная ссылка, используйте её.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                            {subscriptionUrl && (
-                                <div className="max-w-[300px] mx-auto">
-                                    <p className="text-white/40 text-xs mb-2 text-left">Ссылка на подписку:</p>
-                                    <div className="p-3 bg-white/5 border border-white/10 rounded-lg break-all">
-                                        <p className="text-white/80 text-xs font-mono">{subscriptionUrl}</p>
-                                    </div>
-                                </div>
-                            )}
                             {checkFailed && (
                                 <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg max-w-[300px] mx-auto">
                                     <p className="text-red-500/90 text-xs leading-relaxed text-center">
-                                        Не удалось подтвердить добавление подписки. Если вы добавили подписку вручную, нажмите «Проверить снова» или «Далее».
+                                        Не удалось подтвердить добавление подписки. Если вы добавили подписку вручную, нажмите «Далее» для продолжения.
                                     </p>
                                 </div>
                             )}
@@ -164,7 +102,7 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
                         triggerHaptic('medium');
                         onAdd();
                     }}
-                    disabled={isAdding}
+                    disabled={isAdding || isChecking}
                     className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Добавить подписку"
                     aria-busy={isAdding}
@@ -182,73 +120,14 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
                     )}
                 </button>
 
-                <div className="flex flex-col gap-2">
-                    {subscriptionUrl && (
-                        <button
-                            onClick={handleCopyLink}
-                            className="w-full h-fit bg-transparent border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white"
-                            aria-label={copied ? "Скопировано" : "Скопировать ссылку подписки"}
-                            aria-live="polite"
-                        >
-                            {copied ? (
-                                <>
-                                    <Check size={20} aria-hidden="true" />
-                                    <span className="text-base font-medium">Скопировано</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Copy size={20} aria-hidden="true" />
-                                    <span className="text-base font-medium">Скопировать ссылку</span>
-                                </>
-                            )}
-                        </button>
-                    )}
-                    {checkFailed && onCheckAgain && (
-                        <button
-                            onClick={() => {
-                                triggerHaptic('light');
-                                onCheckAgain();
-                            }}
-                            className="w-full h-fit bg-transparent border border-white/20 hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white"
-                            aria-label="Проверить снова"
-                        >
-                            <RefreshCw size={20} aria-hidden="true" />
-                            <span className="text-base font-medium">Проверить снова</span>
-                        </button>
-                    )}
-                    <button
-                        onClick={() => {
-                            setShowManualInstructions(!showManualInstructions);
-                        }}
-                        className="w-full h-fit bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white/60"
-                        aria-label={showManualInstructions ? "Скрыть инструкцию" : "Показать инструкцию по ручному добавлению"}
-                    >
-                        <span className="text-base font-medium">
-                            {showManualInstructions ? 'Скрыть инструкцию' : 'Как добавить вручную?'}
-                        </span>
-                    </button>
-                    {showManualInstructions && (
-                        <div className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-2">
-                            <p className="text-white/80 text-sm font-medium mb-2">Инструкция по ручному добавлению:</p>
-                            <ol className="text-white/60 text-xs space-y-1.5 list-decimal list-inside">
-                                <li>Скопируйте ссылку на подписку (кнопка выше)</li>
-                                <li>Откройте приложение v2RayTun</li>
-                                <li>Найдите раздел «Подписки» или «Subscriptions»</li>
-                                <li>Нажмите «Добавить подписку» или «Add Subscription»</li>
-                                <li>Вставьте скопированную ссылку</li>
-                                <li>Нажмите «Далее» для продолжения</li>
-                            </ol>
-                        </div>
-                    )}
-                    <button
-                        onClick={onNext}
-                        className="w-full h-fit bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white/40"
-                        aria-label="Перейти к следующему шагу"
-                    >
-                        <span className="text-base font-medium">Далее</span>
-                        <ArrowRight size={20} aria-hidden="true" />
-                    </button>
-                </div>
+                <button
+                    onClick={onNext}
+                    className="w-full h-fit bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white/40"
+                    aria-label="Перейти к следующему шагу"
+                >
+                    <span className="text-base font-medium">Далее</span>
+                    <ArrowRight size={20} aria-hidden="true" />
+                </button>
             </div>
         </motion.div>
     );

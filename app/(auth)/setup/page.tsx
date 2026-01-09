@@ -49,14 +49,6 @@ export default function SetupPage() {
     }
   }, [platform, subscriptionSetup, goToStep]);
 
-  // Обработчик повторной проверки подписки (мемоизирован)
-  const handleCheckAgain = useCallback(async () => {
-    const success = await subscriptionSetup.checkSubscriptionAdded();
-    if (success) {
-      setTimeout(() => goToStep(4), 1000);
-    }
-  }, [subscriptionSetup, goToStep]);
-
   // Мемоизированный рендер шагов
   const renderStep = useMemo(() => {
     switch (step) {
@@ -90,15 +82,12 @@ export default function SetupPage() {
             direction={direction}
             variants={STEP_ANIMATION_VARIANTS}
             step={3}
-            subscriptionUrl={subscriptionSetup.subscriptionUrl.url || undefined}
             isAdding={subscriptionSetup.isAdding}
             isChecking={subscriptionSetup.isChecking}
-            isDefaultUrl={subscriptionSetup.subscriptionUrl.isDefault}
             checkFailed={subscriptionSetup.checkFailed}
             onBack={goBack}
             onNext={goNext}
             onAdd={handleAddSubscription}
-            onCheckAgain={handleCheckAgain}
           />
         );
       case 4:
@@ -116,7 +105,7 @@ export default function SetupPage() {
       default:
         return null;
     }
-  }, [step, direction, platform, goNext, goBack, goToStep, subscriptionSetup, appInstall, handleOtherDeviceClick, handleAddSubscription, handleCheckAgain]);
+  }, [step, direction, platform, goNext, goBack, goToStep, subscriptionSetup, appInstall, handleOtherDeviceClick, handleAddSubscription]);
 
   return (
     <main className="w-full bg-black text-white pt-[calc(100px+env(safe-area-inset-top))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none flex flex-col min-h-screen">
