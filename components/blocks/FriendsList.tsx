@@ -8,6 +8,7 @@ import {
   XCircleIcon,
   UserIcon
 } from '@heroicons/react/24/outline';
+import { formatDateWithTime } from '@/lib/utils/date';
 
 interface FriendsListProps {
   friends: ReferralFriend[];
@@ -109,34 +110,40 @@ export default function FriendsList({ friends }: FriendsListProps) {
 
     return (
       <div className="mb-6 last:mb-0">
-        <h4 className="text-sm font-semibold text-white/60 mb-3 uppercase tracking-wider">
+        <h4 className="text-sm font-semibold text-white/60 mb-3 uppercase tracking-wider flex items-center gap-2">
           {title} ({friends.length})
+          {status === 'qualified' && <span className="w-2 h-2 bg-green-500 rounded-full"></span>}
+          {status === 'bound' && <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>}
+          {status === 'not_qualified' && <span className="w-2 h-2 bg-red-500 rounded-full"></span>}
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {friends.map((friend) => (
             <div
               key={friend.id}
-              className="bg-white/5 rounded-[10px] p-3 border border-white/5 flex items-center justify-between"
+              className="bg-white/5 rounded-[12px] p-4 border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all"
             >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div className="flex-shrink-0" aria-hidden="true">
                   {getStatusIcon(status)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-white font-medium text-sm truncate">
+                  <div className="text-white font-medium text-base truncate mb-1">
                     {friend.name || friend.tg_username || 'Без имени'}
                   </div>
-                  <div className={`text-xs mt-1 ${getStatusColor(status)}`}>
+                  <div className={`text-sm ${getStatusColor(status)} font-medium`}>
                     {getStatusText(friend)}
+                  </div>
+                  <div className="text-white/40 text-xs mt-1">
+                    Приглашен {formatDateWithTime(friend.bound_at)}
                   </div>
                 </div>
               </div>
               {friend.tickets_from_friend_total > 0 && (
-                <div className="flex-shrink-0 text-right">
-                  <div className="text-[#F55128] font-bold text-base">
+                <div className="flex-shrink-0 text-right ml-4">
+                  <div className="text-[#F55128] font-bold text-lg">
                     +{friend.tickets_from_friend_total}
                   </div>
-                  <div className="text-white/40 text-xs">б.</div>
+                  <div className="text-white/40 text-xs">билетов</div>
                 </div>
               )}
             </div>
@@ -150,32 +157,40 @@ export default function FriendsList({ friends }: FriendsListProps) {
   if (!shouldGroup && friends.length > 0) {
     return (
       <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5 mb-6 relative z-10">
-        <h3 className="text-lg font-medium text-white mb-4">Друзья</h3>
-        <div className="space-y-2">
+        <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+          Друзья ({friends.length})
+          <span className="text-sm text-white/60 font-normal">
+            • {friends.filter(f => f.status === 'qualified').length} засчитано
+          </span>
+        </h3>
+        <div className="space-y-3">
           {friends.map((friend) => (
             <div
               key={friend.id}
-              className="bg-white/5 rounded-[10px] p-3 border border-white/5 flex items-center justify-between"
+              className="bg-white/5 rounded-[12px] p-4 border border-white/10 flex items-center justify-between hover:bg-white/10 transition-all"
             >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div className="flex-shrink-0">
                   {getStatusIcon(friend.status)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-white font-medium text-sm truncate">
+                  <div className="text-white font-medium text-base truncate mb-1">
                     {friend.name || friend.tg_username || 'Без имени'}
                   </div>
-                  <div className={`text-xs mt-1 ${getStatusColor(friend.status)}`}>
+                  <div className={`text-sm ${getStatusColor(friend.status)} font-medium`}>
                     {getStatusText(friend)}
+                  </div>
+                  <div className="text-white/40 text-xs mt-1">
+                    Приглашен {formatDateWithTime(friend.bound_at)}
                   </div>
                 </div>
               </div>
               {friend.tickets_from_friend_total > 0 && (
-                <div className="flex-shrink-0 text-right">
-                  <div className="text-[#F55128] font-bold text-base">
+                <div className="flex-shrink-0 text-right ml-4">
+                  <div className="text-[#F55128] font-bold text-lg">
                     +{friend.tickets_from_friend_total}
                   </div>
-                  <div className="text-white/40 text-xs">б.</div>
+                  <div className="text-white/40 text-xs">билетов</div>
                 </div>
               )}
             </div>
@@ -187,11 +202,16 @@ export default function FriendsList({ friends }: FriendsListProps) {
 
   return (
     <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5 mb-6 relative z-10">
-      <h3 className="text-lg font-medium text-white mb-5">Друзья</h3>
+      <h3 className="text-lg font-medium text-white mb-5 flex items-center gap-2">
+        Друзья ({friends.length})
+        <span className="text-sm text-white/60 font-normal">
+          • {friends.filter(f => f.status === 'qualified').length} засчитано
+        </span>
+      </h3>
       <div>
-        {groupedFriends && renderFriendGroup('Засчитаны', groupedFriends.qualified, 'qualified')}
-        {groupedFriends && renderFriendGroup('Ожидают оплату', groupedFriends.bound, 'bound')}
-        {groupedFriends && renderFriendGroup('Не засчитаны', [...groupedFriends.not_qualified, ...groupedFriends.blocked], 'not_qualified')}
+        {groupedFriends && renderFriendGroup('🏆 Засчитаны', groupedFriends.qualified, 'qualified')}
+        {groupedFriends && renderFriendGroup('⏳ Ожидают оплату', groupedFriends.bound, 'bound')}
+        {groupedFriends && renderFriendGroup('❌ Не засчитаны', [...groupedFriends.not_qualified, ...groupedFriends.blocked], 'not_qualified')}
       </div>
     </div>
   );
