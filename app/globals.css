@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'GT Walsheim Pro';
+  src: url('/fonts/GTWalsheimPro-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --font-sans: var(--font-gt-walsheim-pro), system-ui, -apple-system, sans-serif;
+  --font-sans: 'GT Walsheim Pro', var(--font-gt-walsheim-pro), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -27,6 +35,10 @@
   --tg-viewport-stable-height: 100vh;
 }
 
+html {
+  font-family: var(--font-gt-walsheim-pro), 'GT Walsheim Pro', system-ui, -apple-system, sans-serif !important;
+}
+
 html,
 body {
   height: 100%;
@@ -36,6 +48,7 @@ body {
   background: var(--background);
   /* Отключаем стандартный pull-to-refresh, чтобы он не мешал Telegram */
   overscroll-behavior-y: none;
+  font-family: var(--font-gt-walsheim-pro), 'GT Walsheim Pro', system-ui, -apple-system, sans-serif !important;
 }
 
 body {
@@ -43,6 +56,18 @@ body {
   min-height: var(--tg-viewport-height, 100vh);
   display: flex;
   flex-direction: column;
+}
+
+/* Применяем шрифт ко всем элементам по умолчанию */
+*,
+*::before,
+*::after {
+  font-family: inherit;
+}
+
+/* Убеждаемся, что все текстовые элементы используют шрифт */
+p, h1, h2, h3, h4, h5, h6, span, div, button, a, input, textarea, select, label {
+  font-family: var(--font-gt-walsheim-pro), 'GT Walsheim Pro', system-ui, -apple-system, sans-serif !important;
 }
 
 /* Контейнер приложения для корректного скролла */

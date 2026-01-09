@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Plug, ChevronLeft, AlertTriangle } from 'lucide-react';
+import { BoltIcon as Plug, ChevronLeftIcon as ChevronLeft, ExclamationTriangleIcon as AlertTriangle } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { triggerHaptic } from '@/lib/telegram';
 import { analytics } from '@/lib/analytics';
@@ -29,7 +29,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = memo(({
         >
             <div className="sticky top-0 z-50 flex items-center justify-between w-fit mb-4">
                 <Link href="/" onClick={() => triggerHaptic('light')} className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15">
-                    <ChevronLeft size={24} className="text-white" />
+                    <ChevronLeft className="w-6 h-6 text-white" />
                 </Link>
             </div>
 
@@ -37,7 +37,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = memo(({
                 <div className="relative w-32 h-32 flex items-center justify-center mb-12">
                     <div className="absolute inset-0 bg-[#F55128]/20 rounded-full blur-2xl" aria-hidden="true" />
                     <div className="relative bg-white/5 p-8 rounded-[40px] border border-white/10 flex items-center justify-center rotate-45">
-                        <Plug size={48} className="text-white" aria-hidden="true" />
+                        <Plug className="w-12 h-12 text-white" aria-hidden="true" />
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = memo(({
                     {subscriptionStatus === 'inactive' && (
                         <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg max-w-[280px] mx-auto">
                             <div className="flex items-start gap-2">
-                                <AlertTriangle size={18} className="text-yellow-500 mt-0.5 flex-shrink-0" />
+                                <AlertTriangle className="w-[18px] h-[18px] text-yellow-500 mt-0.5 flex-shrink-0" />
                                 <p className="text-yellow-500/90 text-xs leading-relaxed text-left">
                                     Для настройки VPN требуется активная подписка. Если у вас нет подписки, вы можете продолжить, но на шаге 3 потребуется добавить подписку вручную.
                                 </p>

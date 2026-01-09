@@ -2,16 +2,16 @@
 
 import React, { lazy, Suspense } from 'react';
 import { 
-  CreditCard, 
-  List, 
-  Users, 
-  MessageSquare, 
-  FileText, 
-  Copy, 
-  Check,
-  Monitor,
-  ChevronLeft
-} from 'lucide-react';
+  CreditCardIcon as CreditCard, 
+  ListBulletIcon as List, 
+  UsersIcon as Users, 
+  ChatBubbleLeftRightIcon as MessageSquare, 
+  DocumentTextIcon as FileText, 
+  DocumentDuplicateIcon as Copy, 
+  CheckIcon as Check,
+  ComputerDesktopIcon as Monitor,
+  ChevronLeftIcon as ChevronLeft
+} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useUserStore } from '@/store/user.store';
 import { VpnConnectionCard } from '@/components/blocks/VpnConnectionCard';
@@ -113,31 +113,31 @@ export default function ProfilePage() {
 
   const menuItems: MenuItem[] = React.useMemo(() => [
     { 
-      icon: <CreditCard className="text-[#F55128]" size={20} />, 
+      icon: <CreditCard className="w-5 h-5 text-[#F55128]" />, 
       label: 'Оплата', 
       bg: 'bg-[#F55128]/10', 
       onClick: () => setIsPaymentOpen(true)
     },
     { 
-      icon: <List className="text-[#F55128]" size={20} />, 
+      icon: <List className="w-5 h-5 text-[#F55128]" />, 
       label: 'Мои транзакции', 
       bg: 'bg-[#F55128]/10',
       onClick: () => setIsTransactionsOpen(true)
     },
     { 
-      icon: <Users className="text-[#F55128]" size={20} />, 
+      icon: <Users className="w-5 h-5 text-[#F55128]" />, 
       label: 'Реферальная программа', 
       bg: 'bg-[#F55128]/10',
       onClick: () => setIsReferralOpen(true)
     },
     { 
-      icon: <MessageSquare className="text-[#F55128]" size={20} />, 
+      icon: <MessageSquare className="w-5 h-5 text-[#F55128]" />, 
       label: 'Связаться с поддержкой', 
       bg: 'bg-[#F55128]/10',
       onClick: handleSupportClick
     },
     { 
-      icon: <FileText className="text-[#F55128]" size={20} />, 
+      icon: <FileText className="w-5 h-5 text-[#F55128]" />, 
       label: 'Пользовательское соглашение', 
       bg: 'bg-[#F55128]/10',
       onClick: () => setIsTermsOpen(true)
@@ -149,7 +149,7 @@ export default function ProfilePage() {
       {/* Header with Back Button */}
       <div className="sticky top-[calc(100px+env(safe-area-inset-top))] z-50 flex items-center justify-between w-fit mb-4">
         <Link href="/" className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15">
-          <ChevronLeft size={24} />
+          <ChevronLeft className="w-6 h-6" />
         </Link>
       </div>
 
@@ -168,9 +168,9 @@ export default function ProfilePage() {
         >
           <span className="text-sm font-medium tracking-wide">ID: {user?.id || '********'}</span>
           {isCopied ? (
-            <Check size={14} className="text-[#F55128]" />
+            <Check className="w-3.5 h-3.5 text-[#F55128]" />
           ) : (
-            <Copy size={14} />
+            <Copy className="w-3.5 h-3.5" />
           )}
         </button>
       </div>
@@ -188,7 +188,7 @@ export default function ProfilePage() {
           aria-label="Открыть инструкцию по настройке VPN для всех платформ"
           type="button"
         >
-          <Monitor size={24} className="text-[#F55128]" aria-hidden="true" />
+          <Monitor className="w-6 h-6 text-[#F55128]" aria-hidden="true" />
           <span className="text-base font-medium">Инструкция для всех платформ</span>
         </button>
       </div>

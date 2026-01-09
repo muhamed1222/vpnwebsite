@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ExternalLink, Loader2, CheckCircle2 } from 'lucide-react';
+import { ArrowTopRightOnSquareIcon as ExternalLink, ArrowPathIcon as Loader2, CheckCircleIcon as CheckCircle2 } from '@heroicons/react/24/outline';
 import { BottomSheet } from '../ui/BottomSheet';
 
 interface WaitingPaymentModalProps {
@@ -66,7 +66,7 @@ export const WaitingPaymentModal: React.FC<WaitingPaymentModalProps> = ({
               style={{ '--index': 1 } as React.CSSProperties}
             >
               <p className="text-white/80 text-lg font-medium">Оплатите счет в сервисе ЮKасса</p>
-              <ExternalLink size={18} className="text-white/40" />
+              <ExternalLink className="w-[18px] h-[18px]" className="text-white/40" />
             </div>
 
             {/* Анимация загрузки */}
@@ -74,7 +74,7 @@ export const WaitingPaymentModal: React.FC<WaitingPaymentModalProps> = ({
               className="flex justify-center mb-12 css-dialog_content-item"
               style={{ '--index': 2 } as React.CSSProperties}
             >
-              <Loader2 size={64} className="text-[#F55128] animate-spin" />
+              <Loader2 className="w-16 h-16 text-[#F55128] animate-spin" />
             </div>
 
             {/* Кнопка перехода */}

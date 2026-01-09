@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { QrCode, Key, Globe, RefreshCw, AlertCircle } from 'lucide-react';
+import { QrCodeIcon as QrCode, KeyIcon as Key, GlobeAltIcon as Globe, ArrowPathIcon as RefreshCw, ExclamationCircleIcon as AlertCircle } from '@heroicons/react/24/outline';
 import { VpnKeyCode } from '@/components/ui/VpnKeyCode';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -107,7 +107,7 @@ export const VpnConnectionCard: React.FC = () => {
       <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/20">
-            <AlertCircle size={20} className="text-red-500" />
+            <AlertCircle className="w-5 h-5" className="text-red-500" />
           </div>
           <div className="flex-1">
             <h3 className="text-base font-medium text-white mb-1">Ошибка загрузки</h3>
@@ -119,7 +119,7 @@ export const VpnConnectionCard: React.FC = () => {
           className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-3 px-4 text-white font-medium flex items-center justify-center gap-2"
           type="button"
         >
-          <RefreshCw size={18} />
+          <RefreshCw className="w-[18px] h-[18px]" />
           Попробовать снова
         </button>
       </div>
@@ -132,7 +132,7 @@ export const VpnConnectionCard: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-[#F55128]/10 rounded-xl flex items-center justify-center border border-[#F55128]/20">
-            <Key size={20} className="text-[#F55128]" />
+            <Key className="w-5 h-5" className="text-[#F55128]" />
           </div>
           <div>
             <h3 className="text-base font-medium text-white">VPN ключ</h3>
@@ -145,7 +145,7 @@ export const VpnConnectionCard: React.FC = () => {
           aria-label={showQR ? 'Скрыть QR код' : 'Показать QR код'}
           type="button"
         >
-          <QrCode size={20} className={`text-white/60 transition-colors ${showQR ? 'text-[#F55128]' : ''}`} />
+          <QrCode className="w-5 h-5" className={`text-white/60 transition-colors ${showQR ? 'text-[#F55128]' : ''}`} />
         </button>
       </div>
 
@@ -164,7 +164,7 @@ export const VpnConnectionCard: React.FC = () => {
         <div className="mt-6 pt-6 border-t border-white/5">
           <div className="flex flex-col items-center">
             <h4 className="text-sm font-medium text-white/90 mb-4 flex items-center gap-2">
-              <Globe size={18} />
+              <Globe className="w-[18px] h-[18px]" />
               QR код для быстрого подключения
             </h4>
             {qrError ? (

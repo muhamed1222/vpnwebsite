@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, ChevronRight, Loader2, Calendar, Monitor, CreditCard, CheckCircle2 } from 'lucide-react';
+import { PlusIcon as Plus, ChevronRightIcon as ChevronRight, ArrowPathIcon as Loader2, CalendarIcon as Calendar, ComputerDesktopIcon as Monitor, CreditCardIcon as CreditCard, CheckCircleIcon as CheckCircle2 } from '@heroicons/react/24/outline';
 import { PaymentMethodsModal } from './PaymentMethodsModal';
 import { WaitingPaymentModal } from './WaitingPaymentModal';
 import { getTelegramWebApp } from '@/lib/telegram';
@@ -184,10 +184,10 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
 
   const getMethodInfo = () => {
     switch (selectedMethodId) {
-      case 'card': return { name: 'Банковская карта', icon: <CreditCard size={18} /> };
+      case 'card': return { name: 'Банковская карта', icon: <CreditCard className="w-[18px] h-[18px]" /> };
       case 'sbp': return { name: 'СБП', icon: <div className="font-bold text-[9px]">СБП</div> };
       case 'sberpay': return { name: 'SberPay', icon: <div className="font-bold text-[9px]">Sber</div> };
-      default: return { name: 'Способ оплаты', icon: <Plus size={18} /> };
+      default: return { name: 'Способ оплаты', icon: <Plus className="w-[18px] h-[18px]" /> };
     }
   };
 
@@ -204,7 +204,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
           >
             <div className="flex items-center gap-4">
               <div className="w-9 h-9 bg-[#F55128]/10 rounded-xl flex items-center justify-center border border-[#F55128]/20 text-[#F55128]">
-                <Calendar size={18} />
+                <Calendar className="w-[18px] h-[18px]" />
               </div>
               <div className="flex flex-col">
                 <span className="text-white/40 text-[11px] font-medium uppercase tracking-wider">Срок подписки</span>
@@ -216,7 +216,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
 
             <div className="flex items-center gap-4">
               <div className="w-9 h-9 bg-[#F55128]/10 rounded-xl flex items-center justify-center border border-[#F55128]/20 text-[#F55128]">
-                <Monitor size={18} />
+                <Monitor className="w-[18px] h-[18px]" />
               </div>
               <div className="flex flex-col">
                 <span className="text-white/40 text-[11px] font-medium uppercase tracking-wider">Устройства</span>
@@ -239,7 +239,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
                 {methodInfo.icon}
                 <span className="text-base font-medium">{methodInfo.name}</span>
               </div>
-              <ChevronRight size={20} className="text-white/40" />
+              <ChevronRight className="w-5 h-5" className="text-white/40" />
             </button>
           </div>
 
@@ -255,7 +255,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
             >
               {isProcessing ? (
                 <>
-                  <Loader2 size={24} className="animate-spin" />
+                  <Loader2 className="w-6 h-6 animate-spin" />
                   <span>Обработка...</span>
                 </>
               ) : (

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Copy, FolderOpen, Check, Calendar, Coins } from 'lucide-react';
+import { DocumentDuplicateIcon as Copy, FolderOpenIcon as FolderOpen, CheckIcon as Check, CalendarIcon as Calendar, CurrencyDollarIcon as Coins } from '@heroicons/react/24/outline';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useUserStore } from '@/store/user.store';
@@ -161,9 +161,9 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
           >
             <code className="text-[#F55128] text-base truncate pr-4">{referralLink}</code>
             {isCopied ? (
-              <Check size={20} className="text-[#F55128] flex-shrink-0" />
+              <Check className="w-5 h-5" className="text-[#F55128] flex-shrink-0" />
             ) : (
-              <Copy size={20} className="text-white/40 group-hover:text-white transition-colors flex-shrink-0" />
+              <Copy className="w-5 h-5" className="text-white/40 group-hover:text-white transition-colors flex-shrink-0" />
             )}
           </div>
         </div>
@@ -216,7 +216,7 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="bg-[#F55128]/10 p-2 rounded-lg border border-[#F55128]/20 flex-shrink-0">
-                        <Coins size={18} className="text-[#F55128]" />
+                        <Coins className="w-[18px] h-[18px]" className="text-[#F55128]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">

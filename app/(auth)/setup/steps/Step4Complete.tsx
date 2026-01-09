@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Check } from 'lucide-react';
+import { ChevronLeftIcon as ChevronLeft, CheckIcon as Check } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { triggerHaptic } from '@/lib/telegram';
 import { VPN_APP_NAME } from '@/lib/constants';
@@ -32,14 +32,14 @@ export const Step4Complete: React.FC<Step4CompleteProps> = memo(({
                     onClick={onBack}
                     className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15"
                 >
-                    <ChevronLeft size={24} className="text-white" />
+                    <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
             </div>
 
             <div className="relative flex-1 flex flex-col items-center justify-center px-6 text-center">
                 <div className="relative w-48 h-48 flex items-center justify-center mb-16">
                     <div className="absolute inset-0 bg-[#F55128] rounded-full" aria-hidden="true" />
-                    <Check size={80} className="text-white relative z-10" aria-hidden="true" />
+                    <Check className="w-20 h-20 text-white relative z-10" aria-hidden="true" />
                 </div>
 
                 <div className="space-y-4">

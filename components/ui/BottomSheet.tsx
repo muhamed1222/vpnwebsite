@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X } from 'lucide-react';
+import { XMarkIcon as X } from '@heroicons/react/24/outline';
 import { UI_CONSTANTS } from '@/lib/constants';
 
 interface BottomSheetProps {
@@ -214,7 +214,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title
               aria-label={`Закрыть ${title}`}
               type="button"
             >
-              <X size={24} aria-hidden="true" />
+              <X className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
         </div>

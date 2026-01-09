@@ -59,6 +59,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${gtWalsheimPro.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        style={{ fontFamily: `var(--font-gt-walsheim-pro), 'GT Walsheim Pro', system-ui, -apple-system, sans-serif` }}
       >
         <ErrorBoundary>
           <AuthProvider>

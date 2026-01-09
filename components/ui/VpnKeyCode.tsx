@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { DocumentDuplicateIcon as Copy, CheckIcon as Check } from '@heroicons/react/24/outline';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { logError } from '@/lib/utils/logging';
 
@@ -98,9 +98,9 @@ export const VpnKeyCode: React.FC<VpnKeyCodeProps> = ({
         </code>
         <div className="flex-shrink-0">
           {copied ? (
-            <Check size={20} className="text-[#F55128]" aria-hidden="true" />
+            <Check className="w-5 h-5 text-[#F55128]" aria-hidden="true" />
           ) : (
-            <Copy size={20} className="text-white/40 group-hover:text-white transition-colors" aria-hidden="true" />
+            <Copy className="w-5 h-5 text-white/40 group-hover:text-white transition-colors" aria-hidden="true" />
           )}
         </div>
       </button>

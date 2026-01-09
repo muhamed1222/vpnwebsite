@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, lazy, Suspense, useMemo, startTransition } from 'react';
-import { Plug, Settings, User, MessageSquare, Gift } from 'lucide-react';
+import { BoltIcon as Plug, Cog6ToothIcon as Settings, UserIcon as User, ChatBubbleLeftRightIcon as MessageSquare, GiftIcon as Gift } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { initTelegramWebApp, getTelegramPlatform, triggerHaptic } from '@/lib/telegram';
 import { useSubscriptionStore } from '@/store/subscription.store';
@@ -182,12 +182,12 @@ export default function Home() {
       </div>
 
       {/* Розыгрыш Баннер */}
-      <div className="relative mx-auto mb-4 z-10 mt-[100px] max-w-[450px] w-full">
+      <div className="relative mx-auto mb-0 z-10 mt-[100px] max-w-[450px] w-full pl-4 pr-4">
         <div className="bg-gradient-to-r from-[#F55128] to-[#FF6B3D] rounded-[16px] px-1.5 py-1.5 shadow-lg border border-white/10 backdrop-blur-[12px]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center flex-1" style={{ gap: '5px' }}>
               <div className="p-2 bg-white/20 rounded-xl">
-                <Gift size={24} className="text-white" aria-hidden="true" />
+                <Gift className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <h2 className="text-lg font-semibold text-white">Розыгрыш</h2>
@@ -360,7 +360,7 @@ export default function Home() {
           >
             <div className="flex items-center gap-[10px]">
               <div className="p-0 rounded-xl" aria-hidden="true">
-                <Plug size={24} className="rotate-45" aria-hidden="true" />
+                <Plug className="w-6 h-6 rotate-45" aria-hidden="true" />
               </div>
               <span className="text-base font-medium">Купить подписку</span>
             </div>
@@ -388,7 +388,7 @@ export default function Home() {
           >
             <div className="flex items-center gap-[10px]">
               <div className="p-0 rounded-xl" aria-hidden="true">
-                <Settings size={24} aria-hidden="true" />
+                <Settings className="w-6 h-6" aria-hidden="true" />
               </div>
               <span className="text-base font-medium">Установка и настройка</span>
             </div>
@@ -415,7 +415,7 @@ export default function Home() {
               aria-label="Перейти в профиль пользователя"
             >
               <div className="p-0 rounded-xl" aria-hidden="true">
-                <User size={24} aria-hidden="true" />
+                <User className="w-6 h-6" aria-hidden="true" />
               </div>
               <span className="text-base font-medium">Профиль</span>
             </Link>
@@ -436,7 +436,7 @@ export default function Home() {
               aria-haspopup="dialog"
             >
               <div className="p-0 rounded-xl" aria-hidden="true">
-                <MessageSquare size={24} aria-hidden="true" />
+                <MessageSquare className="w-6 h-6" aria-hidden="true" />
               </div>
               <span className="text-base font-medium">Поддержка</span>
             </button>

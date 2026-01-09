@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { FolderOpen, Calendar, CreditCard, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { FolderOpenIcon as FolderOpen, CalendarIcon as Calendar, CreditCardIcon as CreditCard, CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, ClockIcon as Clock } from '@heroicons/react/24/outline';
 import { BottomSheet } from '../ui/BottomSheet';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
@@ -36,12 +36,12 @@ const getStatusIcon = (status: string) => {
   switch (status) {
     case 'success':
     case 'paid':
-      return <CheckCircle2 size={16} className="text-green-500" />;
+      return <CheckCircle2 className="w-4 h-4" className="text-green-500" />;
     case 'fail':
-      return <XCircle size={16} className="text-red-500" />;
+      return <XCircle className="w-4 h-4" className="text-red-500" />;
     case 'pending':
     default:
-      return <Clock size={16} className="text-yellow-500" />;
+      return <Clock className="w-4 h-4" className="text-yellow-500" />;
   }
 };
 
@@ -139,7 +139,7 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ isOpen, on
                       {tx.planName || 'Подписка VPN'}
                     </span>
                     <div className="flex items-center gap-2 text-white/40 text-sm">
-                      <Calendar size={14} />
+                      <Calendar className="w-3.5 h-3.5" />
                       {formatDate(tx.date)}
                     </div>
                   </div>

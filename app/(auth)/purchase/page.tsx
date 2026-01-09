@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeftIcon as ChevronLeft } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { SUBSCRIPTION_CONFIG } from '@/lib/constants';
 import { api } from '@/lib/api';
@@ -213,7 +213,7 @@ export default function PurchasePage() {
       {/* Header with Back Button */}
       <div className="sticky top-[calc(100px+env(safe-area-inset-top))] z-50 flex items-center justify-between w-fit mb-4">
         <Link href="/" className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15">
-          <ChevronLeft size={24} />
+          <ChevronLeft className="w-6 h-6" />
         </Link>
       </div>
 

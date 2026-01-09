@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, Check } from 'lucide-react';
+import { PlusIcon as Plus, CheckIcon as Check } from '@heroicons/react/24/outline';
 import { BottomSheet } from '../ui/BottomSheet';
 
 interface PaymentMethodsModalProps {
@@ -40,7 +40,7 @@ const METHODS = [
     label: 'Оплата новой картой', 
     icon: (
       <div className="w-9 h-9 bg-[#121212] rounded-xl flex items-center justify-center border border-white/5">
-        <Plus size={18} className="text-white/60" />
+        <Plus className="w-[18px] h-[18px]" className="text-white/60" />
       </div>
     )
   },
@@ -82,7 +82,7 @@ export const PaymentMethodsModal: React.FC<PaymentMethodsModalProps> = ({
               </div>
               {isSelected && (
                 <div className="w-6 h-6 bg-[#F55128]/20 rounded-full flex items-center justify-center border border-[#F55128]/30">
-                  <Check size={14} className="text-[#F55128]" />
+                  <Check className="w-3.5 h-3.5" className="text-[#F55128]" />
                 </div>
               )}
             </button>

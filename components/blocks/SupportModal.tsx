@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, MessageSquare } from 'lucide-react';
+import { ChevronDownIcon as ChevronDown, ChevronUpIcon as ChevronUp, ArrowTopRightOnSquareIcon as ExternalLink, ChatBubbleLeftRightIcon as MessageSquare } from '@heroicons/react/24/outline';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { config } from '@/lib/config';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -32,7 +32,7 @@ const getFAQData = (handleInstructionClick: () => void): FAQItem[] => [
           className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-[10px] px-[14px] py-[14px] flex items-center justify-center gap-2 transition-colors"
         >
           <span className="font-medium text-white/90">Подробная инструкция</span>
-          <ExternalLink size={18} className="text-white/40" />
+          <ExternalLink className="w-[18px] h-[18px] text-white/40" />
         </button>
       </div>
     ),
@@ -106,9 +106,9 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
                     {item.question}
                   </span>
                   {isItemOpen ? (
-                    <ChevronUp size={24} className="text-white/20 flex-shrink-0 mt-1" />
+                    <ChevronUp className="w-6 h-6" className="text-white/20 flex-shrink-0 mt-1" />
                   ) : (
-                    <ChevronDown size={24} className="text-white/20 flex-shrink-0 mt-1" />
+                    <ChevronDown className="w-6 h-6" className="text-white/20 flex-shrink-0 mt-1" />
                   )}
                 </button>
                 
@@ -131,7 +131,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
             onClick={handleSupportClick}
             className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] px-[14px] py-[14px] flex items-center justify-center gap-3 text-white shadow-lg shadow-[#F55128]/10"
           >
-            <MessageSquare size={24} />
+            <MessageSquare className="w-6 h-6" />
             <span className="text-lg font-medium">Написать в поддержку</span>
           </button>
         </div>

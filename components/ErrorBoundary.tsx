@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { ExclamationCircleIcon as AlertCircle } from '@heroicons/react/24/outline';
 import { logError } from '@/lib/utils/logging';
 
 interface Props {
@@ -62,7 +62,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-[#121212] rounded-[16px] p-6 border border-white/10 text-center">
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle size={32} className="text-red-500" />
+              <AlertCircle className="w-8 h-8 text-red-500" />
             </div>
             <h2 className="text-xl font-bold mb-2">Произошла ошибка</h2>
             <p className="text-white/60 mb-6">

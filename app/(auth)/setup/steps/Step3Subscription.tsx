@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, ChevronLeft, CirclePlus, ArrowRight } from 'lucide-react';
+import { PlusIcon as Plus, ChevronLeftIcon as ChevronLeft, PlusCircleIcon as CirclePlus, ArrowRightIcon as ArrowRight } from '@heroicons/react/24/outline';
 import { triggerHaptic } from '@/lib/telegram';
 import type { Step3SubscriptionProps } from '@/types/setup';
 
@@ -36,7 +36,7 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
                     onClick={onBack}
                     className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15"
                 >
-                    <ChevronLeft size={24} className="text-white" />
+                    <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
             </div>
 
@@ -65,7 +65,7 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
                                 className="opacity-90"
                             />
                         </svg>
-                        <Plus size={48} className="text-white relative z-10" aria-hidden="true" />
+                        <Plus className="w-12 h-12 text-white relative z-10" aria-hidden="true" />
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
                     ) : (
                         <>
                             <span className="text-lg font-medium">Добавить</span>
-                            <CirclePlus size={24} aria-hidden="true" />
+                            <CirclePlus className="w-6 h-6" aria-hidden="true" />
                         </>
                     )}
                 </button>
@@ -126,7 +126,7 @@ export const Step3Subscription: React.FC<Step3SubscriptionProps> = memo(({
                     aria-label="Перейти к следующему шагу"
                 >
                     <span className="text-base font-medium">Далее</span>
-                    <ArrowRight size={20} aria-hidden="true" />
+                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
                 </button>
             </div>
         </motion.div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CreditCard, ShieldCheck, ShieldAlert, Loader2 } from 'lucide-react';
+import { CreditCardIcon as CreditCard, ShieldCheckIcon as ShieldCheck, ShieldExclamationIcon as ShieldAlert, ArrowPathIcon as Loader2 } from '@heroicons/react/24/outline';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useSubscriptionStore } from '@/store/subscription.store';
 import { api } from '@/lib/api';
@@ -89,9 +89,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
         >
           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isActive ? 'bg-green-500/10 border border-green-500/20' : 'bg-yellow-500/10 border border-yellow-500/20'}`}>
             {isActive ? (
-              <ShieldCheck size={24} className="text-green-500" />
+              <ShieldCheck className="w-6 h-6" className="text-green-500" />
             ) : (
-              <ShieldAlert size={24} className="text-yellow-500" />
+              <ShieldAlert className="w-6 h-6" className="text-yellow-500" />
             )}
           </div>
           <div>
@@ -134,7 +134,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
               </p>
             </div>
             {isLoading ? (
-              <Loader2 size={24} className="animate-spin text-white/40" />
+              <Loader2 className="w-6 h-6 animate-spin text-white/40" />
             ) : (
               <button
                 onClick={handleToggleAutorenewal}
@@ -154,7 +154,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
           </div>
           {isUpdating && (
             <div className="mt-3 flex items-center gap-2 text-white/60 text-sm">
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
               <span>Обновление...</span>
             </div>
           )}

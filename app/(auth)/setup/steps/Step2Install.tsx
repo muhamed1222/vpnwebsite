@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { CloudDownload, ChevronLeft, ArrowRight } from 'lucide-react';
+import { ArrowDownTrayIcon as CloudDownload, ChevronLeftIcon as ChevronLeft, ArrowRightIcon as ArrowRight } from '@heroicons/react/24/outline';
 import { triggerHaptic } from '@/lib/telegram';
 import { VPN_APP_NAME } from '@/lib/constants';
 import type { Step2InstallProps } from '@/types/setup';
@@ -30,14 +30,14 @@ export const Step2Install: React.FC<Step2InstallProps> = memo(({
                     onClick={onBack}
                     className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15"
                 >
-                    <ChevronLeft size={24} className="text-white" />
+                    <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
             </div>
 
             <div className="relative flex-1 flex flex-col items-center justify-center px-6 text-center">
                 <div className="relative w-40 h-40 flex items-center justify-center mb-16">
                     <div className="absolute inset-0 bg-white/5 rounded-full border border-white/10" />
-                    <CloudDownload size={64} className="text-white relative z-10" />
+                    <CloudDownload className="w-16 h-16 text-white relative z-10" />
                 </div>
 
                 <div className="space-y-4">
@@ -62,7 +62,7 @@ export const Step2Install: React.FC<Step2InstallProps> = memo(({
                     className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white shadow-lg shadow-[#F55128]/20"
                 >
                     <span className="text-lg font-medium">Установить</span>
-                    <CloudDownload size={24} />
+                    <CloudDownload className="w-6 h-6" />
                 </button>
 
                 <button
@@ -70,7 +70,7 @@ export const Step2Install: React.FC<Step2InstallProps> = memo(({
                     className="w-full h-fit bg-transparent hover:bg-white/5 active:scale-[0.98] transition-all rounded-[10px] py-[14px] flex items-center justify-center gap-2 text-white/40"
                 >
                     <span className="text-base font-medium">Уже установлено</span>
-                    <ArrowRight size={20} />
+                    <ArrowRight className="w-5 h-5" />
                 </button>
             </div>
         </motion.div>
