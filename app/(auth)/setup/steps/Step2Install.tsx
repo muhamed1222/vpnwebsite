@@ -12,9 +12,7 @@ export const Step2Install: React.FC<Step2InstallProps> = ({
     variants,
     onBack,
     onNext,
-    onInstall,
-    onCheckInstalled,
-    isChecking = false
+    onInstall
 }) => {
     return (
         <motion.div
