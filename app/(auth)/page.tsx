@@ -97,11 +97,17 @@ export default function Home() {
         const { api } = await import('@/lib/api');
         const tariffs = await api.getTariffs();
         if (tariffs.length > 0) {
-          // Находим минимальную цену среди всех тарифов в рублях
-          const min = Math.min(...tariffs.map(t => t.price_rub || t.price_stars));
-          setMinPrice(min);
-          // Сохраняем в кэш
-          setCache(CACHE_KEY, min, CACHE_TTL);
+          // Находим минимальную цену среди всех тарифов в рублях (исключая plan_7)
+          const validTariffs = tariffs.filter(t => t.id !== 'plan_7');
+          if (validTariffs.length > 0) {
+            const min = Math.min(...validTariffs.map(t => t.price_rub || t.price_stars));
+            setMinPrice(min);
+            // Сохраняем в кэш
+            setCache(CACHE_KEY, min, CACHE_TTL);
+          } else {
+            // Если нет валидных тарифов, используем дефолт 99
+            setMinPrice(99);
+          }
         }
       } catch (error) {
         // Логируем ошибку для мониторинга
@@ -298,13 +304,13 @@ export default function Home() {
             Назначение: Основная CTA кнопка для перехода к выбору и покупке тарифа.
             Функционал: 
             - Переход на страницу выбора планов (/purchase)
-            - Отображение минимальной стоимости ("от 150 ₽")
+            - Отображение минимальной стоимости ("от 99 ₽")
           */}
           <Link
             href="/purchase"
             onClick={() => triggerHaptic('light')}
             className="w-full h-fit bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] flex items-center px-[14px] py-[14px] justify-between text-white group"
-            aria-label="Купить подписку VPN, начиная от 150 рублей"
+            aria-label="Купить подписку VPN, начиная от 99 рублей"
           >
             <div className="flex items-center gap-[10px]">
               <div className="p-0 rounded-xl" aria-hidden="true">
