@@ -35,8 +35,6 @@ export default function ContestPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRulesOpen, setIsRulesOpen] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Мемоизируем функцию загрузки данных
   const loadContestData = useCallback(async () => {
@@ -125,7 +123,20 @@ export default function ContestPage() {
         });
       } else {
         // Fallback: копируем в буфер обмена
-        await handleCopyLink();
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(summary.ref_link);
+            const webApp = getTelegramWebApp();
+            if (webApp) {
+              webApp.showAlert('✅ Реферальная ссылка скопирована');
+            }
+          }
+        } catch (err) {
+          logError('Failed to copy referral link', err, {
+            page: 'contest',
+            action: 'share',
+          });
+        }
       }
     } catch (err) {
       // Если пользователь отменил share, это не ошибка
@@ -139,46 +150,6 @@ export default function ContestPage() {
     }
   }, [summary]);
 
-  const handleCopyLink = useCallback(async () => {
-    if (!summary) return;
-
-    try {
-      triggerHaptic('light');
-      
-      // Проверяем доступность clipboard API
-      if (!navigator.clipboard || !navigator.clipboard.writeText) {
-        throw new Error('Clipboard API not available');
-      }
-      
-      await navigator.clipboard.writeText(summary.ref_link);
-      setCopiedLink(true);
-      
-      const webApp = getTelegramWebApp();
-      if (webApp) {
-        webApp.showAlert('✅ Реферальная ссылка скопирована');
-      }
-      
-      // Сбрасываем состояние через 2 секунды
-      setTimeout(() => setCopiedLink(false), 2000);
-    } catch (err) {
-      logError('Failed to copy referral link', err, {
-        page: 'contest',
-        action: 'copyLink',
-      });
-      
-      const webApp = getTelegramWebApp();
-      if (webApp) {
-        webApp.showAlert('❌ Не удалось скопировать ссылку');
-      }
-    }
-  }, [summary]);
-
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    triggerHaptic('light');
-    await loadContestData();
-    setIsRefreshing(false);
-  }, [loadContestData]);
 
   if (loading) {
     return (
@@ -231,57 +202,17 @@ export default function ContestPage() {
         <ContestSummaryCard 
           summary={summary} 
           progress={contestProgress}
-          onRefresh={handleRefresh}
-          isRefreshing={isRefreshing}
         />
       </Suspense>
 
-      {/* Prizes Info */}
-      <div className="bg-gradient-to-r from-[#F55128]/10 to-[#FF6B3D]/10 rounded-[16px] p-5 border border-[#F55128]/20 mb-6 relative z-10">
-        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-          <span className="text-2xl">🎁</span>
-          Призы конкурса
-        </h3>
-        <div className="space-y-2 text-white/70 text-sm">
-          <p>• Главный приз: <span className="text-white font-medium">Подписка на 12 месяцев</span></p>
-          <p>• Второе место: <span className="text-white font-medium">Подписка на 6 месяцев</span></p>
-          <p>• Третье место: <span className="text-white font-medium">Подписка на 3 месяца</span></p>
-        </div>
-        <p className="text-white/50 text-xs mt-3">
-          Чем больше билетов — тем выше шанс выиграть!
-        </p>
-      </div>
-
       {/* Invite Section */}
-      <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5 mb-6 relative z-10">
-        <h3 className="text-lg font-medium text-white mb-4">Пригласить друзей</h3>
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={handleShare}
-            className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[10px] py-3 px-4 text-white font-medium flex items-center justify-center gap-2"
-          >
-            <span>Пригласить друзей</span>
-          </button>
-          <button
-            onClick={handleCopyLink}
-            disabled={copiedLink}
-            className={`w-full bg-transparent border active:scale-[0.98] transition-all rounded-[10px] py-3 px-4 font-medium flex items-center justify-center gap-2 ${
-              copiedLink
-                ? 'border-green-500/50 bg-green-500/10 text-green-500'
-                : 'border-white/10 hover:bg-white/5 text-white/80'
-            }`}
-          >
-            {copiedLink ? (
-              <>
-                <span>✓ Скопировано!</span>
-              </>
-            ) : (
-              <>
-                <span>Скопировать ссылку</span>
-              </>
-            )}
-          </button>
-        </div>
+      <div className="mb-6 relative z-10">
+        <button
+          onClick={handleShare}
+          className="w-full bg-[#F55128] hover:bg-[#d43d1f] active:scale-[0.98] transition-all rounded-[12px] py-4 px-4 text-white font-semibold text-base shadow-lg"
+        >
+          Пригласить друзей
+        </button>
       </div>
 
       {/* Friends List */}

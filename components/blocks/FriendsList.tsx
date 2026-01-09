@@ -17,8 +17,12 @@ interface FriendsListProps {
  * Компонент для отображения списка друзей в конкурсе
  */
 export const FriendsList: React.FC<FriendsListProps> = ({ friends }) => {
-  // Группируем друзей по статусам
+  // Группируем друзей только если их больше 5
+  const shouldGroup = friends.length > 5;
+  
   const groupedFriends = useMemo(() => {
+    if (!shouldGroup) return null;
+    
     const grouped: Record<string, ReferralFriend[]> = {
       qualified: [],
       bound: [],
@@ -33,7 +37,7 @@ export const FriendsList: React.FC<FriendsListProps> = ({ friends }) => {
     });
 
     return grouped;
-  }, [friends]);
+  }, [friends, shouldGroup]);
   const getStatusIcon = (status: ReferralFriend['status']) => {
     switch (status) {
       case 'qualified':
@@ -142,13 +146,52 @@ export const FriendsList: React.FC<FriendsListProps> = ({ friends }) => {
     );
   };
 
+  // Если друзей мало, показываем простой список без группировки
+  if (!shouldGroup && friends.length > 0) {
+    return (
+      <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5 mb-6 relative z-10">
+        <h3 className="text-lg font-medium text-white mb-4">Друзья</h3>
+        <div className="space-y-2">
+          {friends.map((friend) => (
+            <div
+              key={friend.id}
+              className="bg-white/5 rounded-[10px] p-3 border border-white/5 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex-shrink-0">
+                  {getStatusIcon(friend.status)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-white font-medium text-sm truncate">
+                    {friend.name || friend.tg_username || 'Без имени'}
+                  </div>
+                  <div className={`text-xs mt-1 ${getStatusColor(friend.status)}`}>
+                    {getStatusText(friend)}
+                  </div>
+                </div>
+              </div>
+              {friend.tickets_from_friend_total > 0 && (
+                <div className="flex-shrink-0 text-right">
+                  <div className="text-[#F55128] font-bold text-base">
+                    +{friend.tickets_from_friend_total}
+                  </div>
+                  <div className="text-white/40 text-xs">б.</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5 mb-6 relative z-10">
       <h3 className="text-lg font-medium text-white mb-5">Друзья</h3>
       <div>
-        {renderFriendGroup('Засчитаны', groupedFriends.qualified, 'qualified')}
-        {renderFriendGroup('Ожидают оплату', groupedFriends.bound, 'bound')}
-        {renderFriendGroup('Не засчитаны', [...groupedFriends.not_qualified, ...groupedFriends.blocked], 'not_qualified')}
+        {groupedFriends && renderFriendGroup('Засчитаны', groupedFriends.qualified, 'qualified')}
+        {groupedFriends && renderFriendGroup('Ожидают оплату', groupedFriends.bound, 'bound')}
+        {groupedFriends && renderFriendGroup('Не засчитаны', [...groupedFriends.not_qualified, ...groupedFriends.blocked], 'not_qualified')}
       </div>
     </div>
   );

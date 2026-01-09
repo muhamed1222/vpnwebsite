@@ -6,18 +6,23 @@ import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
 
 interface TicketsHistoryProps {
   tickets: TicketHistoryEntry[];
+  onShowAll?: () => void;
 }
 
 /**
  * Компонент для отображения истории билетов
  */
-export const TicketsHistory: React.FC<TicketsHistoryProps> = ({ tickets }) => {
-  // Сортируем билеты по дате (новые сверху) и мемоизируем
+export const TicketsHistory: React.FC<TicketsHistoryProps> = ({ tickets, onShowAll }) => {
+  // Сортируем билеты по дате (новые сверху) и мемоизируем, ограничиваем до 5 записей
   const sortedTickets = useMemo(() => {
-    return [...tickets].sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+    return [...tickets]
+      .sort((a, b) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      })
+      .slice(0, 5);
   }, [tickets]);
+
+  const hasMore = tickets.length > 5;
 
   const formatDate = useMemo(() => {
     return (dateString: string) => {
@@ -98,6 +103,14 @@ export const TicketsHistory: React.FC<TicketsHistoryProps> = ({ tickets }) => {
           </div>
         ))}
       </div>
+      {hasMore && onShowAll && (
+        <button
+          onClick={onShowAll}
+          className="w-full mt-3 py-2 text-white/60 text-sm hover:text-white/80 transition-colors"
+        >
+          Показать все ({tickets.length})
+        </button>
+      )}
     </div>
   );
 };

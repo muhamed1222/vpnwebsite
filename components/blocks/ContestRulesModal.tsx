@@ -32,6 +32,19 @@ export const ContestRulesModal: React.FC<ContestRulesModalProps> = ({
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Правила конкурса">
       <div className="space-y-6">
+        {/* Призы конкурса */}
+        <div>
+          <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+            <span className="text-xl">🎁</span>
+            Призы конкурса
+          </h3>
+          <div className="space-y-2 text-white/70 text-sm">
+            <p>• Главный приз: <span className="text-white font-medium">Подписка на 12 месяцев</span></p>
+            <p>• Второе место: <span className="text-white font-medium">Подписка на 6 месяцев</span></p>
+            <p>• Третье место: <span className="text-white font-medium">Подписка на 3 месяца</span></p>
+          </div>
+        </div>
+
         {/* Основная информация */}
         <div>
           <h3 className="text-white font-semibold mb-2">О конкурсе</h3>
