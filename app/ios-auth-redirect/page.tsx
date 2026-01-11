@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 /**
  * Промежуточная страница для редиректа на deep link iOS приложения
  * Telegram не может открывать custom URL schemes напрямую, поэтому используем HTTPS страницу
  */
-export default function IOSAuthRedirectPage() {
+function IOSAuthRedirectContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const redirectedRef = useRef(false);
@@ -101,5 +101,31 @@ export default function IOSAuthRedirectPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function IOSAuthRedirectPage() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '20px',
+          background: '#181818',
+          color: 'white',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '18px', marginBottom: '20px' }}>Загрузка...</div>
+          <div style={{ fontSize: '14px', opacity: 0.7 }}>Получение данных авторизации</div>
+        </div>
+      }
+    >
+      <IOSAuthRedirectContent />
+    </Suspense>
   );
 }
