@@ -18,6 +18,7 @@ interface Plan {
   id: string;
   duration: string;
   totalPrice: number;
+  originalPrice?: number;
   monthlyPrice: number;
   days: number;
   isPopular?: boolean;
@@ -62,7 +63,14 @@ export default function PurchasePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const { subscription } = useSubscriptionStore();
+  const { subscription, discount } = useSubscriptionStore();
+  
+  // Функция для применения скидки к цене
+  const applyDiscount = (price: number, discountPercent: number): number => {
+    if (!discountPercent || discountPercent <= 0) return price;
+    const discounted = Math.round((price * (100 - discountPercent)) / 100);
+    return Math.max(1, discounted); // Минимум 1 рубль
+  };
 
   // Проверяем, есть ли у пользователя оплаченные платежи или активная подписка
   const checkHasPaidOrders = useCallback(async (): Promise<boolean> => {
@@ -145,13 +153,21 @@ export default function PurchasePage() {
             const planId = tariff.id;
             
             // Используем цену в рублях с бэкенда
-            const totalPrice = tariff.price_rub || tariff.price_stars || 0;
+            const originalPrice = tariff.price_rub || tariff.price_stars || 0;
+            
+            // Применяем скидку, если она есть
+            const discountPercent = discount?.percent || 0;
+            const totalPrice = discountPercent > 0 
+              ? applyDiscount(originalPrice, discountPercent)
+              : originalPrice;
+            
             const monthlyPrice = Math.round(totalPrice / (tariff.days / 30));
             
             return {
               id: planId,
               duration: getDurationFromDays(tariff.days),
               totalPrice,
+              originalPrice: discountPercent > 0 ? originalPrice : undefined,
               monthlyPrice,
               days: tariff.days,
               isPopular: planId === 'plan_180' || tariff.days === 180, // 6 месяцев - популярный тариф
@@ -280,9 +296,27 @@ export default function PurchasePage() {
               </span>
               
               <div className="flex flex-col items-center">
-                <span className="text-xl font-bold text-white">
-                  {plan.totalPrice} ₽
-                </span>
+                {plan.originalPrice && plan.originalPrice > plan.totalPrice ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-white">
+                        {plan.totalPrice} ₽
+                      </span>
+                      <span className="text-sm text-white/40 line-through">
+                        {plan.originalPrice} ₽
+                      </span>
+                    </div>
+                    {discount && discount.percent > 0 && (
+                      <div className="text-[10px] font-bold text-green-500 mt-0.5">
+                        -{discount.percent}%
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-xl font-bold text-white">
+                    {plan.totalPrice} ₽
+                  </span>
+                )}
                 {plan.id !== '1m' && plan.id !== 'plan_7' && (
                   <div className={`text-[10px] font-medium mt-1.5 px-2 py-0.5 rounded-lg transition-colors ${
                     isSelected ? 'bg-[#F55128]/20 text-[#F55128]' : 'bg-white/5 text-white/40'
@@ -310,7 +344,12 @@ export default function PurchasePage() {
             <span className="text-base font-bold text-white">
               Продолжить за {selectedPlan?.totalPrice || 0} ₽
             </span>
-            {selectedPlan?.oldPrice && (
+            {selectedPlan?.originalPrice && selectedPlan.originalPrice > (selectedPlan?.totalPrice || 0) && (
+              <span className="text-sm font-medium text-white/40 line-through">
+                {selectedPlan.originalPrice} ₽
+              </span>
+            )}
+            {selectedPlan?.oldPrice && !selectedPlan?.originalPrice && (
               <span className="text-sm font-medium text-white/40 line-through">
                 {selectedPlan.oldPrice} ₽
               </span>

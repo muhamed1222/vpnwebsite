@@ -76,6 +76,13 @@ export const login = async (silent = false): Promise<LoginResult> => {
     } else {
       subStore.setStatus('none');
     }
+    
+    // Сохраняем скидку пользователя
+    if (data.discount) {
+      subStore.setDiscount(data.discount);
+    } else {
+      subStore.setDiscount(null);
+    }
 
     return { success: true };
   } catch (error) {

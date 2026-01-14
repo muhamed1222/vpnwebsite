@@ -185,6 +185,10 @@ export const api = {
           expires_at: number | null;
           vless_key?: string;
         };
+        discount?: {
+          percent: number;
+          expiresAt?: number;
+        } | null;
       }>('me', { method: 'GET' });
 
       // Преобразуем формат для совместимости с фронтендом
@@ -202,6 +206,7 @@ export const api = {
               : 'none' as const,
           expiresAt: data.subscription.expires_at ? new Date(data.subscription.expires_at).toISOString().split('T')[0] : undefined,
         },
+        discount: data.discount || null,
       };
     } catch (error) {
       // Логируем ошибку для отладки

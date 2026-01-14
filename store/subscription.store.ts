@@ -5,7 +5,12 @@ import { Subscription, SubscriptionStatus } from '../types';
 interface SubscriptionState {
   subscription: Subscription | null;
   loading: boolean;
+  discount: {
+    percent: number;
+    expiresAt?: number;
+  } | null;
   setSubscription: (subscription: Subscription | null) => void;
+  setDiscount: (discount: { percent: number; expiresAt?: number } | null) => void;
   setStatus: (status: SubscriptionStatus) => void;
   setLoading: (loading: boolean) => void;
 }
@@ -15,7 +20,9 @@ export const useSubscriptionStore = create<SubscriptionState>()(
     (set) => ({
       subscription: null,
       loading: true,
+      discount: null,
       setSubscription: (subscription) => set({ subscription, loading: false }),
+      setDiscount: (discount) => set({ discount }),
       setStatus: (status) =>
         set((state) => ({
           subscription: state.subscription
