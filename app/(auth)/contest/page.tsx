@@ -196,8 +196,8 @@ export default function ContestPage() {
       
       // Используем Telegram Share API для приглашения друзей
       if (webApp && webApp.openTelegramLink) {
-        // Формируем текст для приглашения
-        const shareText = `🎁 Розыгрыш Outlivion VPN!\n\nИспользуй мою реферальную ссылку и получи больше билетов для участия:\n${summary.ref_link}`;
+        // Формируем текст для приглашения (без ссылки, она добавится автоматически)
+        const shareText = `🎁 Розыгрыш Outlivion VPN!\n\nИспользуй мою реферальную ссылку и получи больше билетов для участия!`;
         const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(summary.ref_link)}&text=${encodeURIComponent(shareText)}`;
         
         webApp.openTelegramLink(shareUrl);
