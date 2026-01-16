@@ -172,25 +172,24 @@ export default function ContestPage() {
   }, [loadContestData]);
 
   // Добавляем состояние для отслеживания старта конкурса
-  const [hasStarted, setHasStarted] = useState<boolean>(() => {
-    if (!summary) return true; // Если нет summary, показываем основной экран
-    
-    const now = new Date().getTime();
-    const startTime = new Date(summary.contest.starts_at).getTime();
-    return now >= startTime;
-  });
+  // Инициализируем как null, чтобы правильно определить после загрузки summary
+  const [hasStarted, setHasStarted] = useState<boolean | null>(null);
 
   // Обновляем состояние при изменении summary и проверяем периодически, если конкурс еще не начался
   useEffect(() => {
     if (!summary) {
-      setHasStarted(true); // Если нет summary, показываем основной экран
+      // Если нет summary, не меняем состояние (остаемся в loading)
       return;
     }
 
-    const now = new Date().getTime();
-    const startTime = new Date(summary.contest.starts_at).getTime();
-    const started = now >= startTime;
+    const checkStart = () => {
+      const now = new Date().getTime();
+      const startTime = new Date(summary.contest.starts_at).getTime();
+      return now >= startTime;
+    };
 
+    const started = checkStart();
+    
     // Обновляем состояние при изменении summary
     setHasStarted(started);
 
@@ -201,8 +200,7 @@ export default function ContestPage() {
 
     // Если конкурс еще не начался, проверяем каждую секунду
     const intervalId = setInterval(() => {
-      const currentTime = new Date().getTime();
-      const started = currentTime >= startTime;
+      const started = checkStart();
       
       if (started) {
         // Конкурс начался - обновляем состояние и перезагружаем данные
@@ -315,8 +313,10 @@ export default function ContestPage() {
   }
 
   // Если конкурс еще не начался, показываем экран ожидания
-  // Используем состояние hasStarted (для реактивности) или вычисленное значение (для первого рендера)
-  const shouldShowCountdown = !hasStarted;
+  // hasStarted === null означает что summary еще не загружен (показываем loading)
+  // hasStarted === false означает конкурс еще не начался (показываем countdown)
+  // hasStarted === true означает конкурс начался (показываем основной экран)
+  const shouldShowCountdown = hasStarted === false;
 
   if (shouldShowCountdown) {
     return (
