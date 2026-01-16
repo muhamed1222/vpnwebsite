@@ -101,6 +101,7 @@ export default function SetupPage() {
           />
         );
       default:
+        console.error('Unknown setup step:', step);
         return null;
     }
   }, [step, direction, platform, goNext, goBack, goToStep, subscriptionSetup, appInstall, handleOtherDeviceClick, handleAddSubscription]);
@@ -117,7 +118,7 @@ export default function SetupPage() {
             <span className="text-white/40 text-xs">{progressPercent}%</span>
           </div>
           <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-[#F55128] to-[#FF6B3D] transition-all duration-300 ease-out"
               style={{ width: `${progressPercent}%` }}
             />

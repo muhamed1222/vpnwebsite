@@ -40,12 +40,12 @@ export default function ContestPage() {
     try {
       // Получаем Telegram initData для авторизации
       const initData = getTelegramInitData();
-      
+
       // В режиме разработки используем mock данные, если initData нет
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
-      
+
       if (initData) {
         headers['X-Telegram-Init-Data'] = initData;
         headers['Authorization'] = initData;
@@ -56,11 +56,31 @@ export default function ContestPage() {
         headers['Authorization'] = mockInitData;
       }
 
+      // Helper for fetch with timeout
+      const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout = 10000) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+          const response = await fetch(url, {
+            ...options,
+            signal: controller.signal,
+          });
+          clearTimeout(id);
+          return response;
+        } catch (error) {
+          clearTimeout(id);
+          throw error;
+        }
+      };
+
       // Сначала получаем активный конкурс
-      const activeContestResponse = await fetch('/api/contest/active', { headers }).catch(() => null);
-      
+      const activeContestResponse = await fetchWithTimeout('/api/contest/active', { headers }).catch((e) => {
+        console.error('Active contest fetch error:', e);
+        return null;
+      });
+
       if (!activeContestResponse) {
-        setError('Сервер временно недоступен. Проверьте подключение к интернету.');
+        setError('Сервер временно недоступен (timeout). Проверьте подключение.');
         setLoading(false);
         return;
       }
@@ -76,25 +96,12 @@ export default function ContestPage() {
 
       // Проверяем наличие активного конкурса
       if (!activeContestData.ok || !activeContestData.contest) {
-        // Если конкурс не найден, это нормально - конкурс может быть не активен
+        // ... error handling code remains similar but explicit ...
         const errorMsg = activeContestData.error || '';
-        if (activeContestResponse.status === 404 || 
-            errorMsg.includes('404') || 
-            errorMsg.includes('not found') ||
-            errorMsg.includes('Contest endpoint not found') ||
-            errorMsg.includes('No active contest')) {
-          setError('В данный момент нет активного конкурса. Следите за обновлениями!');
-        } else if (activeContestResponse.status === 401 || 
-                   errorMsg.includes('401') || 
-                   errorMsg.includes('Missing Telegram') ||
-                   errorMsg.includes('Unauthorized')) {
-          setError('Ошибка авторизации. Пожалуйста, перезапустите приложение.');
-        } else if (activeContestResponse.status === 500 || 
-                   errorMsg.includes('500') || 
-                   errorMsg.includes('Internal Server Error')) {
-          setError('Ошибка сервера. Попробуйте позже.');
+        if (activeContestResponse.status === 404 || errorMsg.includes('not found')) {
+          setError('В данный момент нет активного конкурса.');
         } else {
-          setError('Не удалось загрузить данные конкурса. Попробуйте позже.');
+          setError(errorMsg || 'Не удалось загрузить конкурс.');
         }
         setLoading(false);
         return;
@@ -102,25 +109,25 @@ export default function ContestPage() {
 
       const contestId = activeContestData.contest.id;
 
-      // Теперь загружаем данные конкурса параллельно
+      // Теперь загружаем данные конкурса параллельно с таймаутом
       const [summaryResponse, friendsResponse, ticketsResponse] = await Promise.all([
-        fetch(`/api/referral/summary?contest_id=${contestId}`, { headers }).catch(() => null),
-        fetch(`/api/referral/friends?contest_id=${contestId}&limit=50`, { headers }).catch(() => null),
-        fetch(`/api/referral/tickets?contest_id=${contestId}&limit=20`, { headers }).catch(() => null),
+        fetchWithTimeout(`/api/referral/summary?contest_id=${contestId}`, { headers }).catch(() => null),
+        fetchWithTimeout(`/api/referral/friends?contest_id=${contestId}&limit=50`, { headers }).catch(() => null),
+        fetchWithTimeout(`/api/referral/tickets?contest_id=${contestId}&limit=20`, { headers }).catch(() => null),
       ]);
 
       // Обрабатываем ответы
       let summaryData, friendsData, ticketsData;
-      
+
       try {
         summaryData = summaryResponse?.ok
           ? await summaryResponse.json().catch(() => ({ ok: false, summary: null, error: 'Parse error' }))
           : { ok: false, summary: null, error: summaryResponse ? `HTTP ${summaryResponse.status}` : 'Network error' };
-        
+
         friendsData = friendsResponse?.ok
           ? await friendsResponse.json().catch(() => ({ ok: false, friends: [], error: 'Parse error' }))
           : { ok: false, friends: [], error: friendsResponse ? `HTTP ${friendsResponse.status}` : 'Network error' };
-        
+
         ticketsData = ticketsResponse?.ok
           ? await ticketsResponse.json().catch(() => ({ ok: false, tickets: [], error: 'Parse error' }))
           : { ok: false, tickets: [], error: ticketsResponse ? `HTTP ${ticketsResponse.status}` : 'Network error' };
@@ -154,7 +161,7 @@ export default function ContestPage() {
         err.message.includes('Missing Telegram initData') ||
         err.message.includes('Failed to fetch')
       );
-      
+
       if (!isExpectedError) {
         logError('Failed to load contest data', err, {
           page: 'contest',
@@ -174,7 +181,7 @@ export default function ContestPage() {
   // Вычисляем, начался ли конкурс на основе summary
   const contestHasStarted = useMemo(() => {
     if (!summary) return null; // Еще не загружено
-    
+
     const now = new Date().getTime();
     const startTime = new Date(summary.contest.starts_at).getTime();
     return now >= startTime;
@@ -190,11 +197,11 @@ export default function ContestPage() {
     // Конкурс еще не начался - проверяем каждую секунду
     const intervalId = setInterval(() => {
       if (!summary) return;
-      
+
       const now = new Date().getTime();
       const startTime = new Date(summary.contest.starts_at).getTime();
       const started = now >= startTime;
-      
+
       if (started) {
         // Конкурс начался - перезагружаем данные (useMemo автоматически обновит contestHasStarted)
         loadContestData();
@@ -207,18 +214,18 @@ export default function ContestPage() {
   // Мемоизируем расчет прогресса конкурса
   const contestProgress = useMemo(() => {
     if (!summary) return { daysRemaining: 0, daysTotal: 0, percent: 0 };
-    
+
     const now = new Date().getTime();
     const start = new Date(summary.contest.starts_at).getTime();
     const end = new Date(summary.contest.ends_at).getTime();
-    
+
     const total = end - start;
     const remaining = Math.max(0, end - now);
     const percent = total > 0 ? Math.max(0, Math.min(100, ((total - remaining) / total) * 100)) : 0;
-    
+
     const daysTotal = Math.ceil(total / (1000 * 60 * 60 * 24));
     const daysRemaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
-    
+
     return { daysRemaining, daysTotal, percent };
   }, [summary]);
 
@@ -227,15 +234,15 @@ export default function ContestPage() {
 
     try {
       triggerHaptic('medium');
-      
+
       const webApp = getTelegramWebApp();
-      
+
       // Используем Telegram Share API для приглашения друзей
       if (webApp && webApp.openTelegramLink) {
         // Формируем текст для приглашения (без ссылки, она добавится автоматически)
         const shareText = `🎁 Розыгрыш Outlivion VPN!\n\nИспользуй мою реферальную ссылку и получи больше билетов для участия!`;
         const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(summary.ref_link)}&text=${encodeURIComponent(shareText)}`;
-        
+
         webApp.openTelegramLink(shareUrl);
       } else if (navigator.share) {
         // Fallback: используем Web Share API
@@ -248,7 +255,7 @@ export default function ContestPage() {
         // Fallback: копируем в буфер обмена
         const { copyToClipboard } = await import('@/lib/utils/clipboard');
         const copied = await copyToClipboard(summary.ref_link);
-        
+
         if (copied) {
           const webApp = getTelegramWebApp();
           if (webApp) {
@@ -320,7 +327,7 @@ export default function ContestPage() {
           </div>
         </main>
       }>
-        <ContestCountdownScreen 
+        <ContestCountdownScreen
           contestTitle={summary.contest.title}
           startsAt={summary.contest.starts_at}
         />
@@ -332,8 +339,8 @@ export default function ContestPage() {
     <main className="w-full text-white pt-[calc(100px+env(safe-area-inset-top))] pl-4 pr-4 font-sans select-none flex flex-col h-fit pb-[calc(40px+env(safe-area-inset-bottom))] relative">
       {/* Header with Back Button */}
       <div className="sticky top-[calc(100px+env(safe-area-inset-top))] z-50 flex items-center justify-between w-fit mb-4 relative">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           onClick={() => triggerHaptic('light')}
           className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15"
           aria-label="Назад на главную"
@@ -344,8 +351,8 @@ export default function ContestPage() {
 
       {/* Contest Summary */}
       <Suspense fallback={<div className="h-56 bg-white/5 rounded-2xl animate-pulse mb-6 relative z-10" />}>
-        <ContestSummaryCard 
-          summary={summary} 
+        <ContestSummaryCard
+          summary={summary}
           progress={contestProgress}
         />
       </Suspense>
