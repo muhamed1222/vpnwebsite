@@ -171,46 +171,38 @@ export default function ContestPage() {
     loadContestData();
   }, [loadContestData]);
 
-  // Добавляем состояние для отслеживания старта конкурса
-  // Инициализируем как null, чтобы правильно определить после загрузки summary
-  const [hasStarted, setHasStarted] = useState<boolean | null>(null);
+  // Вычисляем, начался ли конкурс на основе summary
+  const contestHasStarted = useMemo(() => {
+    if (!summary) return null; // Еще не загружено
+    
+    const now = new Date().getTime();
+    const startTime = new Date(summary.contest.starts_at).getTime();
+    return now >= startTime;
+  }, [summary]);
 
-  // Обновляем состояние при изменении summary и проверяем периодически, если конкурс еще не начался
+  // Обновляем состояние и проверяем периодически, если конкурс еще не начался
   useEffect(() => {
-    if (!summary) {
-      // Если нет summary, не меняем состояние (остаемся в loading)
+    if (contestHasStarted === null || contestHasStarted === true) {
+      // Конкурс еще не загружен или уже начался - не нужно проверять
       return;
     }
 
-    const checkStart = () => {
+    // Конкурс еще не начался - проверяем каждую секунду
+    const intervalId = setInterval(() => {
+      if (!summary) return;
+      
       const now = new Date().getTime();
       const startTime = new Date(summary.contest.starts_at).getTime();
-      return now >= startTime;
-    };
-
-    const started = checkStart();
-    
-    // Обновляем состояние при изменении summary
-    setHasStarted(started);
-
-    // Если конкурс уже начался, не нужно проверять
-    if (started) {
-      return;
-    }
-
-    // Если конкурс еще не начался, проверяем каждую секунду
-    const intervalId = setInterval(() => {
-      const started = checkStart();
+      const started = now >= startTime;
       
       if (started) {
-        // Конкурс начался - обновляем состояние и перезагружаем данные
-        setHasStarted(true);
+        // Конкурс начался - перезагружаем данные (useMemo автоматически обновит contestHasStarted)
         loadContestData();
       }
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [summary, loadContestData]);
+  }, [contestHasStarted, summary, loadContestData]);
 
   // Мемоизируем расчет прогресса конкурса
   const contestProgress = useMemo(() => {
@@ -313,17 +305,8 @@ export default function ContestPage() {
   }
 
   // Если конкурс еще не начался, показываем экран ожидания
-  // Проверяем напрямую через summary, если hasStarted еще не установлен
-  const shouldShowCountdown = (() => {
-    if (!summary) return false; // Нет данных - показываем loading или error
-    if (hasStarted === null) {
-      // Если hasStarted еще не установлен, вычисляем напрямую
-      const now = new Date().getTime();
-      const startTime = new Date(summary.contest.starts_at).getTime();
-      return now < startTime;
-    }
-    return hasStarted === false;
-  })();
+  // contestHasStarted === false означает что конкурс еще не начался
+  const shouldShowCountdown = contestHasStarted === false;
 
   if (shouldShowCountdown) {
     return (
