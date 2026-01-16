@@ -313,10 +313,17 @@ export default function ContestPage() {
   }
 
   // Если конкурс еще не начался, показываем экран ожидания
-  // hasStarted === null означает что summary еще не загружен (показываем loading)
-  // hasStarted === false означает конкурс еще не начался (показываем countdown)
-  // hasStarted === true означает конкурс начался (показываем основной экран)
-  const shouldShowCountdown = hasStarted === false;
+  // Проверяем напрямую через summary, если hasStarted еще не установлен
+  const shouldShowCountdown = (() => {
+    if (!summary) return false; // Нет данных - показываем loading или error
+    if (hasStarted === null) {
+      // Если hasStarted еще не установлен, вычисляем напрямую
+      const now = new Date().getTime();
+      const startTime = new Date(summary.contest.starts_at).getTime();
+      return now < startTime;
+    }
+    return hasStarted === false;
+  })();
 
   if (shouldShowCountdown) {
     return (
