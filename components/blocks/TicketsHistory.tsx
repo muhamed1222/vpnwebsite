@@ -27,20 +27,17 @@ export default function TicketsHistory({ tickets, onShowAll }: TicketsHistoryPro
 
   if (sortedTickets.length === 0) {
     return (
-      <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5 mb-6 relative z-10">
+      <div className="bg-[#121212] rounded-[10px] p-3.5 border border-white/5 mb-6 relative z-10">
         <h3 className="text-lg font-medium text-white mb-4">История билетов</h3>
         <div className="text-center py-8">
           <p className="text-white/60 text-sm">История билетов пуста</p>
-          <p className="text-white/40 text-xs mt-2">
-            Билеты появятся здесь после оплат ваших друзей
-          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#121212] rounded-[16px] p-5 border border-white/5 mb-6 relative z-10">
+    <div className="bg-[#121212] rounded-[10px] p-3.5 border border-white/5 mb-6 relative z-10">
       <h3 className="text-lg font-medium text-white mb-4">История билетов</h3>
       <div className="space-y-2">
         {sortedTickets.map((ticket) => (

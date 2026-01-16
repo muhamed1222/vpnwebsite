@@ -22,8 +22,8 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Правила конкурса">
       <div className="space-y-6">
         {/* Призы конкурса */}
-        <div>
-          <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+        <div className="bg-gradient-to-br from-[#F55128]/20 to-[#FF6B3D]/20 rounded-[10px] p-4 border border-white/10">
+          <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
             <span className="text-xl">🎁</span>
             Призы конкурса
           </h3>
@@ -56,7 +56,7 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
         </div>
 
         {/* Основная информация */}
-        <div>
+        <div className="bg-white/5 rounded-[10px] p-4 border border-white/10">
           <h3 className="text-white font-semibold mb-2">О конкурсе</h3>
           <p className="text-white/70 leading-relaxed mb-3">
             {contest.title}
@@ -78,8 +78,8 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
         </div>
 
         {/* Правила */}
-        <div>
-          <h3 className="text-white font-semibold mb-2">🚀 Как участвовать</h3>
+        <div className="bg-white/5 rounded-[10px] p-4 border border-white/10">
+          <h3 className="text-white font-semibold mb-3">🚀 Как участвовать</h3>
           <ul className="space-y-2 text-white/70 leading-relaxed">
             <li className="flex items-start gap-2">
               <span className="text-[#F55128] mt-1">1.</span>
@@ -101,8 +101,8 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
         </div>
 
         {/* Билеты */}
-        <div>
-          <h3 className="text-white font-semibold mb-2">🎟 Билеты</h3>
+        <div className="bg-white/5 rounded-[10px] p-4 border border-white/10">
+          <h3 className="text-white font-semibold mb-3">🎟 Билеты</h3>
           <ul className="space-y-2 text-white/70 leading-relaxed">
             <li className="flex items-start gap-2">
               <span className="text-[#F55128] mt-1">•</span>
@@ -120,8 +120,8 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
         </div>
 
         {/* Условия засчета */}
-        <div>
-          <h3 className="text-white font-semibold mb-2">✅ Кто считается "засчитанным другом"</h3>
+        <div className="bg-white/5 rounded-[10px] p-4 border border-white/10">
+          <h3 className="text-white font-semibold mb-3">✅ Кто считается "засчитанным другом"</h3>
           <p className="text-white/70 text-sm mb-2">Друг засчитывается, если он:</p>
           <ul className="space-y-2 text-white/70 leading-relaxed">
             <li className="flex items-start gap-2">
@@ -144,8 +144,8 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
         </div>
 
         {/* Что не засчитывается */}
-        <div>
-          <h3 className="text-white font-semibold mb-2">Не засчитывается</h3>
+        <div className="bg-red-500/10 rounded-[10px] p-4 border border-red-500/20">
+          <h3 className="text-white font-semibold mb-3">❌ Не засчитывается</h3>
           <ul className="space-y-2 text-white/70 leading-relaxed">
             <li className="flex items-start gap-2">
               <span className="text-red-500 mt-1">•</span>
@@ -163,8 +163,8 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
         </div>
 
         {/* Возвраты */}
-        <div>
-          <h3 className="text-white font-semibold mb-2">Возвраты</h3>
+        <div className="bg-white/5 rounded-[10px] p-4 border border-white/10">
+          <h3 className="text-white font-semibold mb-3">💳 Возвраты</h3>
           <p className="text-white/70 leading-relaxed">
             При возврате оплаты друга билеты за эту оплату будут отозваны.
           </p>

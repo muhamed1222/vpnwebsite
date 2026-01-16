@@ -239,7 +239,7 @@ export default function ContestPage() {
 
   if (loading) {
     return (
-      <main className="w-full text-white pt-[calc(100px+env(safe-area-inset-top))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none flex flex-col min-h-screen">
+      <main className="w-full text-white pt-[calc(100px+env(safe-area-inset-top))] pl-4 pr-4 font-sans select-none flex flex-col min-h-screen">
         <div className="flex items-center justify-center flex-1">
           <div className="text-center">
             <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4" />
@@ -252,7 +252,7 @@ export default function ContestPage() {
 
   if (error || !summary) {
     return (
-      <main className="w-full text-white pt-[calc(100px+env(safe-area-inset-top))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none flex flex-col min-h-screen">
+      <main className="w-full text-white pt-[calc(100px+env(safe-area-inset-top))] pl-4 pr-4 font-sans select-none flex flex-col min-h-screen">
         <div className="sticky top-[calc(100px+env(safe-area-inset-top))] z-50 flex items-center justify-between w-fit mb-4">
           <Link href="/" className="p-2 bg-white/10 rounded-xl border border-white/10 active:scale-95 transition-all hover:bg-white/15" aria-label="Назад на главную">
             <ChevronLeftIcon className="w-6 h-6 text-white" aria-hidden="true" />
@@ -269,7 +269,7 @@ export default function ContestPage() {
   }
 
   return (
-    <main className="w-full text-white pt-[calc(100px+env(safe-area-inset-top))] px-[calc(1rem+env(safe-area-inset-left))] font-sans select-none flex flex-col h-fit pb-[calc(40px+env(safe-area-inset-bottom))] relative">
+    <main className="w-full text-white pt-[calc(100px+env(safe-area-inset-top))] pl-4 pr-4 font-sans select-none flex flex-col h-fit pb-[calc(40px+env(safe-area-inset-bottom))] relative">
       {/* Header with Back Button */}
       <div className="sticky top-[calc(100px+env(safe-area-inset-top))] z-50 flex items-center justify-between w-fit mb-4 relative">
         <Link 
@@ -294,16 +294,11 @@ export default function ContestPage() {
       <div className="mb-6 relative z-10">
         <button
           onClick={handleShare}
-          className="w-full bg-gradient-to-r from-[#F55128] to-[#FF6B3D] hover:from-[#d43d1f] hover:to-[#e55a2d] active:scale-[0.98] transition-all duration-200 rounded-[16px] py-5 px-6 text-white font-bold text-lg shadow-xl flex items-center justify-center gap-3 border border-white/20"
+          className="w-full bg-gradient-to-r from-[#F55128] to-[#FF6B3D] hover:from-[#d43d1f] hover:to-[#e55a2d] active:scale-[0.98] transition-all duration-200 rounded-[10px] py-2 px-4 text-white font-medium text-base shadow-xl flex items-center justify-center gap-3 border border-white/20"
         >
           <span className="text-2xl">🎁</span>
           <span>Пригласить друзей</span>
         </button>
-        <div className="text-center mt-2">
-          <p className="text-white/60 text-xs">
-            Чем больше друзей пригласите, тем выше ваши шансы на победу!
-          </p>
-        </div>
       </div>
 
       {/* Friends List */}
