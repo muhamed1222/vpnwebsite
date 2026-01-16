@@ -53,51 +53,76 @@ export default function ContestPage() {
         headers['Authorization'] = mockInitData;
       }
 
-      // Делаем запросы к API с авторизацией
-      const [activeContestResponse, summaryResponse, friendsResponse, ticketsResponse] = await Promise.all([
-        // Получаем активный конкурс
-        fetch('/api/contest/active', { headers }).catch(() => null),
-        // Получаем сводку по рефералам
-        fetch('/api/referral/summary?contest_id=550e8400-e29b-41d4-a716-446655440000', { headers }).catch(() => null),
-        // Получаем список друзей
-        fetch('/api/referral/friends?contest_id=550e8400-e29b-41d4-a716-446655440000&limit=50', { headers }).catch(() => null),
-        // Получаем историю билетов
-        fetch('/api/referral/tickets?contest_id=550e8400-e29b-41d4-a716-446655440000&limit=20', { headers }).catch(() => null),
-      ]);
+      // Сначала получаем активный конкурс
+      const activeContestResponse = await fetch('/api/contest/active', { headers }).catch(() => null);
+      
+      if (!activeContestResponse) {
+        setError('Сервер временно недоступен. Проверьте подключение к интернету.');
+        setLoading(false);
+        return;
+      }
 
-      // Обрабатываем ответы
-      const activeContestData = activeContestResponse?.ok 
-        ? await activeContestResponse.json().catch(() => ({ ok: false, contest: null, error: 'Parse error' }))
-        : { ok: false, contest: null, error: activeContestResponse ? `HTTP ${activeContestResponse.status}` : 'Network error' };
-      
-      const summaryData = summaryResponse?.ok
-        ? await summaryResponse.json().catch(() => ({ ok: false, summary: null, error: 'Parse error' }))
-        : { ok: false, summary: null, error: summaryResponse ? `HTTP ${summaryResponse.status}` : 'Network error' };
-      
-      const friendsData = friendsResponse?.ok
-        ? await friendsResponse.json().catch(() => ({ ok: false, friends: [], error: 'Parse error' }))
-        : { ok: false, friends: [], error: friendsResponse ? `HTTP ${friendsResponse.status}` : 'Network error' };
-      
-      const ticketsData = ticketsResponse?.ok
-        ? await ticketsResponse.json().catch(() => ({ ok: false, tickets: [], error: 'Parse error' }))
-        : { ok: false, tickets: [], error: ticketsResponse ? `HTTP ${ticketsResponse.status}` : 'Network error' };
+      let activeContestData;
+      try {
+        activeContestData = await activeContestResponse.json();
+      } catch (parseError) {
+        setError('Ошибка при обработке ответа сервера. Попробуйте позже.');
+        setLoading(false);
+        return;
+      }
 
       // Проверяем наличие активного конкурса
       if (!activeContestData.ok || !activeContestData.contest) {
         // Если конкурс не найден, это нормально - конкурс может быть не активен
-        if (activeContestData.error?.includes('404') || 
-            activeContestData.error?.includes('not found') ||
-            activeContestData.error?.includes('Contest endpoint not found')) {
+        const errorMsg = activeContestData.error || '';
+        if (activeContestResponse.status === 404 || 
+            errorMsg.includes('404') || 
+            errorMsg.includes('not found') ||
+            errorMsg.includes('Contest endpoint not found') ||
+            errorMsg.includes('No active contest')) {
           setError('В данный момент нет активного конкурса. Следите за обновлениями!');
-        } else if (activeContestData.error?.includes('401') || activeContestData.error?.includes('Missing Telegram')) {
+        } else if (activeContestResponse.status === 401 || 
+                   errorMsg.includes('401') || 
+                   errorMsg.includes('Missing Telegram') ||
+                   errorMsg.includes('Unauthorized')) {
           setError('Ошибка авторизации. Пожалуйста, перезапустите приложение.');
-        } else if (activeContestData.error?.includes('500') || activeContestData.error?.includes('Internal Server Error')) {
+        } else if (activeContestResponse.status === 500 || 
+                   errorMsg.includes('500') || 
+                   errorMsg.includes('Internal Server Error')) {
           setError('Ошибка сервера. Попробуйте позже.');
-        } else if (activeContestData.error?.includes('Network error') || activeContestData.error?.includes('Backend unavailable')) {
-          setError('Сервер временно недоступен. Попробуйте позже.');
         } else {
-          setError('Нет активного конкурса');
+          setError('Не удалось загрузить данные конкурса. Попробуйте позже.');
         }
+        setLoading(false);
+        return;
+      }
+
+      const contestId = activeContestData.contest.id;
+
+      // Теперь загружаем данные конкурса параллельно
+      const [summaryResponse, friendsResponse, ticketsResponse] = await Promise.all([
+        fetch(`/api/referral/summary?contest_id=${contestId}`, { headers }).catch(() => null),
+        fetch(`/api/referral/friends?contest_id=${contestId}&limit=50`, { headers }).catch(() => null),
+        fetch(`/api/referral/tickets?contest_id=${contestId}&limit=20`, { headers }).catch(() => null),
+      ]);
+
+      // Обрабатываем ответы
+      let summaryData, friendsData, ticketsData;
+      
+      try {
+        summaryData = summaryResponse?.ok
+          ? await summaryResponse.json().catch(() => ({ ok: false, summary: null, error: 'Parse error' }))
+          : { ok: false, summary: null, error: summaryResponse ? `HTTP ${summaryResponse.status}` : 'Network error' };
+        
+        friendsData = friendsResponse?.ok
+          ? await friendsResponse.json().catch(() => ({ ok: false, friends: [], error: 'Parse error' }))
+          : { ok: false, friends: [], error: friendsResponse ? `HTTP ${friendsResponse.status}` : 'Network error' };
+        
+        ticketsData = ticketsResponse?.ok
+          ? await ticketsResponse.json().catch(() => ({ ok: false, tickets: [], error: 'Parse error' }))
+          : { ok: false, tickets: [], error: ticketsResponse ? `HTTP ${ticketsResponse.status}` : 'Network error' };
+      } catch (parseError) {
+        setError('Ошибка при обработке данных конкурса. Попробуйте позже.');
         setLoading(false);
         return;
       }
@@ -105,10 +130,11 @@ export default function ContestPage() {
       // Проверяем наличие сводки
       if (!summaryData.ok || !summaryData.summary) {
         // Если сводка не найдена, но конкурс есть, показываем конкурс без данных
-        if (summaryData.error?.includes('404') || summaryData.error?.includes('not found')) {
+        const errorMsg = summaryData.error || '';
+        if (summaryResponse?.status === 404 || errorMsg.includes('404') || errorMsg.includes('not found')) {
           setError('Данные конкурса временно недоступны. Попробуйте позже.');
         } else {
-          setError('Не удалось загрузить данные конкурса');
+          setError('Не удалось загрузить данные конкурса. Попробуйте позже.');
         }
         setLoading(false);
         return;
