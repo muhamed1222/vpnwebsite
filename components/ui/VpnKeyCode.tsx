@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DocumentDuplicateIcon as Copy, CheckIcon as Check } from '@heroicons/react/24/outline';
 import { useTelegramAlert } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
+import { DELAYS } from '@/lib/constants';
 
 interface VpnKeyCodeProps {
   value: string;
@@ -53,7 +54,7 @@ export const VpnKeyCode: React.FC<VpnKeyCodeProps> = ({
       timeoutRef.current = setTimeout(() => {
         setCopied(false);
         setShowTooltip(false);
-      }, 2000);
+      }, DELAYS.COPY_FEEDBACK);
     } else {
       logError('Failed to copy', new Error('Clipboard API not available'), {
         action: 'copyToClipboard',

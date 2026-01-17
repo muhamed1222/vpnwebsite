@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useTelegramAlert } from '@/hooks/useTelegramAlert';
 import { useTelegramLink } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
+import { DELAYS } from '@/lib/constants';
 
 interface PurchaseConfirmModalProps {
   isOpen: boolean;
@@ -49,7 +50,6 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
   
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pollAttemptsRef = useRef(0);
-  const MAX_POLL_ATTEMPTS = 30; // 1 минута (раз в 2 сек)
 
   // Очистка таймера при размонтировании
   useEffect(() => {
@@ -84,12 +84,12 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
               // Обновляем данные пользователя
               await login(true);
               
-              // Через 2 секунды закрываем все и уходим на главную
+              // Через DELAYS.POLLING_RESET секунд закрываем все и уходим на главную
               setTimeout(() => {
                 setIsWaitingOpen(false);
                 onClose();
                 router.push('/');
-              }, 2500);
+              }, DELAYS.POLLING_RESET);
               return;
             }
           } catch (e) {
@@ -114,12 +114,12 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
             setIsPaid(true);
             stopPolling();
             
-            // Через 2 секунды закрываем все и уходим на главную
+            // Через DELAYS.POLLING_RESET секунд закрываем все и уходим на главную
             setTimeout(() => {
               setIsWaitingOpen(false);
               onClose();
               router.push('/');
-            }, 2500);
+            }, DELAYS.POLLING_RESET);
           }
         }
       } catch (e) {
@@ -131,10 +131,10 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
         });
       }
 
-      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+      if (pollAttemptsRef.current >= DELAYS.MAX_POLL_ATTEMPTS) {
         stopPolling();
       }
-    }, 2000);
+    }, DELAYS.POLLING_INTERVAL);
   };
 
   const handlePayClick = async () => {
@@ -178,7 +178,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
         // 3. Делаем небольшую задержку для плавности и редиректим
         setTimeout(() => {
           handleRedirect(response.paymentUrl);
-        }, 1000);
+        }, DELAYS.PAYMENT_REDIRECT);
       } else {
         throw new Error('Не удалось получить ссылку на оплату');
       }

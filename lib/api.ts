@@ -4,6 +4,7 @@ import { withRetry, withTimeout } from './api-retry';
 import { logWarn } from './utils/logging';
 import { handleApiError } from './utils/errorHandler';
 import { getHttpStatusMessage } from './utils/user-messages';
+import { API_TIMEOUTS } from './constants';
 
 export interface ApiError {
   error: string;
@@ -224,7 +225,7 @@ export const api = {
         ok: boolean;
         config: string | null;
       }>('user/config', { method: 'GET' }),
-      2 * 60 * 1000 // 2 минуты
+      API_TIMEOUTS.GET_USER_CONFIG
     );
 
     return {
@@ -278,7 +279,7 @@ export const api = {
           dataLimit: billing.limitBytes || statusData.dataLimit || 0,
         };
       },
-      1 * 60 * 1000 // 1 минута
+      API_TIMEOUTS.GET_USER_STATUS
     );
   },
 
@@ -297,7 +298,7 @@ export const api = {
         planId: string;
         planName: string;
       }>>('payments/history', { method: 'GET' }),
-      2 * 60 * 1000 // 2 минуты
+      API_TIMEOUTS.GET_PAYMENTS_HISTORY
     );
   },
 
@@ -313,7 +314,7 @@ export const api = {
         price_stars: number;
         price_rub?: number;
       }>>('tariffs', { method: 'GET' }),
-      5 * 60 * 1000 // 5 минут
+      API_TIMEOUTS.GET_TARIFFS
     );
   },
 
@@ -327,7 +328,7 @@ export const api = {
         premiumCount: number;
         referralCode: string;
       }>('user/referrals', { method: 'GET' }),
-      2 * 60 * 1000 // 2 минуты
+      API_TIMEOUTS.GET_REFERRAL_STATS
     );
   },
 
@@ -360,7 +361,7 @@ export const api = {
       () => apiFetch<{
         enabled: boolean;
       }>('user/autorenewal', { method: 'GET' }),
-      60 * 1000 // 1 минута
+      API_TIMEOUTS.GET_AUTORENEWAL
     );
   },
 
@@ -384,7 +385,7 @@ export const api = {
         referralId: string;
         status: 'pending' | 'completed' | 'cancelled';
       }>>('user/referrals/history', { method: 'GET' }),
-      2 * 60 * 1000 // 2 минуты
+      API_TIMEOUTS.GET_REFERRAL_HISTORY
     );
   },
 
@@ -405,7 +406,7 @@ export const api = {
           is_active: boolean;
         } | null;
       }>('contest/active', { method: 'GET' }),
-      60 * 1000 // 1 минута
+      API_TIMEOUTS.GET_CONTEST_ACTIVE
     );
   },
 
@@ -432,7 +433,7 @@ export const api = {
           pending_total: number;
         };
       }>(`referral/summary?contest_id=${contestId}`, { method: 'GET' }),
-      1 * 60 * 1000 // 1 минута
+      API_TIMEOUTS.GET_CONTEST_SUMMARY
     );
   },
 
@@ -452,7 +453,7 @@ export const api = {
           bound_at: string;
         }>;
       }>(`referral/friends?contest_id=${contestId}&limit=${limit}`, { method: 'GET' }),
-      1 * 60 * 1000 // 1 минута
+      API_TIMEOUTS.GET_CONTEST_FRIENDS
     );
   },
 
@@ -470,7 +471,7 @@ export const api = {
           invitee_name: string | null;
         }>;
       }>(`referral/tickets?contest_id=${contestId}`, { method: 'GET' }),
-      1 * 60 * 1000 // 1 минута
+      API_TIMEOUTS.GET_CONTEST_TICKETS
     );
   },
 };

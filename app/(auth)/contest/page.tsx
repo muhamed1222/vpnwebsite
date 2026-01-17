@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { triggerHaptic, getTelegramWebApp, getTelegramInitData } from '@/lib/telegram';
 import { handleComponentError } from '@/lib/utils/errorHandler';
 import { ContestSummary, ReferralFriend, TicketHistoryEntry, Contest } from '@/types/contest';
+import { DELAYS } from '@/lib/constants';
 
 // Lazy loading для всех тяжелых компонентов
 const ContestCountdownScreen = lazy(() =>
@@ -216,7 +217,7 @@ export default function ContestPage() {
         }
         return current;
       });
-    }, 4000);
+    }, DELAYS.CONTEST_REFRESH);
 
     return () => clearTimeout(timer);
   }, [loadContestData]);
@@ -241,7 +242,7 @@ export default function ContestPage() {
       if (now >= startTime) {
         loadContestData();
       }
-    }, 1000);
+    }, DELAYS.CONTEST_CHECK_INTERVAL);
 
     return () => clearInterval(intervalId);
   }, [contestHasStarted, summary, loadContestData]);

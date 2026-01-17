@@ -10,6 +10,7 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useModalData } from '@/hooks/useModalData';
 import { useTelegramAlert } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
+import { DELAYS } from '@/lib/constants';
 
 interface ReferralHistoryItem {
   id: string;
@@ -68,7 +69,7 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
     
     if (copied) {
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      setTimeout(() => setIsCopied(false), DELAYS.COPY_FEEDBACK);
       showAlert('Реферальная ссылка скопирована!');
     }
   };

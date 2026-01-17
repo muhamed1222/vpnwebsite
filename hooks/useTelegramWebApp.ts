@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { logError } from '@/lib/utils/logging';
+import { DELAYS } from '@/lib/constants';
 
 /**
  * Хук для инициализации и управления Telegram WebApp
@@ -55,7 +56,7 @@ export function useTelegramWebApp() {
 
     // Вызываем сразу и через небольшую паузу для гарантии
     expandApp();
-    const timer = setTimeout(expandApp, 150);
+    const timer = setTimeout(expandApp, DELAYS.MODAL_CLOSE_ANIMATION);
 
     // 3. Пытаемся включить полноэкранный режим, если поддерживается (начиная с версии 8.0)
     // ВНИМАНИЕ: Многие клиенты разрешают это только после клика пользователя

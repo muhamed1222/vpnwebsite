@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { proxyGet } from '@/lib/utils/api-proxy';
 import { validateApiRequest } from '@/lib/utils/api-validation';
+import { CACHE_CONFIG } from '@/lib/constants';
 
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.ADM || process.env.NEXT_PUBLIC_ADMIN_API_KEY || '';
 
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
       requireAuth: false, // Уже проверили выше
       adminApiKey: hasAdminSession && ADMIN_API_KEY ? ADMIN_API_KEY : undefined,
       noCache: !!hasAdminSession, // Для админов не кэшируем
-      revalidate: hasAdminSession ? undefined : 60, // Кэшируем только для обычных пользователей
+      revalidate: hasAdminSession ? undefined : CACHE_CONFIG.CONTEST_ACTIVE, // Кэшируем только для обычных пользователей
       logContext: {
         page: 'api',
         action: 'getActiveContest',

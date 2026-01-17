@@ -5,9 +5,9 @@
 
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { SESSION_CONFIG } from '@/lib/constants';
 
 const SESSION_PREFIX = 'admin_';
-const SESSION_MAX_AGE = 60 * 60 * 24 * 1000; // 24 часа
 
 /**
  * Создает токен сессии для админа
@@ -41,7 +41,7 @@ export function validateAdminSessionToken(sessionToken: string): boolean {
 
     // Проверяем срок действия (24 часа)
     const now = Date.now();
-    if (now - timestamp > SESSION_MAX_AGE) {
+    if (now - timestamp > SESSION_CONFIG.MAX_AGE_MS) {
       return false;
     }
 
@@ -61,7 +61,7 @@ export function setAdminSessionCookie(response: NextResponse, sessionToken: stri
     httpOnly: true,
     secure: isProduction, // true для production (HTTPS), false для localhost
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24, // 24 часа в секундах
+    maxAge: SESSION_CONFIG.MAX_AGE_SECONDS, // 24 часа в секундах
     path: '/',
   });
 }
