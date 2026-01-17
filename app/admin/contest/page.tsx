@@ -9,6 +9,7 @@ interface ContestTicket {
   referrer_id: number; // ID участника (получатель билета)
   referred_id: number; // ID приглашенного (или сам участник для SELF_PURCHASE)
   order_id: string; // ID заказа
+  created_at: string; // Дата и время создания билета
 }
 
 export default function AdminContestPage() {
@@ -167,11 +168,19 @@ export default function AdminContestPage() {
     const rows: string[] = [];
     
     // Заголовки
-    rows.push('№;ID участника;Пригласил ID;Order ID');
+    rows.push('№;ID участника;Пригласил ID;Order ID;Дата и время покупки');
 
     // Данные билетов (каждая строка = один билет)
     tickets.forEach((ticket, index) => {
-      rows.push(`${index + 1};${ticket.referrer_id};${ticket.referred_id};${ticket.order_id}`);
+      const date = ticket.created_at ? new Date(ticket.created_at).toLocaleString('ru-RU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }) : '-';
+      rows.push(`${index + 1};${ticket.referrer_id};${ticket.referred_id};${ticket.order_id};${date}`);
     });
 
     // Создаем CSV файл
@@ -306,27 +315,39 @@ export default function AdminContestPage() {
                   <th className="px-4 py-3 text-white/80 text-sm font-semibold">ID участника</th>
                   <th className="px-4 py-3 text-white/80 text-sm font-semibold">Пригласил ID</th>
                   <th className="px-4 py-3 text-white/80 text-sm font-semibold">Order ID</th>
+                  <th className="px-4 py-3 text-white/80 text-sm font-semibold">Дата и время покупки</th>
                 </tr>
               </thead>
               <tbody>
                 {tickets.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-white/60">
+                    <td colSpan={5} className="px-4 py-8 text-center text-white/60">
                       Билетов пока нет
                     </td>
                   </tr>
                 ) : (
-                  tickets.map((ticket, index) => (
-                    <tr
-                      key={`${ticket.referrer_id}-${ticket.order_id}-${index}`}
-                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                    >
-                      <td className="px-4 py-3 text-white/80 font-mono text-sm">{index + 1}</td>
-                      <td className="px-4 py-3 text-white font-mono text-sm">{ticket.referrer_id}</td>
-                      <td className="px-4 py-3 text-white/80 font-mono text-sm">{ticket.referred_id}</td>
-                      <td className="px-4 py-3 text-white/60 font-mono text-xs">{ticket.order_id}</td>
-                    </tr>
-                  ))
+                  tickets.map((ticket, index) => {
+                    const date = ticket.created_at ? new Date(ticket.created_at).toLocaleString('ru-RU', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    }) : '-';
+                    return (
+                      <tr
+                        key={`${ticket.referrer_id}-${ticket.order_id}-${index}`}
+                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-white/80 font-mono text-sm">{index + 1}</td>
+                        <td className="px-4 py-3 text-white font-mono text-sm">{ticket.referrer_id}</td>
+                        <td className="px-4 py-3 text-white/80 font-mono text-sm">{ticket.referred_id}</td>
+                        <td className="px-4 py-3 text-white/60 font-mono text-xs">{ticket.order_id}</td>
+                        <td className="px-4 py-3 text-white/70 font-mono text-sm">{date}</td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
