@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { validateTelegramInitData } from '@/lib/telegram-validation';
-import { serverConfig } from '@/lib/config';
 import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
@@ -48,16 +46,15 @@ export async function GET(request: NextRequest) {
     }
 
     // Проверяем Telegram авторизацию только если нет админской сессии и есть initData
-    if (!hasAdminSession && initData && serverConfig.telegram.botToken) {
-      const isValid = validateTelegramInitData(
-        initData,
-        serverConfig.telegram.botToken
-      );
-
-      if (!isValid) {
+    if (!hasAdminSession && initData) {
+      // Используем централизованную валидацию
+      const { validateRequestInitData } = await import('@/lib/utils/api-validation');
+      const validation = validateRequestInitData(request, true);
+      
+      if (!validation.isValid) {
         return NextResponse.json(
-          { error: 'Invalid Telegram initData signature' },
-          { status: 401 }
+          { error: validation.error || 'Invalid Telegram initData signature' },
+          { status: validation.status || 401 }
         );
       }
     }

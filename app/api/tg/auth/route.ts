@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateTelegramInitData } from '@/lib/telegram-validation';
-import { serverConfig } from '@/lib/config';
+import { validateApiRequest, getValidatedInitData } from '@/lib/utils/api-validation';
 import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
@@ -12,36 +11,19 @@ const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.out
  */
 export async function POST(request: NextRequest) {
   try {
-    // Получаем initData из заголовков
-    const initData = request.headers.get('X-Telegram-Init-Data') || 
-                     request.headers.get('Authorization');
+    // Валидируем запрос с помощью централизованной утилиты
+    const validationError = validateApiRequest(request, true);
+    if (validationError) {
+      return validationError;
+    }
 
+    // Получаем валидированный initData
+    const initData = getValidatedInitData(request);
     if (!initData) {
       return NextResponse.json(
         { error: 'Missing Telegram initData' },
         { status: 401 }
       );
-    }
-
-    // Валидируем подпись initData (если токен установлен)
-    // Если токен не установлен, пропускаем валидацию (бэкенд сам проверит)
-    if (serverConfig.telegram.botToken) {
-      const isValid = validateTelegramInitData(
-        initData,
-        serverConfig.telegram.botToken
-      );
-
-      if (!isValid) {
-        logError('Invalid Telegram initData signature in auth route', undefined, {
-          page: 'api',
-          action: 'validateInitData',
-          endpoint: '/api/tg/auth'
-        });
-        return NextResponse.json(
-          { error: 'Invalid Telegram initData signature' },
-          { status: 401 }
-        );
-      }
     }
 
     // Проксируем запрос на бэкенд API

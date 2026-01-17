@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateTelegramInitData } from '@/lib/telegram-validation';
-import { serverConfig } from '@/lib/config';
-import { logError, logWarn } from '@/lib/utils/logging';
+import { validateApiRequest, getValidatedInitData } from '@/lib/utils/api-validation';
+import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
@@ -12,53 +11,20 @@ const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.out
  */
 export async function GET(request: NextRequest) {
   try {
-    // Получаем initData из заголовков
-    const initData = request.headers.get('X-Telegram-Init-Data') ||
-      request.headers.get('Authorization');
+    // Валидируем запрос с помощью централизованной утилиты
+    const validationError = validateApiRequest(request, true);
+    if (validationError) {
+      return validationError;
+    }
 
+    // Получаем валидированный initData
+    const initData = getValidatedInitData(request);
     if (!initData) {
       return NextResponse.json(
         { error: 'Missing Telegram initData' },
         { status: 401 }
       );
     }
-
-    // В режиме разработки пропускаем валидацию для STUB initData
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const isStubData = initData.includes('query_id=STUB');
-
-    // Валидируем подпись initData на стороне Next.js для безопасности (только если не STUB в dev)
-    if (!isDevelopment || !isStubData) {
-      const botToken = serverConfig.telegram.botToken;
-
-      if (!botToken) {
-        // В dev режиме без токена просто пропускаем валидацию (бэкенд проверит)
-        if (!isDevelopment) {
-          logError('[API /me] CRITICAL ERROR: TELEGRAM_BOT_TOKEN is not set in environment variables', undefined, {
-            page: 'api',
-            action: 'validateConfig',
-            endpoint: '/api/me'
-          });
-          return NextResponse.json(
-            { error: 'Внутренняя ошибка конфигурации сервера' },
-            { status: 500 }
-          );
-        }
-      } else {
-        const isValid = validateTelegramInitData(
-          initData,
-          botToken
-        );
-
-        if (!isValid) {
-          return NextResponse.json(
-            { error: 'Невалидная подпись данных Telegram. Пожалуйста, перезапустите приложение.' },
-            { status: 401 }
-          );
-        }
-      }
-    }
-    // Если токен не установлен, просто проксируем запрос на бэкенд
 
     // Проксируем запрос на бэкенд API
     // vpn_api теперь поддерживает initData в Authorization header
