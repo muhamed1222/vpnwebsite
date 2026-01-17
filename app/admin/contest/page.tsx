@@ -58,7 +58,8 @@ export default function AdminContestPage() {
 
         // Сначала получаем активный конкурс (без headers для админов - используется сессия)
         const contestResponse = await fetch('/api/contest/active', { 
-          headers: initData ? headers : undefined 
+          headers: initData ? headers : undefined,
+          credentials: 'include' // Важно: передаем cookies для админской сессии
         });
         
         if (!contestResponse.ok) {
@@ -90,7 +91,10 @@ export default function AdminContestPage() {
         // Загружаем билеты (развернутые)
         const ticketsResponse = await fetch(
           `/api/admin/contest/participants?contest_id=${activeContestId}`,
-          { headers }
+          { 
+            headers,
+            credentials: 'include' // Важно: передаем cookies для админской сессии
+          }
         );
 
         if (!ticketsResponse.ok) {
