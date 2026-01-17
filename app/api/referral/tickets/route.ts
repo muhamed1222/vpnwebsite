@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       }
       
       return NextResponse.json(
-        { ok: false, tickets: [], error: errorData.error || 'Failed to fetch tickets' },
+        { ok: false, tickets: [], error: errorData.error || 'Не удалось загрузить историю билетов. Попробуйте позже.' },
         { status: backendResponse.status }
       );
     }

@@ -107,7 +107,9 @@ export default function AdminContestPage() {
         const ticketsData = await ticketsResponse.json();
         
         if (!ticketsData.ok) {
-          setError(ticketsData.error || 'Ошибка загрузки данных');
+          // Преобразуем техническое сообщение в понятное
+          const { getUserFriendlyMessage } = await import('@/lib/utils/user-messages');
+          setError(getUserFriendlyMessage(ticketsData.error) || 'Ошибка загрузки данных');
           setLoading(false);
           return;
         }

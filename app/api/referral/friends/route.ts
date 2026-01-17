@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       }
       
       return NextResponse.json(
-        { ok: false, friends: [], error: errorData.error || 'Failed to fetch friends' },
+        { ok: false, friends: [], error: errorData.error || 'Не удалось загрузить список друзей. Попробуйте позже.' },
         { status: backendResponse.status }
       );
     }

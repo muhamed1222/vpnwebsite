@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { ok: false, participants: [], error: errorData.error || 'Failed to fetch participants' },
+        { ok: false, participants: [], error: errorData.error || 'Не удалось загрузить участников. Попробуйте позже.' },
         { status: backendResponse.status }
       );
     }

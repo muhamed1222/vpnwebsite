@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { ok: false, contest: null, error: errorData.error || errorData.message || 'Failed to fetch active contest' },
+        { ok: false, contest: null, error: errorData.error || errorData.message || 'Не удалось загрузить информацию о конкурсе. Попробуйте позже.' },
         { status: backendResponse.status }
       );
     }
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
     // Если это ошибка сети, возвращаем понятное сообщение
     if (isNetworkError) {
       return NextResponse.json(
-        { ok: false, contest: null, error: 'Network error: Backend unavailable' },
+        { ok: false, contest: null, error: 'Сервис временно недоступен. Попробуйте позже.' },
         { status: 503 }
       );
     }

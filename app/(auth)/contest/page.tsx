@@ -62,14 +62,16 @@ export default function ContestPage() {
 
       if (!activeContestResponse) {
         // Если ошибка сети, выбрасываем ошибку, которая будет поймана ниже
-        throw new Error('Network error or timeout');
+        setError('Проблема с подключением к интернету. Проверьте соединение и попробуйте снова.');
+        return;
       }
 
       let activeContestData;
       try {
         activeContestData = await activeContestResponse.json();
       } catch (parseError) {
-        throw new Error('Invalid JSON response');
+        setError('Ошибка обработки данных. Попробуйте позже.');
+        return;
       }
 
       // Проверяем наличие активного конкурса
@@ -78,7 +80,9 @@ export default function ContestPage() {
         if (activeContestResponse.status === 404 || errorMsg.includes('not found')) {
           setError('В данный момент нет активного конкурса.');
         } else {
-          setError(errorMsg || 'Не удалось загрузить конкурс.');
+          // Преобразуем техническое сообщение в понятное
+          const { getUserFriendlyMessage } = await import('@/lib/utils/user-messages');
+          setError(getUserFriendlyMessage(errorMsg) || 'Не удалось загрузить конкурс.');
         }
         return;
       }
@@ -169,8 +173,9 @@ export default function ContestPage() {
         setSummary(devFallbackSummary);
         setError(null);
       } else {
-        // В продакшене показываем ошибку
-        setError(errorMessage);
+        // В продакшене показываем ошибку (преобразуем техническое сообщение в понятное)
+        const { getUserFriendlyMessage } = await import('@/lib/utils/user-messages');
+        setError(getUserFriendlyMessage(errorMessage));
       }
     } finally {
       // Это гарантирует, что спиннер исчезнет в любом случае

@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       }
       
       return NextResponse.json(
-        { ok: false, summary: null, error: errorData.error || 'Failed to fetch summary' },
+        { ok: false, summary: null, error: errorData.error || 'Не удалось загрузить данные. Попробуйте позже.' },
         { status: backendResponse.status }
       );
     }

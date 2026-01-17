@@ -90,7 +90,7 @@ export const apiFetch = async <T = unknown>(
         const text = await response.text();
         // Если текст начинается с HTML, это значит, что роут не найден
         if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
-          errorMessage = 'API endpoint не найден. Проверьте конфигурацию сервера.';
+          errorMessage = 'Сервис временно недоступен. Попробуйте позже.';
         } else {
           // Попытка парсить как JSON на всякий случай
           try {
@@ -108,30 +108,17 @@ export const apiFetch = async <T = unknown>(
       // Формируем понятное сообщение об ошибке
       if (!errorMessage && typeof data === 'object' && data !== null) {
         const errorData = data as { error?: string; message?: string };
-        errorMessage = errorData.error || errorData.message || '';
+        const rawError = errorData.error || errorData.message || '';
+        // Преобразуем техническое сообщение в понятное
+        const { getUserFriendlyMessage } = require('@/lib/utils/user-messages');
+        errorMessage = getUserFriendlyMessage(rawError);
       }
 
       if (!errorMessage) {
         // Если нет сообщения в ответе, формируем по статусу
-        switch (response.status) {
-          case 401:
-            errorMessage = 'Ошибка авторизации. Пожалуйста, перезапустите приложение.';
-            break;
-          case 403:
-            errorMessage = 'Доступ запрещен. Проверьте права доступа.';
-            break;
-          case 404:
-            errorMessage = 'API endpoint не найден. Проверьте, что сервер запущен и роут доступен.';
-            break;
-          case 500:
-            errorMessage = 'Ошибка сервера. Попробуйте позже.';
-            break;
-          case 503:
-            errorMessage = 'Сервис временно недоступен. Попробуйте позже.';
-            break;
-          default:
-            errorMessage = `Ошибка сервера (${response.status}). Попробуйте позже.`;
-        }
+        // Используем синхронный импорт для избежания проблем с async/await
+        const { getHttpStatusMessage } = require('@/lib/utils/user-messages');
+        errorMessage = getHttpStatusMessage(response.status);
       }
 
       throw new ApiException(
@@ -150,7 +137,7 @@ export const apiFetch = async <T = unknown>(
     // Обработка сетевых ошибок
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
       throw new ApiException(
-        'Проблема с подключением к серверу. Проверьте интернет-соединение.',
+        'Проблема с подключением к интернету. Проверьте соединение и попробуйте снова.',
         0,
         error
       );

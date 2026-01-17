@@ -193,8 +193,10 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
         price
       });
       const webApp = getTelegramWebApp();
+      // Преобразуем техническое сообщение в понятное для пользователя
+      const { getUserFriendlyMessage } = await import('@/lib/utils/user-messages');
       const message = error instanceof Error 
-        ? error.message 
+        ? getUserFriendlyMessage(error.message)
         : 'Произошла ошибка при создании платежа. Попробуйте позже.';
       
       if (webApp) {

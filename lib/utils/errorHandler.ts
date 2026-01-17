@@ -7,6 +7,7 @@ import { ApiException } from '../api';
 import { logError } from './logging';
 import { triggerHaptic } from '../telegram';
 import { checkTelegramWebApp } from '../telegram-fallback';
+import { getUserFriendlyMessage, isTechnicalMessage } from './user-messages';
 
 export interface ErrorContext {
   page?: string;
@@ -88,47 +89,23 @@ function getErrorType(error: unknown): ErrorType {
  * Извлекает понятное сообщение об ошибке для пользователя
  */
 function getUserMessage(error: unknown, errorType: ErrorType): string {
-  // Если это ApiException с уже понятным сообщением, используем его
+  // Если это ApiException, преобразуем сообщение
   if (error instanceof ApiException && error.message) {
-    // Проверяем, не является ли сообщение техническим
-    const technicalPatterns = [
-      'Failed to fetch',
-      'NetworkError',
-      'CORS',
-      'TypeError',
-      'ReferenceError',
-      'SyntaxError',
-    ];
-
-    const isTechnical = technicalPatterns.some(pattern => 
-      error.message.includes(pattern)
-    );
-
-    if (!isTechnical) {
-      // Сообщение уже понятное для пользователя
-      return error.message;
+    const friendlyMessage = getUserFriendlyMessage(error.message);
+    // Если сообщение было преобразовано, используем его, иначе проверяем, не техническое ли оно
+    if (friendlyMessage !== error.message || !isTechnicalMessage(error.message)) {
+      return friendlyMessage;
     }
   }
 
-  // Если это обычная Error с понятным сообщением на русском
+  // Если это обычная Error, преобразуем сообщение
   if (error instanceof Error && error.message) {
-    const technicalPatterns = [
-      'Failed to fetch',
-      'NetworkError',
-      'CORS',
-      'TypeError',
-      'ReferenceError',
-      'SyntaxError',
-    ];
+    return getUserFriendlyMessage(error.message);
+  }
 
-    const isTechnical = technicalPatterns.some(pattern => 
-      error.message.includes(pattern)
-    );
-
-    if (!isTechnical && /[а-яё]/i.test(error.message)) {
-      // Сообщение на русском и не техническое
-      return error.message;
-    }
+  // Если это строка, преобразуем её
+  if (typeof error === 'string') {
+    return getUserFriendlyMessage(error);
   }
 
   // Используем стандартное сообщение для типа ошибки

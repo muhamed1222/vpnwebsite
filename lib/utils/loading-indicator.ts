@@ -35,8 +35,10 @@ export async function withLoadingIndicator<T>(
     return result;
   } catch (error) {
     if (setError) {
+      // Преобразуем техническое сообщение в понятное
+      const { getUserFriendlyMessage } = await import('./user-messages');
       const errorMessage = error instanceof Error 
-        ? error.message 
+        ? getUserFriendlyMessage(error.message)
         : 'Произошла ошибка при выполнении операции';
       setError(errorMessage);
     }
