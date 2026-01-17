@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { validateTelegramInitData } from '@/lib/telegram-validation';
 import { serverConfig } from '@/lib/config';
 import { logError } from '@/lib/utils/logging';
@@ -10,10 +11,17 @@ const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.out
  */
 export async function GET(request: NextRequest) {
   try {
+    // Проверяем админскую сессию (для доступа без Telegram)
+    const cookieStore = await cookies();
+    const adminSession = cookieStore.get('admin_session');
+    
     const initData = request.headers.get('X-Telegram-Init-Data') ||
       request.headers.get('Authorization');
 
-    if (!initData) {
+    // Если есть админская сессия, пропускаем проверку Telegram
+    const hasAdminSession = adminSession && adminSession.value;
+
+    if (!initData && !hasAdminSession) {
       // В режиме разработки возвращаем мок данные, чтобы можно было верифицировать UI
       if (process.env.NODE_ENV === 'development') {
         return NextResponse.json({
@@ -36,7 +44,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (serverConfig.telegram.botToken) {
+    // Проверяем Telegram авторизацию только если нет админской сессии и есть initData
+    if (!hasAdminSession && initData && serverConfig.telegram.botToken) {
       const isValid = validateTelegramInitData(
         initData,
         serverConfig.telegram.botToken
@@ -50,12 +59,20 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Формируем заголовки для запроса к бэкенду
+    const backendHeaders: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Если есть админская сессия, отправляем без Authorization (бэкенд может работать без него для активного конкурса)
+    // Иначе отправляем Telegram initData
+    if (!hasAdminSession && initData) {
+      backendHeaders['Authorization'] = initData;
+    }
+
     const backendResponse = await fetch(`${BACKEND_API_URL}/v1/contest/active`, {
       method: 'GET',
-      headers: {
-        'Authorization': initData,
-        'Content-Type': 'application/json',
-      },
+      headers: backendHeaders,
       next: { revalidate: 60 }, // Кешируем на 1 минуту
     });
 

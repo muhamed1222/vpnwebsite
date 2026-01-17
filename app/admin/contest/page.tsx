@@ -29,29 +29,50 @@ export default function AdminContestPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [contestId, setContestId] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Проверяем авторизацию при загрузке
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/admin/auth');
+        const data = await response.json();
+        setIsAuthenticated(data.authenticated || false);
+      } catch (err) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // Загружаем данные конкурса
   useEffect(() => {
+    if (isAuthenticated !== true) {
+      return; // Не загружаем данные пока не авторизованы
+    }
+
     const loadData = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const initData = getTelegramInitData();
-        
-        if (!initData) {
-          setError('Telegram WebApp не инициализирован');
-          setLoading(false);
-          return;
-        }
-
         const headers: HeadersInit = {
           'Content-Type': 'application/json',
-          'Authorization': initData,
         };
 
-        // Сначала получаем активный конкурс
-        const contestResponse = await fetch('/api/contest/active', { headers });
+        // Пытаемся получить Telegram initData (если есть), если нет - используем сессию
+        const initData = getTelegramInitData();
+        if (initData) {
+          headers['Authorization'] = initData;
+        }
+
+        // Сначала получаем активный конкурс (без headers для админов - используется сессия)
+        const contestResponse = await fetch('/api/contest/active', { 
+          headers: initData ? headers : undefined 
+        });
         
         if (!contestResponse.ok) {
           setError('Не удалось загрузить конкурс');
@@ -107,7 +128,34 @@ export default function AdminContestPage() {
     };
 
     loadData();
-  }, []);
+  }, [isAuthenticated]);
+
+  // Обработка входа по паролю
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+
+    try {
+      const response = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsAuthenticated(true);
+        setPassword('');
+      } else {
+        setAuthError(data.error || 'Неверный пароль');
+      }
+    } catch (err) {
+      setAuthError('Ошибка при авторизации');
+    }
+  };
 
   // Функция экспорта в Excel (CSV формат)
   const exportToExcel = () => {
@@ -165,6 +213,43 @@ export default function AdminContestPage() {
       totalOrders: participants.reduce((sum, p) => sum + p.orders.length, 0),
     };
   }, [participants]);
+
+  // Форма входа
+  if (isAuthenticated === false) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#121212] rounded-[16px] p-8 border border-white/10">
+          <h1 className="text-2xl font-bold mb-2 text-center">Вход в админ-панель</h1>
+          <p className="text-white/60 text-center mb-6">Введите пароль для доступа</p>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Пароль"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-[10px] text-white placeholder-white/40 focus:outline-none focus:border-[#F55128] transition-colors"
+                autoFocus
+                required
+              />
+            </div>
+            
+            {authError && (
+              <div className="text-red-500 text-sm text-center">{authError}</div>
+            )}
+            
+            <button
+              type="submit"
+              className="w-full px-4 py-3 bg-[#F55128] hover:bg-[#d43d1f] active:scale-95 transition-all rounded-[10px] text-white font-medium"
+            >
+              Войти
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
