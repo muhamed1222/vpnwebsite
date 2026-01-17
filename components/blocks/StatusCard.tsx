@@ -47,7 +47,7 @@ export const StatusCard: React.FC<StatusCardProps> = memo(({ status, expiresAt }
   }, [status, expiresAt]);
 
   return (
-    <div className={`p-6 rounded-[16px] ${info.bg} border border-white/5 space-y-4`}>
+    <div data-testid="status-card" className={`p-6 rounded-[16px] ${info.bg} border border-white/5 space-y-4`}>
       <div className="flex items-center justify-between">
         <span className={`text-sm font-medium ${info.color} uppercase tracking-wider`}>
           {info.label}

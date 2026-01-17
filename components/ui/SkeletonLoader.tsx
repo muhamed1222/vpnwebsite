@@ -22,7 +22,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
 
   if (variant === 'text' && lines) {
     return (
-      <div className={`space-y-2 ${className}`}>
+      <div data-testid="skeleton-loader" className={`space-y-2 ${className}`}>
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
@@ -38,6 +38,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   if (variant === 'circular') {
     return (
       <div
+        data-testid="skeleton-loader"
         className={`${baseClasses} ${className}`}
         style={{
           width: width || '3rem',
@@ -51,6 +52,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
 
   return (
     <div
+      data-testid="skeleton-loader"
       className={`${baseClasses} ${className}`}
       style={{
         width: width || '100%',
