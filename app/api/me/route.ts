@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiRequest, getValidatedInitData } from '@/lib/utils/api-validation';
 import { logError } from '@/lib/utils/logging';
+import { sanitizeForLogging } from '@/lib/utils/sanitize';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 
@@ -41,7 +42,11 @@ export async function GET(request: NextRequest) {
       // В development режиме логируем для отладки
       if (!backendResponse.ok) {
         const errorText = await backendResponse.clone().text().catch(() => '');
-        logError('[API /me] Backend error', new Error(errorText), {
+        // Санитизируем errorText перед логированием (на случай, если там есть чувствительные данные)
+        const sanitizedError = typeof errorText === 'string' && errorText.length > 0
+          ? String(sanitizeForLogging(errorText))
+          : 'Unknown error';
+        logError('[API /me] Backend error', new Error(sanitizedError), {
           page: 'api',
           action: 'backendRequest',
           endpoint: '/api/me',

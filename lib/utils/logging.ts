@@ -4,6 +4,7 @@
  */
 
 import { analytics } from '../analytics';
+import { sanitizeForLogging, safeStringify, createSafeLogContext } from './sanitize';
 
 export type LogLevel = 'error' | 'warn' | 'info';
 
@@ -43,11 +44,11 @@ export function logError(
     } else if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
       errorMessage = (error as { message: string }).message;
     } else {
-      // Пытаемся сериализовать объект безопасно
+      // Пытаемся сериализовать объект безопасно (с санитизацией)
       try {
-        const serialized = JSON.stringify(error);
+        const serialized = safeStringify(error);
         // Если объект пустой после сериализации, используем сообщение
-        errorMessage = serialized === '{}' ? message : (serialized || message);
+        errorMessage = serialized === '{}' || serialized === '[Unable to serialize data]' ? message : serialized;
       } catch {
         errorMessage = message;
       }
@@ -60,10 +61,12 @@ export function logError(
   
   // В development режиме выводим в консоль для отладки
   // Используем только строки, чтобы избежать проблем с сериализацией объектов
+  // Санитизируем контекст перед логированием
   if (process.env.NODE_ENV === 'development') {
     try {
-      const contextStr = context && typeof context === 'object' && Object.keys(context).length > 0
-        ? JSON.stringify(context)
+      const safeContext = createSafeLogContext(context);
+      const contextStr = safeContext && typeof safeContext === 'object' && Object.keys(safeContext).length > 0
+        ? safeStringify(safeContext)
         : '';
       const stackStr = errorStack ? `\nStack: ${errorStack}` : '';
       
@@ -99,11 +102,12 @@ export function logWarn(
   message: string,
   context?: LogContext
 ): void {
+  const safeContext = createSafeLogContext(context);
   const logEntry = {
     level: 'warn' as const,
     message,
     timestamp: new Date().toISOString(),
-    ...context,
+    ...safeContext,
   };
 
   // В development режиме выводим в консоль
@@ -121,11 +125,12 @@ export function logInfo(
   message: string,
   context?: LogContext
 ): void {
+  const safeContext = createSafeLogContext(context);
   const logEntry = {
     level: 'info' as const,
     message,
     timestamp: new Date().toISOString(),
-    ...context,
+    ...safeContext,
   };
 
   // В development режиме выводим в консоль

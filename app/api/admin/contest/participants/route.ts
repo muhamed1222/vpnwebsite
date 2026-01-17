@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logError } from '@/lib/utils/logging';
+import { safeStringify } from '@/lib/utils/sanitize';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
 // ADMIN_API_KEY может быть как без префикса (для server-side), так и с NEXT_PUBLIC_ (для client-side)
@@ -12,16 +13,19 @@ const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.ADM || process.en
  * API Route для получения списка участников конкурса (админский endpoint)
  */
 export async function GET(request: NextRequest) {
-  console.log('[Admin API Debug] Env check:', {
-    hasAdminApiKey: !!ADMIN_API_KEY,
-    hasADM: !!process.env.ADM,
-    hasADMIN_API_KEY: !!process.env.ADMIN_API_KEY,
-    hasNEXT_PUBLIC_ADMIN_API_KEY: !!process.env.NEXT_PUBLIC_ADMIN_API_KEY,
-    nodeEnv: process.env.NODE_ENV,
-    vercelEnv: process.env.VERCEL_ENV,
-    adminApiKeyLength: ADMIN_API_KEY ? ADMIN_API_KEY.length : 0,
-    adminApiKeyValue: ADMIN_API_KEY ? `${ADMIN_API_KEY.substring(0, 3)}...` : 'empty'
-  });
+  // Логируем только безопасную информацию (без чувствительных данных)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Admin API Debug] Env check:', {
+      hasAdminApiKey: !!ADMIN_API_KEY,
+      hasADM: !!process.env.ADM,
+      hasADMIN_API_KEY: !!process.env.ADMIN_API_KEY,
+      hasNEXT_PUBLIC_ADMIN_API_KEY: !!process.env.NEXT_PUBLIC_ADMIN_API_KEY,
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV,
+      adminApiKeyLength: ADMIN_API_KEY ? ADMIN_API_KEY.length : 0,
+      // НЕ логируем даже первые символы API ключа - это чувствительные данные
+    });
+  }
 
   try {
     // Проверяем админскую сессию (приоритет) или Telegram авторизацию
@@ -107,14 +111,16 @@ export async function GET(request: NextRequest) {
     if (!backendResponse.ok) {
       const errorData = await backendResponse.json().catch(() => ({}));
 
-      // Логируем детали для отладки
-      console.error('[Admin API] Backend error:', {
-        status: backendResponse.status,
-        error: errorData,
-        hasAdminSession: !!useAdminSession,
-        hasAdminApiKey: !!ADMIN_API_KEY,
-        contestId
-      });
+      // Логируем детали для отладки (без чувствительных данных)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Admin API] Backend error:', {
+          status: backendResponse.status,
+          error: errorData.error || errorData.message || 'Unknown error',
+          hasAdminSession: !!useAdminSession,
+          hasAdminApiKey: !!ADMIN_API_KEY,
+          contestId
+        });
+      }
 
       if (backendResponse.status === 403) {
         return NextResponse.json(
@@ -124,7 +130,9 @@ export async function GET(request: NextRequest) {
       }
 
       if (backendResponse.status === 401) {
-        logError('Admin contest participants API 401', new Error(`Unauthorized: ${JSON.stringify(errorData)}`), {
+        // Используем safeStringify для предотвращения утечки чувствительных данных
+        const safeErrorData = safeStringify(errorData);
+        logError('Admin contest participants API 401', new Error(`Unauthorized: ${safeErrorData}`), {
           page: 'api',
           action: 'getContestParticipants',
           endpoint: '/api/admin/contest/participants',
