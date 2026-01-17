@@ -13,6 +13,12 @@ const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.NEXT_PUBLIC_ADMIN
  * API Route для получения списка участников конкурса (админский endpoint)
  */
 export async function GET(request: NextRequest) {
+  console.log('[Admin API Debug] Env check:', {
+    hasAdminApiKey: !!ADMIN_API_KEY,
+    nodeEnv: process.env.NODE_ENV,
+    adminApiKeyLength: ADMIN_API_KEY ? ADMIN_API_KEY.length : 0
+  });
+
   try {
     // Проверяем админскую сессию (приоритет) или Telegram авторизацию
     const cookieStore = await cookies();
