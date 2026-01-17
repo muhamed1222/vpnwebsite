@@ -250,7 +250,7 @@ export function handleComponentError(
 /**
  * Обертка для async функций с автоматической обработкой ошибок
  */
-export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
+export function withErrorHandling<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   context?: ErrorContext
 ): T {

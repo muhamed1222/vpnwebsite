@@ -5,7 +5,7 @@ import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { triggerHaptic, getTelegramWebApp, getTelegramInitData } from '@/lib/telegram';
 import { handleComponentError } from '@/lib/utils/errorHandler';
-import { ContestSummary, ReferralFriend, TicketHistoryEntry } from '@/types/contest-v2';
+import { ContestSummary, ReferralFriend, TicketHistoryEntry, Contest } from '@/types/contest';
 import ContestCountdownScreen from '@/components/blocks/ContestCountdownScreen';
 
 // Lazy loading для остальных компонентов
@@ -87,14 +87,15 @@ export default function ContestPage() {
 
       // Если конкурс еще не начался, не пытаемся грузить статистику (ее нет)
       if (now < startsAt) {
-        setSummary({
+        const emptySummary: ContestSummary = {
           contest: activeContestData.contest,
-          rank: 0,
+          ref_link: '',
           tickets_total: 0,
           invited_total: 0,
-          ref_link: '',
-          tickets_by_type: {}
-        } as any);
+          qualified_total: 0,
+          pending_total: 0,
+        };
+        setSummary(emptySummary);
         setFriends([]);
         setTickets([]);
         return;
@@ -122,14 +123,15 @@ export default function ContestPage() {
 
       if (!summaryData.ok || !summaryData.summary) {
         // Fallback если сводка не найдена, но конкурс есть
-        setSummary({
+        const fallbackSummary: ContestSummary = {
           contest: activeContestData.contest,
-          rank: 0,
+          ref_link: '',
           tickets_total: 0,
           invited_total: 0,
-          ref_link: '',
-          tickets_by_type: {}
-        } as any);
+          qualified_total: 0,
+          pending_total: 0,
+        };
+        setSummary(fallbackSummary);
       } else {
         setSummary(summaryData.summary);
       }
@@ -145,22 +147,24 @@ export default function ContestPage() {
       // Если произошла ошибка (например, 404 на API в dev environment), подставляем mock данные
       if (process.env.NODE_ENV === 'development') {
         console.warn('Using Dev Fallback Data due to error');
-        setSummary({
-          contest: {
-            id: 'fallback-contest',
-            title: 'Розыгрыш призов (Dev)',
-            starts_at: '2026-01-20T00:00:00Z',
-            ends_at: '2026-01-27T00:00:00Z',
-            attribution_window_days: 7,
-            rules_version: '1.0',
-            is_active: false
-          },
-          rank: 0,
+        const fallbackContest: Contest = {
+          id: 'fallback-contest',
+          title: 'Розыгрыш призов (Dev)',
+          starts_at: '2026-01-20T00:00:00Z',
+          ends_at: '2026-01-27T00:00:00Z',
+          attribution_window_days: 7,
+          rules_version: '1.0',
+          is_active: false
+        };
+        const devFallbackSummary: ContestSummary = {
+          contest: fallbackContest,
+          ref_link: '',
           tickets_total: 0,
           invited_total: 0,
-          ref_link: '',
-          tickets_by_type: {}
-        } as any);
+          qualified_total: 0,
+          pending_total: 0,
+        };
+        setSummary(devFallbackSummary);
         setError(null);
       } else {
         // В продакшене показываем ошибку
@@ -182,21 +186,24 @@ export default function ContestPage() {
           console.warn('Force disabling loader due to timeout');
           // Если мы все еще грузимся через 4 секунды, пытаемся показать mock (в dev) или просто error
           if (process.env.NODE_ENV === 'development') {
-            setSummary(prev => prev || {
-              contest: {
-                id: 'fallback-timeout',
-                title: 'Розыгрыш призов (Fallback)',
-                starts_at: '2026-01-20T00:00:00Z',
-                ends_at: '2026-01-27T00:00:00Z',
-                attribution_window_days: 7,
-                rules_version: '1.0',
-                is_active: false
-              },
-              rank: 0,
+            const timeoutFallbackContest: Contest = {
+              id: 'fallback-timeout',
+              title: 'Розыгрыш призов (Fallback)',
+              starts_at: '2026-01-20T00:00:00Z',
+              ends_at: '2026-01-27T00:00:00Z',
+              attribution_window_days: 7,
+              rules_version: '1.0',
+              is_active: false
+            };
+            const timeoutFallbackSummary: ContestSummary = {
+              contest: timeoutFallbackContest,
+              ref_link: '',
               tickets_total: 0,
               invited_total: 0,
-              tickets_by_type: {}
-            } as any);
+              qualified_total: 0,
+              pending_total: 0,
+            };
+            setSummary(prev => prev || timeoutFallbackSummary);
           }
           return false;
         }
