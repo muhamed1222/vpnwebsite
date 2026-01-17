@@ -63,11 +63,22 @@ export async function GET(request: NextRequest) {
     };
 
     // Если используем админскую сессию, отправляем admin API key (если настроен)
-    if (useAdminSession && ADMIN_API_KEY) {
-      backendHeaders['x-admin-api-key'] = ADMIN_API_KEY;
+    if (useAdminSession) {
+      if (ADMIN_API_KEY) {
+        backendHeaders['x-admin-api-key'] = ADMIN_API_KEY;
+      } else {
+        // Если ADMIN_API_KEY не установлен, логируем предупреждение
+        console.warn('[Admin API] ADMIN_API_KEY not configured, request may fail');
+      }
     } else if (initData) {
       // Иначе отправляем Telegram initData
       backendHeaders['Authorization'] = initData;
+    } else {
+      // Нет ни сессии, ни initData
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
     }
 
     const backendResponse = await fetch(
