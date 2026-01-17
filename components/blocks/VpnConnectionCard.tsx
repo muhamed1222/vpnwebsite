@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { QrCodeIcon as QrCode, KeyIcon as Key, GlobeAltIcon as Globe, ArrowPathIcon as RefreshCw, ExclamationCircleIcon as AlertCircle } from '@heroicons/react/24/outline';
 import { VpnKeyCode } from '@/components/ui/VpnKeyCode';
 import { api } from '@/lib/api';
@@ -173,11 +174,15 @@ export const VpnConnectionCard: React.FC = () => {
               </div>
             ) : qrDataUrl ? (
               <div className="bg-white p-4 rounded-[10px] border border-white/10">
-                <img
+                <Image
                   src={qrDataUrl}
                   alt="QR код VPN ключа"
+                  width={256}
+                  height={256}
                   className="w-64 h-64"
                   aria-label="QR код для сканирования VPN ключа"
+                  unoptimized // Data URL не требует оптимизации Next.js
+                  priority // Приоритетная загрузка QR кода
                 />
               </div>
             ) : (

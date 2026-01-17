@@ -15,6 +15,23 @@ const nextConfig: NextConfig = {
   // swcMinify удален - это опция по умолчанию в Next.js 16+
   poweredByHeader: false,
   compress: true,
+  // Оптимизация изображений
+  images: {
+    // Форматы изображений для оптимизации
+    formats: ['image/avif', 'image/webp'],
+    // Разрешенные домены для внешних изображений
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+    // Минимальные размеры для оптимизации
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Качество изображений
+    minimumCacheTTL: 60,
+  },
   async headers() {
     return [
       {
