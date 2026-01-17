@@ -5,7 +5,9 @@ import { serverConfig } from '@/lib/config';
 import { logError } from '@/lib/utils/logging';
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.NEXT_PUBLIC_ADMIN_API_KEY || '';
+// ADMIN_API_KEY может быть названа как ADM (сокращение) или ADMIN_API_KEY в Vercel
+// Поддерживаем оба варианта для совместимости
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.ADM || process.env.NEXT_PUBLIC_ADMIN_API_KEY || '';
 
 /**
  * API Route для получения активного конкурса
@@ -79,7 +81,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const backendResponse = await fetch(`${BACKEND_API_URL}/api/contest/active`, {
+    const backendResponse = await fetch(`${BACKEND_API_URL}/v1/contest/active`, {
       method: 'GET',
       headers: backendHeaders,
       next: { revalidate: 60 }, // Кешируем на 1 минуту
