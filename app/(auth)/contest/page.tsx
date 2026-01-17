@@ -55,7 +55,7 @@ export default function ContestPage() {
       }
 
       // Сначала получаем активный конкурс
-      const activeContestResponse = await fetch('/api/contest/active', { headers }).catch((e) => {
+      const activeContestResponse = await fetch('/api/contest/active', { headers }).catch(() => {
         // Ошибка сети - не критично, просто вернем null
         return null;
       });
@@ -69,7 +69,7 @@ export default function ContestPage() {
       let activeContestData;
       try {
         activeContestData = await activeContestResponse.json();
-      } catch (parseError) {
+      } catch {
         setError('Ошибка обработки данных. Попробуйте позже.');
         return;
       }
@@ -246,20 +246,6 @@ export default function ContestPage() {
     return () => clearInterval(intervalId);
   }, [contestHasStarted, summary, loadContestData]);
 
-  // Расчет прогресса
-  const contestProgress = useMemo(() => {
-    if (!summary) return { daysRemaining: 0, daysTotal: 0, percent: 0 };
-    const now = new Date().getTime();
-    const start = new Date(summary.contest.starts_at).getTime();
-    const end = new Date(summary.contest.ends_at).getTime();
-    const total = end - start;
-    const remaining = Math.max(0, end - now);
-    const percent = total > 0 ? Math.max(0, Math.min(100, ((total - remaining) / total) * 100)) : 0;
-    const daysTotal = Math.ceil(total / (1000 * 60 * 60 * 24));
-    const daysRemaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
-    return { daysRemaining, daysTotal, percent };
-  }, [summary]);
-
   const handleShare = useCallback(async () => {
     if (!summary) return;
 
@@ -357,7 +343,6 @@ export default function ContestPage() {
       <Suspense fallback={<div className="h-56 bg-white/5 rounded-2xl animate-pulse mb-6 relative z-10" />}>
         <ContestSummaryCard
           summary={summary}
-          progress={contestProgress}
         />
       </Suspense>
 

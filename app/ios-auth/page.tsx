@@ -13,6 +13,73 @@ export default function IOSAuthPage() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  const tryOpenDeepLink = (data: string) => {
+    const encodedInitData = encodeURIComponent(data);
+    const deepLink = `outlivion://auth?token=${encodedInitData}`;
+
+    console.log('[iOS Auth] Attempting to open deep link:', deepLink.substring(0, 100) + '...');
+
+    const tg = getTelegramWebApp();
+
+    // Telegram Mini App может не поддерживать открытие custom URL schemes напрямую
+    // Используем несколько методов
+
+    // Метод 1: Прямое изменение location (может работать в некоторых случаях)
+    try {
+      console.log('[iOS Auth] Trying window.location.href');
+      window.location.href = deepLink;
+      
+      // Если через 500ms мы все еще на странице, пробуем другие методы
+      setTimeout(() => {
+        console.log('[iOS Auth] Location change didn\'t work, trying alternatives');
+      }, 500);
+    } catch (e) {
+      console.error('[iOS Auth] window.location.href failed:', e);
+    }
+
+    // Метод 2: Создаем скрытый iframe (для некоторых браузеров)
+    try {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = deepLink;
+      document.body.appendChild(iframe);
+      
+      setTimeout(() => {
+        if (iframe.parentNode) {
+          document.body.removeChild(iframe);
+        }
+      }, 1000);
+    } catch (e) {
+      console.error('[iOS Auth] iframe method failed:', e);
+    }
+
+    // Метод 3: Создаем и кликаем по ссылке
+    try {
+      const link = document.createElement('a');
+      link.href = deepLink;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (link.parentNode) {
+          document.body.removeChild(link);
+        }
+      }, 100);
+    } catch (e) {
+      console.error('[iOS Auth] link.click() failed:', e);
+    }
+
+    // Метод 4: Пробуем tg.openLink (может не работать с custom schemes)
+    if (tg && typeof tg.openLink === 'function') {
+      try {
+        console.log('[iOS Auth] Trying tg.openLink()');
+        tg.openLink(deepLink);
+      } catch (e) {
+        console.error('[iOS Auth] tg.openLink() failed:', e);
+      }
+    }
+  };
+
   useEffect(() => {
     // Проверяем, есть ли параметр ios_auth=1 в URL
     if (typeof window === 'undefined') return;
@@ -82,73 +149,6 @@ export default function IOSAuthPage() {
       }, 5000);
     }
   }, []);
-
-  const tryOpenDeepLink = (data: string) => {
-    const encodedInitData = encodeURIComponent(data);
-    const deepLink = `outlivion://auth?token=${encodedInitData}`;
-
-    console.log('[iOS Auth] Attempting to open deep link:', deepLink.substring(0, 100) + '...');
-
-    const tg = getTelegramWebApp();
-
-    // Telegram Mini App может не поддерживать открытие custom URL schemes напрямую
-    // Используем несколько методов
-
-    // Метод 1: Прямое изменение location (может работать в некоторых случаях)
-    try {
-      console.log('[iOS Auth] Trying window.location.href');
-      window.location.href = deepLink;
-      
-      // Если через 500ms мы все еще на странице, пробуем другие методы
-      setTimeout(() => {
-        console.log('[iOS Auth] Location change didn\'t work, trying alternatives');
-      }, 500);
-    } catch (e) {
-      console.error('[iOS Auth] window.location.href failed:', e);
-    }
-
-    // Метод 2: Создаем скрытый iframe (для некоторых браузеров)
-    try {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = deepLink;
-      document.body.appendChild(iframe);
-      
-      setTimeout(() => {
-        if (iframe.parentNode) {
-          document.body.removeChild(iframe);
-        }
-      }, 1000);
-    } catch (e) {
-      console.error('[iOS Auth] iframe method failed:', e);
-    }
-
-    // Метод 3: Создаем и кликаем по ссылке
-    try {
-      const link = document.createElement('a');
-      link.href = deepLink;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      setTimeout(() => {
-        if (link.parentNode) {
-          document.body.removeChild(link);
-        }
-      }, 100);
-    } catch (e) {
-      console.error('[iOS Auth] link.click() failed:', e);
-    }
-
-    // Метод 4: Пробуем tg.openLink (может не работать с custom schemes)
-    if (tg && typeof tg.openLink === 'function') {
-      try {
-        console.log('[iOS Auth] Trying tg.openLink()');
-        tg.openLink(deepLink);
-      } catch (e) {
-        console.error('[iOS Auth] tg.openLink() failed:', e);
-      }
-    }
-  };
 
   const handleButtonClick = () => {
     if (initData) {

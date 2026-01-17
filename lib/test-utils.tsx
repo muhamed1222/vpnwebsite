@@ -113,7 +113,10 @@ export const mockTelegramWebApp = {
  * Устанавливает мок для Telegram WebApp
  */
 export function setupTelegramMock() {
+  // Моки для тестов могут использовать any для упрощения
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global.window as Window & { Telegram?: { WebApp: any } }).Telegram = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     WebApp: mockTelegramWebApp as any,
   };
 }

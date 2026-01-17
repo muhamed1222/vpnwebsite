@@ -9,7 +9,11 @@ export function OfflineIndicator() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    setIsOnlineStatus(isOnline());
+    // Инициализируем состояние асинхронно
+    const initialStatus = isOnline();
+    requestAnimationFrame(() => {
+      setIsOnlineStatus(initialStatus);
+    });
     
     const unsubscribe = subscribeToOnlineStatus((status) => {
       setIsOnlineStatus(status);

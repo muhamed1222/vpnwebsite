@@ -214,7 +214,7 @@ export default function PurchasePage() {
     };
 
     loadTariffs();
-  }, [checkHasPaidOrders]);
+  }, [checkHasPaidOrders, discount?.percent]);
 
   const selectedPlan = plans.find(p => p.id === selectedPlanId) || plans[0];
 

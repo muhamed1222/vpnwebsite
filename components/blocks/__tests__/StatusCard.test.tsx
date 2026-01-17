@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@/lib/test-utils';
 import { StatusCard } from '../StatusCard';
-import { SubscriptionStatus } from '@/types';
 
 describe('StatusCard', () => {
   it('должен отображаться', () => {

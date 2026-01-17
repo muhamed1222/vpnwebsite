@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { ChevronDownIcon as ChevronDown, ChevronUpIcon as ChevronUp, ArrowTopRightOnSquareIcon as ExternalLink, ChatBubbleLeftRightIcon as MessageSquare } from '@heroicons/react/24/outline';
-import { getTelegramWebApp } from '@/lib/telegram';
 import { config } from '@/lib/config';
 import { BottomSheet } from '../ui/BottomSheet';
+import { useTelegramLink } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
 
 interface FAQItem {
@@ -53,35 +53,26 @@ const getFAQData = (handleInstructionClick: () => void): FAQItem[] => [
  */
 export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const openTelegramLink = useTelegramLink(true); // Для Telegram ссылок
+  const openLink = useTelegramLink(); // Для обычных ссылок
 
   const handleSupportClick = () => {
-    const webApp = getTelegramWebApp();
     const supportUrl = config.support.telegramUrl;
-    if (webApp) {
-      webApp.openTelegramLink(supportUrl);
-    } else {
-      window.open(supportUrl, '_blank');
-    }
+    openTelegramLink(supportUrl);
   };
 
   const handleInstructionClick = () => {
-    const webApp = getTelegramWebApp();
     const instructionUrl = config.support.helpBaseUrl;
     
     try {
-      if (webApp) {
-        webApp.openLink(instructionUrl);
-      } else {
-        window.open(instructionUrl, '_blank');
-      }
+      openLink(instructionUrl);
     } catch (error) {
       logError('Failed to open instruction link', error, {
         page: 'support',
         action: 'openInstruction',
         url: instructionUrl
       });
-      // Fallback: попытка открыть через window.open
-      window.open(instructionUrl, '_blank');
+      // Fallback уже встроен в useTelegramLink
     }
   };
 

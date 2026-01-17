@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { registerServiceWorker, isServiceWorkerSupported } from '@/lib/utils/service-worker';
 
 export function ServiceWorkerProvider({ children }: { children: React.ReactNode }) {
-  const [isRegistered, setIsRegistered] = useState(false);
-
   useEffect(() => {
     if (!isServiceWorkerSupported()) {
       console.log('[Service Worker] Not supported');
@@ -17,7 +15,6 @@ export function ServiceWorkerProvider({ children }: { children: React.ReactNode 
       registerServiceWorker()
         .then((registration) => {
           if (registration) {
-            setIsRegistered(true);
             console.log('[Service Worker] Registered');
           }
         })

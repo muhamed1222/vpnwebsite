@@ -1,4 +1,4 @@
-import { api, ApiException } from './api';
+import { api } from './api';
 import { useUserStore } from '../store/user.store';
 import { useSubscriptionStore } from '../store/subscription.store';
 import { getTelegramUser } from './telegram';

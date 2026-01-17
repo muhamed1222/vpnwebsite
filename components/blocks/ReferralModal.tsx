@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DocumentDuplicateIcon as Copy, FolderOpenIcon as FolderOpen, CheckIcon as Check, CalendarIcon as Calendar, CurrencyDollarIcon as Coins } from '@heroicons/react/24/outline';
-import { getTelegramWebApp } from '@/lib/telegram';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useUserStore } from '@/store/user.store';
 import { api } from '@/lib/api';
 import { config } from '@/lib/config';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { useModalData } from '@/hooks/useModalData';
+import { useTelegramAlert } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
 
 interface ReferralHistoryItem {
@@ -24,60 +25,40 @@ interface ReferralModalProps {
   onClose: () => void;
 }
 
-interface ReferralStats {
-  totalCount: number;
-  trialCount: number;
-  premiumCount: number;
-  referralCode: string;
-}
-
 export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose }) => {
   const [isCopied, setIsCopied] = useState(false);
-  const [stats, setStats] = useState<ReferralStats | null>(null);
-  const [history, setHistory] = useState<ReferralHistoryItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [historyLoading, setHistoryLoading] = useState(false);
   const { user } = useUserStore();
+  const showAlert = useTelegramAlert();
 
-  useEffect(() => {
-    if (isOpen) {
-      const fetchStats = async () => {
-        try {
-          setLoading(true);
-          const data = await api.getReferralStats();
-          setStats(data);
-        } catch (error) {
-          logError('Failed to fetch referral stats', error, {
-            page: 'profile',
-            action: 'fetchReferralStats',
-            userId: user?.id
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
+  // Загружаем статистику рефералов при открытии модалки
+  const { data: stats, isLoading: loading } = useModalData({
+    loadData: () => api.getReferralStats(),
+    isOpen,
+    initialData: null,
+    deps: [user?.id],
+    onError: (error) => {
+      logError('Failed to fetch referral stats', error, {
+        page: 'profile',
+        action: 'fetchReferralStats',
+        userId: user?.id
+      });
+    },
+  });
 
-      const fetchHistory = async () => {
-        try {
-          setHistoryLoading(true);
-          const data = await api.getReferralHistory();
-          setHistory(data || []);
-        } catch (error) {
-          logError('Failed to fetch referral history', error, {
-            page: 'profile',
-            action: 'fetchReferralHistory',
-            userId: user?.id
-          });
-          setHistory([]);
-        } finally {
-          setHistoryLoading(false);
-        }
-      };
-
-      fetchStats();
-      fetchHistory();
-    }
-  }, [isOpen, user?.id]);
+  // Загружаем историю рефералов при открытии модалки
+  const { data: history = [], isLoading: historyLoading } = useModalData({
+    loadData: () => api.getReferralHistory(),
+    isOpen,
+    initialData: [] as ReferralHistoryItem[],
+    deps: [user?.id],
+    onError: (error) => {
+      logError('Failed to fetch referral history', error, {
+        page: 'profile',
+        action: 'fetchReferralHistory',
+        userId: user?.id
+      });
+    },
+  });
 
   // Формируем реальную реферальную ссылку
   const referralCode = stats?.referralCode || (user?.id ? `REF${user.id}` : '');
@@ -95,21 +76,7 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose })
     if (copied) {
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    }
-
-    const webApp = getTelegramWebApp();
-    if (webApp) {
-      try {
-        if (typeof webApp.showAlert === 'function') {
-          webApp.showAlert('Реферальная ссылка скопирована!');
-        }
-      } catch (e) {
-        logError('Failed to show alert', e, {
-          page: 'profile',
-          action: 'showAlert',
-          userId: user?.id
-        });
-      }
+      showAlert('Реферальная ссылка скопирована!');
     }
   };
 

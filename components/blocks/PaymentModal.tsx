@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CreditCardIcon as CreditCard, ShieldCheckIcon as ShieldCheck, ShieldExclamationIcon as ShieldAlert, ArrowPathIcon as Loader2 } from '@heroicons/react/24/outline';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useSubscriptionStore } from '@/store/subscription.store';
 import { api } from '@/lib/api';
-import { getTelegramWebApp } from '@/lib/telegram';
+import { useModalData } from '@/hooks/useModalData';
+import { useTelegramAlert } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
 
 interface PaymentModalProps {
@@ -20,32 +21,23 @@ interface PaymentModalProps {
 export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
   const { subscription } = useSubscriptionStore();
   const isActive = subscription?.status === 'active';
-  const [autorenewalEnabled, setAutorenewalEnabled] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const showAlert = useTelegramAlert();
 
   // Загружаем статус автопродления при открытии модалки
-  useEffect(() => {
-    if (isOpen) {
-      loadAutorenewalStatus();
-    }
-  }, [isOpen]);
-
-  const loadAutorenewalStatus = async () => {
-    try {
-      setIsLoading(true);
-      const data = await api.getAutorenewal();
-      setAutorenewalEnabled(data.enabled);
-    } catch (error) {
+  const { data: autorenewalData, isLoading, reload } = useModalData({
+    loadData: () => api.getAutorenewal(),
+    isOpen,
+    initialData: { enabled: false },
+    onError: (error) => {
       logError('Failed to load autorenewal status', error, {
         page: 'profile',
         action: 'loadAutorenewalStatus'
       });
-      // При ошибке оставляем текущее значение
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+  });
+
+  const autorenewalEnabled = autorenewalData?.enabled ?? false;
 
   const handleToggleAutorenewal = async () => {
     const newValue = !autorenewalEnabled;
@@ -53,27 +45,20 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
 
     try {
       await api.updateAutorenewal(newValue);
-      setAutorenewalEnabled(newValue);
-      
-      const webApp = getTelegramWebApp();
-      if (webApp) {
-        webApp.showAlert(
-          newValue 
-            ? 'Автопродление включено' 
-            : 'Автопродление отключено'
-        );
-      }
+      showAlert(
+        newValue 
+          ? 'Автопродление включено' 
+          : 'Автопродление отключено'
+      );
+      // Перезагружаем данные
+      await reload();
     } catch (error) {
       logError('Failed to update autorenewal', error, {
         page: 'profile',
         action: 'updateAutorenewal',
         enabled: newValue
       });
-      
-      const webApp = getTelegramWebApp();
-      if (webApp) {
-        webApp.showAlert('Не удалось обновить настройки автопродления. Попробуйте позже.');
-      }
+      showAlert('Не удалось обновить настройки автопродления. Попробуйте позже.');
     } finally {
       setIsUpdating(false);
     }
@@ -170,4 +155,3 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
     </BottomSheet>
   );
 };
-

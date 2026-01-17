@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { PlusIcon as Plus, ChevronRightIcon as ChevronRight, ArrowPathIcon as Loader2, CalendarIcon as Calendar, ComputerDesktopIcon as Monitor, CreditCardIcon as CreditCard, CheckCircleIcon as CheckCircle2 } from '@heroicons/react/24/outline';
+import { PlusIcon as Plus, ChevronRightIcon as ChevronRight, ArrowPathIcon as Loader2, CalendarIcon as Calendar, ComputerDesktopIcon as Monitor, CreditCardIcon as CreditCard } from '@heroicons/react/24/outline';
 import { PaymentMethodsModal } from './PaymentMethodsModal';
 import { WaitingPaymentModal } from './WaitingPaymentModal';
-import { getTelegramWebApp } from '@/lib/telegram';
 import { BottomSheet } from '../ui/BottomSheet';
 import { api } from '@/lib/api';
 import { login } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { useTelegramAlert } from '@/hooks/useTelegramAlert';
+import { useTelegramLink } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
 
 interface PurchaseConfirmModalProps {
@@ -36,6 +37,8 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
   untilDate 
 }) => {
   const router = useRouter();
+  const showAlert = useTelegramAlert();
+  const openLink = useTelegramLink();
   const [isMethodsOpen, setIsMethodsOpen] = useState(false);
   const [isWaitingOpen, setIsWaitingOpen] = useState(false);
   const [selectedMethodId, setSelectedMethodId] = useState('card');
@@ -144,13 +147,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
         
         if (hasPaidOrders) {
           setIsProcessing(false);
-          const webApp = getTelegramWebApp();
-          const message = 'Пробная подписка доступна только один раз. Выберите другой тариф.';
-          if (webApp) {
-            webApp.showAlert(message);
-          } else {
-            alert(message);
-          }
+          showAlert('Пробная подписка доступна только один раз. Выберите другой тариф.');
           return;
         }
       } catch (error) {
@@ -192,18 +189,13 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
         planId,
         price
       });
-      const webApp = getTelegramWebApp();
       // Преобразуем техническое сообщение в понятное для пользователя
       const { getUserFriendlyMessage } = await import('@/lib/utils/user-messages');
       const message = error instanceof Error 
         ? getUserFriendlyMessage(error.message)
         : 'Произошла ошибка при создании платежа. Попробуйте позже.';
       
-      if (webApp) {
-        webApp.showAlert(message);
-      } else {
-        alert(message);
-      }
+      showAlert(message);
       setIsProcessing(false);
     }
   };
@@ -212,12 +204,7 @@ export const PurchaseConfirmModal: React.FC<PurchaseConfirmModalProps> = ({
     const targetUrl = url || paymentUrl;
     if (!targetUrl) return;
 
-    const webApp = getTelegramWebApp();
-    if (webApp) {
-      webApp.openLink(targetUrl);
-    } else {
-      window.open(targetUrl, '_blank');
-    }
+    openLink(targetUrl);
   };
 
   const getMethodInfo = () => {

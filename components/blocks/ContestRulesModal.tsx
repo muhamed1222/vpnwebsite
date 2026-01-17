@@ -5,12 +5,6 @@ import { Contest } from '@/types/contest';
 import { BottomSheet } from '../ui/BottomSheet';
 import { formatDateFull } from '@/lib/utils/date';
 
-interface ContestRulesModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  contest: Contest;
-}
-
 /**
  * Компонент модального окна с правилами конкурса
  */
@@ -121,7 +115,7 @@ export default function ContestRulesModal({ isOpen, onClose, contest }: { isOpen
 
         {/* Условия засчета */}
         <div className="bg-white/5 rounded-[10px] p-4 border border-white/10">
-          <h3 className="text-white font-semibold mb-3">✅ Кто считается "засчитанным другом"</h3>
+          <h3 className="text-white font-semibold mb-3">✅ Кто считается &quot;засчитанным другом&quot;</h3>
           <p className="text-white/70 text-sm mb-2">Друг засчитывается, если он:</p>
           <ul className="space-y-2 text-white/70 leading-relaxed">
             <li className="flex items-start gap-2">

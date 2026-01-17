@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { validateApiRequest, getValidatedInitData } from '@/lib/utils/api-validation';
-import { logError } from '@/lib/utils/logging';
-
-const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
+import { NextRequest } from 'next/server';
+import { proxyGet } from '@/lib/utils/api-proxy';
+import { validateApiRequest } from '@/lib/utils/api-validation';
 
 /**
  * API Route для получения VPN конфигурации пользователя
@@ -10,53 +8,46 @@ const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.out
  * Проксирует запрос на бэкенд API для получения VPN ключа
  */
 export async function GET(request: NextRequest) {
-  try {
-    // Валидируем запрос с помощью централизованной утилиты
-    const validationError = validateApiRequest(request, true);
-    if (validationError) {
-      return validationError;
-    }
+  // Валидируем запрос
+  const validationError = validateApiRequest(request, true);
+  if (validationError) {
+    return validationError;
+  }
 
-    // Получаем валидированный initData
-    const initData = getValidatedInitData(request);
-    if (!initData) {
-      return NextResponse.json(
-        { error: 'Missing Telegram initData' },
-        { status: 401 }
-      );
-    }
-
-    // Получаем VPN конфигурацию напрямую с initData в Authorization header
-    const configResponse = await fetch(`${BACKEND_API_URL}/v1/user/config`, {
-      method: 'GET',
-      headers: {
-        'Authorization': initData, // initData в Authorization header
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!configResponse.ok) {
-      return NextResponse.json({
-        ok: false,
-        config: null,
-      });
-    }
-
-    const configData = await configResponse.json();
-    return NextResponse.json({
-      ok: configData.ok || false,
-      config: configData.config || null,
-    });
-  } catch (error) {
-    logError('Config API error', error, {
+  // Проксируем запрос на бэкенд API
+  const response = await proxyGet(request, '/v1/user/config', {
+    requireAuth: true,
+    logContext: {
       page: 'api',
       action: 'getUserConfig',
-      endpoint: '/api/user/config'
+      endpoint: '/api/user/config',
+    },
+  });
+
+  // Если ошибка, возвращаем стандартный формат
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    if (data.error) {
+      return response; // Возвращаем ошибку как есть
+    }
+    // Если нет ошибки в формате, возвращаем стандартный формат
+    return new Response(JSON.stringify({
+      ok: false,
+      config: null,
+    }), {
+      status: response.status,
+      headers: { 'Content-Type': 'application/json' },
     });
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    );
   }
+
+  // Парсим успешный ответ и нормализуем формат
+  const data = await response.json().catch(() => ({}));
+  return new Response(JSON.stringify({
+    ok: data.ok || false,
+    config: data.config || null,
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 

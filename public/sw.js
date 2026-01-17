@@ -3,7 +3,6 @@
  * Кэширует статические ресурсы и обеспечивает работу приложения без интернета
  */
 
-const CACHE_NAME = 'outlivion-vpn-v1';
 const STATIC_CACHE_NAME = 'outlivion-vpn-static-v1';
 const DYNAMIC_CACHE_NAME = 'outlivion-vpn-dynamic-v1';
 
@@ -13,18 +12,6 @@ const STATIC_ASSETS = [
   '/offline',
   '/manifest.json',
 ];
-
-// Стратегии кэширования
-const CACHE_STRATEGIES = {
-  // Кэш-первый: для статических ресурсов
-  CACHE_FIRST: 'cache-first',
-  // Сеть-первый: для API запросов
-  NETWORK_FIRST: 'network-first',
-  // Только кэш: для офлайн-страниц
-  CACHE_ONLY: 'cache-only',
-  // Сеть-только: для критичных данных
-  NETWORK_ONLY: 'network-only',
-};
 
 /**
  * Установка Service Worker

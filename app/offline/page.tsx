@@ -8,7 +8,11 @@ export default function OfflinePage() {
   const [isOnlineStatus, setIsOnlineStatus] = useState(true);
 
   useEffect(() => {
-    setIsOnlineStatus(isOnline());
+    // Инициализируем состояние асинхронно
+    const initialStatus = isOnline();
+    requestAnimationFrame(() => {
+      setIsOnlineStatus(initialStatus);
+    });
     
     const unsubscribe = subscribeToOnlineStatus((status) => {
       setIsOnlineStatus(status);

@@ -34,7 +34,7 @@ Sentry.init({
   sendDefaultPii: true,
 
   // Фильтруем предупреждения Next.js о params и searchParams Promise
-  beforeSend(event, hint) {
+  beforeSend(event) {
     // Игнорируем предупреждения о params/searchParams Promise в Next.js 16
     if (event.message) {
       let message = '';

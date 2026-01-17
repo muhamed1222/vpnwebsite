@@ -1,8 +1,9 @@
 import { getTelegramInitData } from './telegram';
 import { config } from './config';
 import { withRetry, withTimeout } from './api-retry';
-import { logWarn, logError } from './utils/logging';
+import { logWarn } from './utils/logging';
 import { handleApiError } from './utils/errorHandler';
+import { getHttpStatusMessage } from './utils/user-messages';
 
 export interface ApiError {
   error: string;
@@ -110,14 +111,12 @@ export const apiFetch = async <T = unknown>(
         const errorData = data as { error?: string; message?: string };
         const rawError = errorData.error || errorData.message || '';
         // Преобразуем техническое сообщение в понятное
-        const { getUserFriendlyMessage } = require('@/lib/utils/user-messages');
+        const { getUserFriendlyMessage } = await import('@/lib/utils/user-messages');
         errorMessage = getUserFriendlyMessage(rawError);
       }
 
       if (!errorMessage) {
         // Если нет сообщения в ответе, формируем по статусу
-        // Используем синхронный импорт для избежания проблем с async/await
-        const { getHttpStatusMessage } = require('@/lib/utils/user-messages');
         errorMessage = getHttpStatusMessage(response.status);
       }
 

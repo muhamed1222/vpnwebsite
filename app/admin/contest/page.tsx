@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { getTelegramInitData } from '@/lib/telegram';
 import { handleComponentError } from '@/lib/utils/errorHandler';
 
@@ -28,7 +28,7 @@ export default function AdminContestPage() {
         const response = await fetch('/api/admin/auth');
         const data = await response.json();
         setIsAuthenticated(data.authenticated || false);
-      } catch (err) {
+      } catch {
         setIsAuthenticated(false);
       }
     };
@@ -151,7 +151,7 @@ export default function AdminContestPage() {
       } else {
         setAuthError(data.error || 'Неверный пароль');
       }
-    } catch (err) {
+    } catch {
       setAuthError('Ошибка при авторизации');
     }
   };

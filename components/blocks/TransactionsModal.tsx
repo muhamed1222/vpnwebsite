@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FolderOpenIcon as FolderOpen, CalendarIcon as Calendar, CreditCardIcon as CreditCard, CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, ClockIcon as Clock } from '@heroicons/react/24/outline';
 import { BottomSheet } from '../ui/BottomSheet';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { useModalData } from '@/hooks/useModalData';
 import { logError } from '@/lib/utils/logging';
 import { formatTimestamp } from '@/lib/utils/date';
 
@@ -55,32 +56,20 @@ const getStatusText = (status: string) => {
  * Использует универсальный BottomSheet для отображения истории транзакций.
  */
 export const TransactionsModal: React.FC<TransactionsModalProps> = ({ isOpen, onClose }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Загружаем транзакции при открытии модалки
+  const { data: transactions = [], isLoading: loading, error } = useModalData({
+    loadData: () => api.getPaymentsHistory(),
+    isOpen,
+    initialData: [] as Transaction[],
+    onError: (err) => {
+      logError('Failed to load transactions', err, {
+        page: 'profile',
+        action: 'loadTransactions'
+      });
+    },
+  });
 
-  useEffect(() => {
-    if (isOpen) {
-      const loadTransactions = async () => {
-        try {
-          setLoading(true);
-          setError(null);
-          const data = await api.getPaymentsHistory();
-          setTransactions(data as Transaction[]);
-        } catch (err) {
-          logError('Failed to load transactions', err, {
-            page: 'profile',
-            action: 'loadTransactions'
-          });
-          setError('Не удалось загрузить историю транзакций');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      loadTransactions();
-    }
-  }, [isOpen]);
+  const errorMessage = error ? 'Не удалось загрузить историю транзакций' : null;
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Мои транзакции">
@@ -90,10 +79,10 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ isOpen, on
             <LoadingSpinner size="lg" />
             <p className="mt-4 text-white/40 text-sm">Загрузка истории...</p>
           </div>
-        ) : error ? (
+        ) : errorMessage ? (
           <div className="flex flex-col items-center justify-center py-20 text-center px-6">
             <XCircle className="w-12 h-12 text-red-500/20 mb-4" aria-hidden="true" />
-            <p className="text-white text-lg font-medium">{error}</p>
+            <p className="text-white text-lg font-medium">{errorMessage}</p>
             <button 
               onClick={() => window.location.reload()}
               className="mt-4 text-[#F55128] font-medium"

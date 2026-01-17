@@ -4,7 +4,7 @@
  */
 
 import { analytics } from '../analytics';
-import { sanitizeForLogging, safeStringify, createSafeLogContext } from './sanitize';
+import { safeStringify, createSafeLogContext } from './sanitize';
 
 export type LogLevel = 'error' | 'warn' | 'info';
 
@@ -73,7 +73,7 @@ export function logError(
       // Логируем как строку, чтобы избежать проблем с Next.js
       const logMessage = `[Error] ${message}\nError: ${errorMessage}${stackStr}${contextStr ? `\nContext: ${contextStr}` : ''}`;
       console.error(logMessage);
-    } catch (e) {
+    } catch {
       // Fallback если что-то пошло не так
       console.error(`[Error] ${message}: ${errorMessage}`);
     }

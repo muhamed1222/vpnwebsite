@@ -37,7 +37,7 @@ export function getCache<T>(key: string): T | null {
     }
 
     return entry.data;
-  } catch (error) {
+  } catch {
     // Если ошибка парсинга, удаляем невалидный кэш
     localStorage.removeItem(key);
     return null;
@@ -58,7 +58,7 @@ export function setCache<T>(key: string, data: T, ttl?: number): void {
 
   try {
     localStorage.setItem(key, JSON.stringify(entry));
-  } catch (error) {
+  } catch {
     // Если localStorage переполнен, пытаемся очистить старые записи
     try {
       // Удаляем первую запись (FIFO)

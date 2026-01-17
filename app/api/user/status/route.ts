@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiRequest, getValidatedInitData } from '@/lib/utils/api-validation';
-import { logError } from '@/lib/utils/logging';
-
-const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.outlivion.space';
+import { proxyGet } from '@/lib/utils/api-proxy';
+import { validateApiRequest } from '@/lib/utils/api-validation';
 
 /**
  * API Route для получения статуса пользователя и статистики использования
@@ -10,36 +8,29 @@ const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.out
  * Проксирует запрос на бэкенд API для получения статистики трафика
  */
 export async function GET(request: NextRequest) {
+  // Валидируем запрос
+  const validationError = validateApiRequest(request, true);
+  if (validationError) {
+    return validationError;
+  }
+
   try {
-    // Валидируем запрос с помощью централизованной утилиты
-    const validationError = validateApiRequest(request, true);
-    if (validationError) {
-      return validationError;
-    }
-
-    // Получаем валидированный initData
-    const initData = getValidatedInitData(request);
-    if (!initData) {
-      return NextResponse.json(
-        { error: 'Missing Telegram initData' },
-        { status: 401 }
-      );
-    }
-
-    // Параллельно получаем статус и billing с initData в Authorization header
+    // Параллельно получаем статус и billing
     const [statusResponse, billingResponse] = await Promise.all([
-      fetch(`${BACKEND_API_URL}/v1/user/status`, {
-        method: 'GET',
-        headers: {
-          'Authorization': initData, // initData в Authorization header
-          'Content-Type': 'application/json',
+      proxyGet(request, '/v1/user/status', {
+        requireAuth: true,
+        logContext: {
+          page: 'api',
+          action: 'getUserStatus',
+          endpoint: '/api/user/status',
         },
       }),
-      fetch(`${BACKEND_API_URL}/v1/user/billing`, {
-        method: 'GET',
-        headers: {
-          'Authorization': initData, // initData в Authorization header
-          'Content-Type': 'application/json',
+      proxyGet(request, '/v1/user/billing', {
+        requireAuth: true,
+        logContext: {
+          page: 'api',
+          action: 'getUserBilling',
+          endpoint: '/api/user/billing',
         },
       }).catch(() => null), // Если роут не существует, игнорируем
     ]);
@@ -58,8 +49,9 @@ export async function GET(request: NextRequest) {
       dataLimit: 0,
     };
 
+    // Обрабатываем ответ статуса
     if (statusResponse.ok) {
-      const data = await statusResponse.json();
+      const data = await statusResponse.json().catch(() => ({}));
       statusData = {
         ok: data.ok || false,
         status: data.status === 'active' ? 'active' : 'disabled',
@@ -71,31 +63,17 @@ export async function GET(request: NextRequest) {
 
     // Если есть billing данные, используем их
     if (billingResponse && billingResponse.ok) {
-      const billingData = await billingResponse.json();
+      const billingData = await billingResponse.json().catch(() => ({}));
       statusData.usedTraffic = billingData.usedBytes || statusData.usedTraffic;
       statusData.dataLimit = billingData.limitBytes || statusData.dataLimit;
     }
 
     return NextResponse.json(statusData);
-  } catch (error) {
-    logError('Status API error', error, {
-      page: 'api',
-      action: 'getUserStatus',
-      endpoint: '/api/user/status'
-    });
-    
-    // Обработка сетевых ошибок
-    if (error instanceof Error) {
-      if (error.message.includes('fetch') || error.message.includes('network')) {
-        return NextResponse.json(
-          { error: 'Проблема с подключением к серверу. Проверьте интернет-соединение.' },
-          { status: 503 }
-        );
-      }
-    }
-
+  } catch {
+    // Обработка ошибок через proxyGet уже выполнена
+    // Если дошли сюда, значит ошибка в обработке ответов
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { ok: false, status: 'not_found', expiresAt: null, usedTraffic: 0, dataLimit: 0 },
       { status: 500 }
     );
   }

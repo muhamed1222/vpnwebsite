@@ -13,7 +13,7 @@ export const initTelegramWebApp = () => {
     try {
       webApp.ready();
       webApp.expand();
-    } catch (e) {
+    } catch {
       // Игнорируем ошибки инициализации
     }
     
@@ -22,7 +22,7 @@ export const initTelegramWebApp = () => {
       if (typeof webApp.setHeaderColor === 'function') {
         webApp.setHeaderColor('secondary_bg_color');
       }
-    } catch (e) {
+    } catch {
       // Метод не поддерживается
     }
     
@@ -30,7 +30,7 @@ export const initTelegramWebApp = () => {
       if (typeof webApp.setBackgroundColor === 'function') {
         webApp.setBackgroundColor('bg_color');
       }
-    } catch (e) {
+    } catch {
       // Метод не поддерживается
     }
   }
@@ -79,7 +79,7 @@ export const triggerHaptic = (type: 'light' | 'medium' | 'heavy' | 'rigid' | 'so
     } else {
       webApp.HapticFeedback.impactOccurred(type as 'light' | 'medium' | 'heavy' | 'rigid' | 'soft');
     }
-  } catch (e) {
+  } catch {
     // Игнорируем ошибки тактильного отклика
   }
 };

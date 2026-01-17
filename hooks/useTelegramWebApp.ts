@@ -62,7 +62,7 @@ export function useTelegramWebApp() {
     if (tg.isVersionAtLeast('8.0') && tg.requestFullscreen) {
       try {
         tg.requestFullscreen();
-      } catch (e) {
+      } catch {
         // Это нормально, если заблокировано браузером до первого клика
       }
     }

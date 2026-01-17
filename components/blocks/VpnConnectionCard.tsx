@@ -6,7 +6,6 @@ import { QrCodeIcon as QrCode, KeyIcon as Key, GlobeAltIcon as Globe, ArrowPathI
 import { VpnKeyCode } from '@/components/ui/VpnKeyCode';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { getTelegramWebApp } from '@/lib/telegram';
 import { logError } from '@/lib/utils/logging';
 
 /**

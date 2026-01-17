@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { login } from '@/lib/auth';
-import { useSubscriptionStore } from '@/store/subscription.store';
 import { useTelegramWebApp } from '@/hooks/useTelegramWebApp';
 import { logError } from '@/lib/utils/logging';
 
@@ -11,8 +10,6 @@ import { logError } from '@/lib/utils/logging';
  * Вызывает login() автоматически при монтировании
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { loading } = useSubscriptionStore();
-  
   // Инициализация Telegram WebApp (развертывание, viewport, и т.д.)
   useTelegramWebApp();
 

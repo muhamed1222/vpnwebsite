@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen } from '@/lib/test-utils';
+import { describe, it, expect, afterEach, vi } from 'vitest';
+import { render } from '@/lib/test-utils';
 import CountdownTimer from '../CountdownTimer';
 
 describe('CountdownTimer', () => {

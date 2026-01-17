@@ -121,7 +121,7 @@ export function safeStringify(data: unknown, space?: number): string {
   try {
     const sanitized = sanitizeForLogging(data);
     return JSON.stringify(sanitized, null, space);
-  } catch (error) {
+  } catch {
     // Если не удалось сериализовать, возвращаем безопасное сообщение
     return '[Unable to serialize data]';
   }

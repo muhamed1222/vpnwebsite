@@ -4,15 +4,8 @@ import React, { useMemo } from 'react';
 import { ContestSummary } from '@/types/contest';
 import CountdownTimer from './CountdownTimer';
 
-interface ContestProgress {
-  daysRemaining: number;
-  daysTotal: number;
-  percent: number;
-}
-
 interface ContestSummaryCardProps {
   summary: ContestSummary;
-  progress?: ContestProgress;
 }
 
 /**
@@ -20,11 +13,10 @@ interface ContestSummaryCardProps {
  * Показывает количество билетов и статистику
  */
 export default function ContestSummaryCard({ 
-  summary, 
-  progress
+  summary
 }: ContestSummaryCardProps) {
   // Вычисляем позицию в топе и другие метрики
-  const { topPosition, totalParticipants, percentile } = useMemo(() => {
+  const { totalParticipants, percentile } = useMemo(() => {
     // TODO: Получить реальную позицию из API (когда будет реализован эндпоинт)
     const topPosition = summary.rank || null; // Будет приходить из API
     const totalParticipants = summary.total_participants || null; // Будет приходить из API
@@ -34,7 +26,7 @@ export default function ContestSummaryCard({
       ? Math.round((1 - topPosition / totalParticipants) * 100)
       : null;
     
-    return { topPosition, totalParticipants, percentile };
+    return { totalParticipants, percentile };
   }, [summary.rank, summary.total_participants]);
 
   return (

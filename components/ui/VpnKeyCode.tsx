@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { DocumentDuplicateIcon as Copy, CheckIcon as Check } from '@heroicons/react/24/outline';
-import { getTelegramWebApp } from '@/lib/telegram';
+import { useTelegramAlert } from '@/hooks/useTelegramAlert';
 import { logError } from '@/lib/utils/logging';
 
 interface VpnKeyCodeProps {
@@ -27,6 +27,7 @@ export const VpnKeyCode: React.FC<VpnKeyCodeProps> = ({
   const [showTooltip, setShowTooltip] = useState(false);
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showAlert = useTelegramAlert();
 
   useEffect(() => {
     return () => {
@@ -44,11 +45,7 @@ export const VpnKeyCode: React.FC<VpnKeyCodeProps> = ({
     
     if (copied) {
       setCopied(true);
-      
-      const webApp = getTelegramWebApp();
-      if (webApp) {
-        webApp.showAlert(tooltipCopiedText);
-      }
+      showAlert(tooltipCopiedText);
       
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -62,10 +59,7 @@ export const VpnKeyCode: React.FC<VpnKeyCodeProps> = ({
         action: 'copyToClipboard',
         component: 'VpnKeyCode'
       });
-      const webApp = getTelegramWebApp();
-      if (webApp) {
-        webApp.showAlert('Не удалось скопировать');
-      }
+      showAlert('Не удалось скопировать');
     }
   };
 
