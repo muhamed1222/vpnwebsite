@@ -86,16 +86,6 @@ export const login = async (silent = false): Promise<LoginResult> => {
 
     return { success: true };
   } catch (error) {
-    let errorMessage = 'Не удалось выполнить авторизацию';
-
-    if (error instanceof ApiException) {
-      // Используем сообщение из ApiException, оно уже на русском и понятное
-      errorMessage = error.message || 'Произошла ошибка при авторизации';
-    } else if (error instanceof Error) {
-      errorMessage = error.message || 'Произошла ошибка при авторизации';
-    }
-
-
     // В режиме разработки при локальном запуске (без Telegram) не показываем ошибки
     // Проверяем снова в catch блоке, на случай если проверка выше не сработала
     if (isDevelopment && isLocalDev) {
@@ -113,26 +103,12 @@ export const login = async (silent = false): Promise<LoginResult> => {
       return { success: true }; // Возвращаем success, чтобы приложение продолжало работать
     }
 
-    // В production или при работе через Telegram показываем ошибку пользователю
-    if (webApp) {
-      try {
-        // Проверяем, поддерживается ли метод showAlert (доступно с версии 6.2)
-        if (webApp.isVersionAtLeast('6.2') && typeof webApp.showAlert === 'function') {
-          webApp.showAlert(errorMessage);
-        } else {
-          // Fallback для старых версий Telegram WebApp или браузера
-          alert(errorMessage);
-        }
-      } catch (e) {
-        // Если метод не поддерживается, используем стандартный alert
-        alert(errorMessage);
-      }
-    } else {
-      // Fallback для браузера (только в production)
-      if (!isDevelopment) {
-        alert(errorMessage);
-      }
-    }
+    // Используем централизованный обработчик ошибок
+    const { handleApiError } = await import('./utils/errorHandler');
+    const errorMessage = handleApiError(error, {
+      action: 'auth',
+      page: 'auth',
+    });
 
     // В случае ошибки выставляем статус "none"
     subStore.setStatus('none');

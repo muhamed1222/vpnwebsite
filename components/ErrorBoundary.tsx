@@ -2,7 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { ExclamationCircleIcon as AlertCircle } from '@heroicons/react/24/outline';
-import { logError } from '@/lib/utils/logging';
+import { handleError } from '@/lib/utils/errorHandler';
 
 interface Props {
   children: ReactNode;
@@ -35,14 +35,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Логируем ошибку для отладки
-    logError('ErrorBoundary caught an error', error, {
+    // Используем централизованный обработчик ошибок
+    handleError(error, {
+      page: 'ErrorBoundary',
       action: 'componentDidCatch',
-      componentStack: errorInfo.componentStack
+      componentStack: errorInfo.componentStack,
+    }, {
+      showToUser: false, // Не показываем пользователю, так как уже показываем fallback UI
+      logError: true,
     });
-    
-    // Здесь можно отправить ошибку в систему мониторинга
-    // например, Sentry, LogRocket и т.д.
   }
 
   handleReset = () => {

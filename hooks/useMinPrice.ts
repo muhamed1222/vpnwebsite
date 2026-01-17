@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api';
-import { logError } from '@/lib/utils/logging';
 import { getCache, setCache } from '@/lib/utils/cache';
 import { checkTelegramWebApp } from '@/lib/telegram-fallback';
 import { ApiException } from '@/lib/api';
+import { handleApiError } from '@/lib/utils/errorHandler';
 
 const CACHE_KEY = 'min_price';
 const CACHE_TTL = 5 * 60 * 1000; // 5 минут
@@ -72,28 +72,11 @@ export function useMinPrice() {
            error.message.includes('Failed to fetch') ||
            error.name === 'NetworkError'));
       
-      // Не логируем ожидаемые сетевые ошибки
+      // Используем централизованный обработчик только для неожидаемых ошибок
       if (!isNetworkError) {
-        // Проверяем, не является ли ошибка пустым объектом
-        const isEmptyObject = error && typeof error === 'object' && Object.keys(error).length === 0;
-        
-        // Создаем нормализованную ошибку для логирования
-        let normalizedError: Error;
-        if (isEmptyObject) {
-          normalizedError = new Error('Failed to load tariffs (empty error object)');
-        } else if (error instanceof Error) {
-          normalizedError = error;
-        } else if (error instanceof Response) {
-          normalizedError = new Error(`HTTP ${error.status}: ${error.statusText || 'Failed to fetch'}`);
-        } else if (error && typeof error === 'object' && 'message' in error) {
-          normalizedError = new Error(String((error as { message: unknown }).message || 'Unknown error'));
-        } else {
-          normalizedError = new Error(String(error || 'Unknown error'));
-        }
-        
-        logError('Failed to load tariffs for min price', normalizedError, {
+        handleApiError(error, {
           page: 'home',
-          action: 'loadMinPrice'
+          action: 'loadMinPrice',
         });
       }
       

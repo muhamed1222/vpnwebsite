@@ -4,7 +4,7 @@ import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { triggerHaptic, getTelegramWebApp, getTelegramInitData } from '@/lib/telegram';
-import { logError } from '@/lib/utils/logging';
+import { handleComponentError } from '@/lib/utils/errorHandler';
 import { ContestSummary, ReferralFriend, TicketHistoryEntry } from '@/types/contest-v2';
 import ContestCountdownScreen from '@/components/blocks/ContestCountdownScreen';
 
@@ -54,7 +54,7 @@ export default function ContestPage() {
 
       // Сначала получаем активный конкурс
       const activeContestResponse = await fetch('/api/contest/active', { headers }).catch((e) => {
-        console.error('Active contest fetch error:', e);
+        // Ошибка сети - не критично, просто вернем null
         return null;
       });
 
@@ -138,8 +138,9 @@ export default function ContestPage() {
       setTickets(ticketsData.tickets || []);
 
     } catch (err) {
-      console.error('[ContestPage] Data load failed:', err);
-
+      // Используем централизованный обработчик ошибок
+      const errorMessage = handleComponentError(err, 'contest', 'loadContestData');
+      
       // FALLBACK FOR LOCAL DEVELOPMENT ONLY
       // Если произошла ошибка (например, 404 на API в dev environment), подставляем mock данные
       if (process.env.NODE_ENV === 'development') {
@@ -163,7 +164,7 @@ export default function ContestPage() {
         setError(null);
       } else {
         // В продакшене показываем ошибку
-        setError('Не удалось загрузить данные конкурса');
+        setError(errorMessage);
       }
     } finally {
       // Это гарантирует, что спиннер исчезнет в любом случае
@@ -269,13 +270,13 @@ export default function ContestPage() {
           const webApp = getTelegramWebApp();
           if (webApp) webApp.showAlert('✅ Реферальная ссылка скопирована');
         } else {
-          console.error('Clipboard copy failed');
+          handleComponentError(new Error('Clipboard copy failed'), 'contest', 'share');
         }
       }
     } catch (err) {
       // Ignore abort errors
       if (err instanceof Error && err.name !== 'AbortError') {
-        logError('Share failed', err);
+        handleComponentError(err, 'contest', 'share');
       }
     }
   }, [summary]);

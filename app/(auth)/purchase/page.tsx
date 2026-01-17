@@ -7,7 +7,7 @@ import { SUBSCRIPTION_CONFIG } from '@/lib/constants';
 import { api } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useSubscriptionStore } from '@/store/subscription.store';
-import { logError } from '@/lib/utils/logging';
+import { handleComponentError } from '@/lib/utils/errorHandler';
 
 // Lazy loading для модалки подтверждения покупки
 const PurchaseConfirmModal = lazy(() => 
@@ -87,10 +87,7 @@ export default function PurchasePage() {
       const result = hasPaidPayments || hasActiveSubscription;
       return result;
     } catch (error) {
-      logError('Error checking paid orders', error, {
-        page: 'purchase',
-        action: 'checkHasPaidOrders'
-      });
+      handleComponentError(error, 'purchase', 'checkHasPaidOrders');
       // Если не удалось загрузить данные, проверяем локальное состояние подписки
       if (subscription && subscription.status === 'active') {
         return true;
@@ -202,11 +199,8 @@ export default function PurchasePage() {
           setSelectedPlanId(defaultPlan.id);
         }
       } catch (err) {
-        logError('Failed to load tariffs', err, {
-          page: 'purchase',
-          action: 'loadTariffs'
-        });
-        setError('Не удалось загрузить тарифы. Пожалуйста, попробуйте позже.');
+        const errorMessage = handleComponentError(err, 'purchase', 'loadTariffs');
+        setError(errorMessage);
         // Fallback на дефолтные тарифы при ошибке
         setPlans([
           { id: 'plan_30', duration: '1 месяц', totalPrice: 150, monthlyPrice: 150, days: 30 },

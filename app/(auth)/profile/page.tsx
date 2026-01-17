@@ -17,7 +17,7 @@ import { useUserStore } from '@/store/user.store';
 import { VpnConnectionCard } from '@/components/blocks/VpnConnectionCard';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { config } from '@/lib/config';
-import { logError } from '@/lib/utils/logging';
+import { handleComponentError } from '@/lib/utils/errorHandler';
 import { copyToClipboard } from '@/lib/utils/clipboard';
 
 // Lazy loading для модалок - загружаются только когда открыты
@@ -67,11 +67,7 @@ export default function ProfilePage() {
         webApp.showAlert(`ID ${idToCopy} скопирован в буфер обмена`);
       }
     } else {
-      logError('Failed to copy ID to clipboard', new Error('Clipboard API not available'), {
-        page: 'profile',
-        action: 'copyId',
-        userId: user?.id
-      });
+      handleComponentError(new Error('Clipboard API not available'), 'profile', 'copyId');
       
       // Fallback: показываем сообщение об ошибке
       const webApp = getTelegramWebApp();
@@ -94,11 +90,7 @@ export default function ProfilePage() {
         window.open(instructionUrl, '_blank');
       }
     } catch (error) {
-      logError('Failed to open instruction link', error, {
-        page: 'profile',
-        action: 'openInstruction',
-        url: instructionUrl
-      });
+      handleComponentError(error, 'profile', 'openInstruction');
       // Fallback: попытка открыть через window.open
       window.open(instructionUrl, '_blank');
     }

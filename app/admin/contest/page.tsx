@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { getTelegramInitData } from '@/lib/telegram';
-import { logError } from '@/lib/utils/logging';
+import { handleComponentError } from '@/lib/utils/errorHandler';
 
 interface ContestTicket {
   referrer_id: number; // ID участника (получатель билета)
@@ -114,11 +114,8 @@ export default function AdminContestPage() {
 
         setTickets(ticketsData.tickets || []);
       } catch (err) {
-        logError('Failed to load contest participants', err, {
-          page: 'admin-contest',
-          action: 'loadData'
-        });
-        setError('Произошла ошибка при загрузке данных');
+        const errorMessage = handleComponentError(err, 'admin-contest', 'loadData');
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

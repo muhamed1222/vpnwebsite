@@ -2,6 +2,7 @@ import { getTelegramInitData } from './telegram';
 import { config } from './config';
 import { withRetry, withTimeout } from './api-retry';
 import { logWarn, logError } from './utils/logging';
+import { handleApiError } from './utils/errorHandler';
 
 export interface ApiError {
   error: string;
@@ -164,9 +165,18 @@ export const apiFetch = async <T = unknown>(
       );
     }
 
-    // Неизвестная ошибка
+    // Неизвестная ошибка - используем централизованный обработчик для получения сообщения
+    // НЕ показываем ошибку пользователю здесь, так как это будет сделано в компоненте
+    const userMessage = handleApiError(error, {
+      action: 'apiFetch',
+      endpoint,
+    }, {
+      showToUser: false, // Не показываем здесь, компонент сам решит когда показывать
+      logError: true,
+    });
+
     throw new ApiException(
-      'Что-то пошло не так. Попробуйте перезагрузить приложение.',
+      userMessage,
       500,
       error
     );
@@ -209,10 +219,10 @@ export const api = {
         discount: data.discount || null,
       };
     } catch (error) {
-      // Логируем ошибку для отладки
-      logError('[API auth] Error', error, {
+      // Используем централизованный обработчик ошибок
+      handleApiError(error, {
         action: 'auth',
-        endpoint: '/api/me'
+        endpoint: '/api/me',
       });
       throw error;
     }
