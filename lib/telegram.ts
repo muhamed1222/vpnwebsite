@@ -1,5 +1,18 @@
 import type { TelegramWebApp } from '@/types/telegram';
 
+/**
+ * Получает экземпляр Telegram WebApp API
+ * 
+ * @returns Экземпляр TelegramWebApp или null, если не доступен (не в Telegram или на сервере)
+ * 
+ * @example
+ * ```ts
+ * const webApp = getTelegramWebApp();
+ * if (webApp) {
+ *   webApp.showAlert('Привет!');
+ * }
+ * ```
+ */
 export const getTelegramWebApp = (): TelegramWebApp | null => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     return window.Telegram.WebApp;
@@ -7,6 +20,18 @@ export const getTelegramWebApp = (): TelegramWebApp | null => {
   return null;
 };
 
+/**
+ * Инициализирует Telegram WebApp (вызывает ready() и expand())
+ * Настраивает цвета темы, если доступны
+ * 
+ * @example
+ * ```ts
+ * // В компоненте при монтировании
+ * useEffect(() => {
+ *   initTelegramWebApp();
+ * }, []);
+ * ```
+ */
 export const initTelegramWebApp = () => {
   const webApp = getTelegramWebApp();
   if (webApp) {
@@ -36,6 +61,18 @@ export const initTelegramWebApp = () => {
   }
 };
 
+/**
+ * Получает initData строку из Telegram WebApp
+ * Используется для авторизации API запросов
+ * 
+ * @returns initData строка или пустая строка, если не доступна
+ * 
+ * @example
+ * ```ts
+ * const initData = getTelegramInitData();
+ * // Используется в заголовках запросов: Authorization: ${initData}
+ * ```
+ */
 export const getTelegramInitData = () => {
   const webApp = getTelegramWebApp();
   return webApp?.initData || '';
@@ -43,11 +80,36 @@ export const getTelegramInitData = () => {
 
 import type { TelegramUser } from '@/types/telegram';
 
+/**
+ * Получает данные пользователя Telegram из WebApp
+ * 
+ * @returns Объект TelegramUser или null, если не доступен
+ * 
+ * @example
+ * ```ts
+ * const user = getTelegramUser();
+ * if (user) {
+ *   console.log(`Привет, ${user.first_name}!`);
+ * }
+ * ```
+ */
 export const getTelegramUser = (): TelegramUser | null => {
   const webApp = getTelegramWebApp();
   return webApp?.initDataUnsafe?.user || null;
 };
 
+/**
+ * Получает платформу, на которой запущено приложение Telegram
+ * Преобразует внутренние названия платформ в понятные
+ * 
+ * @returns Название платформы ('iOS', 'Android', 'macOS', 'Desktop', 'Web' или 'Devices')
+ * 
+ * @example
+ * ```ts
+ * const platform = getTelegramPlatform();
+ * // 'iOS' | 'Android' | 'macOS' | 'Desktop' | 'Web' | 'Devices'
+ * ```
+ */
 export const getTelegramPlatform = () => {
   const webApp = getTelegramWebApp();
   const platform = webApp?.platform || 'unknown';

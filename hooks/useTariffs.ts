@@ -18,6 +18,25 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 минут
 
 /**
  * Хук для загрузки тарифов с кэшированием
+ * 
+ * Использует двухуровневое кэширование:
+ * 1. localStorage кэш (5 минут) для быстрой загрузки при повторном открытии
+ * 2. API кэш (cachedFetch) для дедупликации запросов в памяти
+ * 
+ * При монтировании проверяет localStorage кэш и сразу показывает данные,
+ * затем загружает актуальные данные в фоне (не блокируя UI).
+ * 
+ * @returns Объект с тарифами, состоянием загрузки и ошибкой
+ * 
+ * @example
+ * ```tsx
+ * const { tariffs, loading, error } = useTariffs();
+ * 
+ * if (loading) return <Loading />;
+ * if (error) return <Error message={error} />;
+ * 
+ * return tariffs.map(tariff => <TariffCard key={tariff.id} {...tariff} />);
+ * ```
  */
 export function useTariffs() {
   const [tariffs, setTariffs] = useState<Tariff[]>([]);

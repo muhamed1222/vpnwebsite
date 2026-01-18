@@ -110,14 +110,38 @@ export function getUserFriendlyMessage(error: string | Error | unknown): string 
 }
 
 /**
- * Преобразует HTTP статус в понятное сообщение
+ * Преобразует HTTP статус код в понятное сообщение для пользователя
+ * 
+ * @param status - HTTP статус код (например, 404, 500)
+ * @returns Понятное сообщение на русском языке или сообщение по умолчанию
+ * 
+ * @example
+ * ```ts
+ * const message = getHttpStatusMessage(404);
+ * // "Запрашиваемый ресурс не найден."
+ * ```
  */
 export function getHttpStatusMessage(status: number): string {
   return HTTP_STATUS_MESSAGES[status] || 'Ошибка сервера. Попробуйте позже.';
 }
 
 /**
- * Проверяет, является ли сообщение техническим
+ * Проверяет, содержит ли сообщение технические термины
+ * 
+ * Используется для определения, нужно ли преобразовывать сообщение
+ * в пользовательское. Ищет паттерны вроде "API endpoint", "CORS",
+ * "NetworkError", HTTP статусы и т.д.
+ * 
+ * @param message - Сообщение для проверки
+ * @returns true, если сообщение содержит технические термины
+ * 
+ * @example
+ * ```ts
+ * if (isTechnicalMessage(error.message)) {
+ *   // Преобразуем техническое сообщение в понятное
+ *   return getUserFriendlyMessage(error.message);
+ * }
+ * ```
  */
 export function isTechnicalMessage(message: string): boolean {
   const technicalPatterns = [

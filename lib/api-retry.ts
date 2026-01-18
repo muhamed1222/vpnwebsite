@@ -43,6 +43,22 @@ export async function withRetry<T>(
 
 /**
  * Выполняет запрос с таймаутом
+ * 
+ * Если запрос не завершился в течение указанного времени,
+ * выбрасывает ApiException с статусом 408 (Request Timeout).
+ * 
+ * @param promise - Promise запроса для выполнения
+ * @param timeoutMs - Время таймаута в миллисекундах (по умолчанию из API_CONFIG.TIMEOUT)
+ * @returns Результат запроса
+ * @throws ApiException с статусом 408 при превышении таймаута
+ * 
+ * @example
+ * ```ts
+ * const response = await withTimeout(
+ *   fetch('/api/data'),
+ *   5000 // 5 секунд
+ * );
+ * ```
  */
 export async function withTimeout<T>(
   promise: Promise<T>,
