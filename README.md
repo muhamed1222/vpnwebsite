@@ -290,9 +290,16 @@ npm start
 
 ## 📚 API документация
 
-Полная документация API доступна в файле [API_DOCUMENTATION.md](./API_DOCUMENTATION.md).
+### 🏠 Центральная документация:
+**→ [`Outlivion baza/docs/`](../docs/README.md)**
+- [`03-flows/purchase-and-key-issue.md`](../docs/03-flows/purchase-and-key-issue.md) - Mini App purchase flow
+- [`04-apis/vpnwebsite.md`](../docs/04-apis/vpnwebsite.md) - API usage guide (TODO)
+- [`04-apis/vpn_api.md`](../docs/04-apis/vpn_api.md) - vpn_api endpoints (TODO)
 
-### Основные endpoints
+### 📁 Локальная документация:
+Полная документация API доступна в файле [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) (TODO: создать).
+
+### Основные endpoints (проксируются через Next.js):
 
 - `GET /api/tariffs` - Получение тарифов
 - `GET /api/user/status` - Статус пользователя
