@@ -3,7 +3,7 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { triggerHaptic, getTelegramWebApp, getTelegramInitData } from '@/lib/telegram';
+import { triggerHaptic, getTelegramWebApp, getTelegramInitData, waitForTelegramInit } from '@/lib/telegram';
 import { handleComponentError } from '@/lib/utils/errorHandler';
 import { ContestSummary, ReferralFriend, TicketHistoryEntry, Contest } from '@/types/contest';
 import { DELAYS } from '@/lib/constants';
@@ -39,8 +39,11 @@ export default function ContestPage() {
     setError(null);
 
     try {
+      // Ожидаем инициализации Telegram WebApp (важно для Android)
+      const isReady = await waitForTelegramInit();
+      
       // Получаем Telegram initData для авторизации
-      const initData = getTelegramInitData();
+      const initData = isReady ? getTelegramInitData() : '';
 
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
