@@ -40,10 +40,13 @@ export default function ContestPage() {
 
     try {
       // Ожидаем инициализации Telegram WebApp (важно для Android)
+      console.log('[Contest] Waiting for Telegram init...');
       const isReady = await waitForTelegramInit();
+      console.log('[Contest] Telegram ready:', isReady);
       
       // Получаем Telegram initData для авторизации
       const initData = isReady ? getTelegramInitData() : '';
+      console.log('[Contest] initData length:', initData?.length || 0);
 
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -59,8 +62,10 @@ export default function ContestPage() {
       }
 
       // Сначала получаем активный конкурс
-      const activeContestResponse = await fetch('/api/contest/active', { headers, cache: 'no-store' }).catch(() => {
+      console.log('[Contest] Fetching active contest...');
+      const activeContestResponse = await fetch('/api/contest/active', { headers, cache: 'no-store' }).catch((err) => {
         // Ошибка сети - не критично, просто вернем null
+        console.error('[Contest] Fetch error:', err);
         return null;
       });
 
@@ -70,9 +75,12 @@ export default function ContestPage() {
         return;
       }
 
+      console.log('[Contest] Response status:', activeContestResponse.status);
+
       let activeContestData;
       try {
         activeContestData = await activeContestResponse.json();
+        console.log('[Contest] Response data:', JSON.stringify(activeContestData).substring(0, 200));
       } catch {
         setError('Ошибка обработки данных. Попробуйте позже.');
         return;
